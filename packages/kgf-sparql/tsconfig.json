@@ -6,7 +6,7 @@
   ],
   "references": [
     {
-      "path": "../actor-rdf-join-selectivity-kgf"
+      "path": "../actor-rdf-join-selectivity-void"
     }
   ]
 }

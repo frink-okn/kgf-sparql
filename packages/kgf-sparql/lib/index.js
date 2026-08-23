@@ -14,9 +14,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KEY_KGF_STATISTICS = void 0;
+exports.KEY_VOID_STATISTICS = void 0;
 __exportStar(require("./QueryEngine"), exports);
 __exportStar(require("./QueryEngineFactory"), exports);
-var actor_rdf_join_selectivity_kgf_1 = require("@kgf/actor-rdf-join-selectivity-kgf");
-Object.defineProperty(exports, "KEY_KGF_STATISTICS", { enumerable: true, get: function () { return actor_rdf_join_selectivity_kgf_1.KEY_KGF_STATISTICS; } });
+var actor_rdf_join_selectivity_void_1 = require("@kgf/actor-rdf-join-selectivity-void");
+Object.defineProperty(exports, "KEY_VOID_STATISTICS", { enumerable: true, get: function () { return actor_rdf_join_selectivity_void_1.KEY_VOID_STATISTICS; } });
 //# sourceMappingURL=index.js.map

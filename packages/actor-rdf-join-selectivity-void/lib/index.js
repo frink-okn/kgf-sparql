@@ -14,6 +14,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./ActorRdfJoinSelectivityKgf"), exports);
-__exportStar(require("./KgfStatistics"), exports);
+__exportStar(require("./ActorRdfJoinSelectivityVoid"), exports);
+__exportStar(require("./VoidStatistics"), exports);
 //# sourceMappingURL=index.js.map

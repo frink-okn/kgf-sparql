@@ -2,7 +2,7 @@
   "@context": [
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/runner/^5.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/config-query-sparql/^5.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-kgf/^0.0.0/components/context.jsonld"
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-void/^0.0.0/components/context.jsonld"
   ],
   "import": [
     "ccqs:config/config-default.json"
@@ -11,9 +11,9 @@
   "@type": "Runner",
   "actors": [
     {
-      "@id": "urn:kgf:rdf-join-selectivity/actors#kgf",
-      "@type": "ActorRdfJoinSelectivityKgf",
-      "accuracy": 0.9
+      "@id": "urn:kgf:rdf-join-selectivity/actors#void",
+      "@type": "ActorRdfJoinSelectivityVoid",
+      "accuracy": 0.8
     }
   ]
 }

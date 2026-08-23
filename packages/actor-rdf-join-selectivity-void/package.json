@@ -1,7 +1,7 @@
 {
-  "name": "@kgf/actor-rdf-join-selectivity-kgf",
+  "name": "@kgf/actor-rdf-join-selectivity-void",
   "version": "0.1.0",
-  "description": "A KGF-aware RDF join selectivity actor for Comunica",
+  "description": "A Comunica join-selectivity actor that estimates from published VoID statistics",
   "license": "MIT",
   "lsd:module": true,
   "main": "lib/index.js",
@@ -36,6 +36,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/frink-okn/kgf-sparql.git",
-    "directory": "packages/actor-rdf-join-selectivity-kgf"
+    "directory": "packages/actor-rdf-join-selectivity-void"
   }
 }

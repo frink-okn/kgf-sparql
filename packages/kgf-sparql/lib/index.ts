@@ -1,8 +1,9 @@
 export * from './QueryEngine';
 export * from './QueryEngineFactory';
-export { KEY_KGF_STATISTICS } from '@kgf/actor-rdf-join-selectivity-kgf';
+export { KEY_VOID_STATISTICS } from '@kgf/actor-rdf-join-selectivity-void';
 export type {
-  IKgfDatasetStats,
-  IKgfPredicateStats,
-  KgfStatisticsRegistry,
-} from '@kgf/actor-rdf-join-selectivity-kgf';
+  IVoidClassPartition,
+  IVoidDatasetStatistics,
+  IVoidPropertyPartition,
+  VoidStatisticsRegistry,
+} from '@kgf/actor-rdf-join-selectivity-void';

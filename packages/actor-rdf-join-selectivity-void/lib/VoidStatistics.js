@@ -1,3 +1,3 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//# sourceMappingURL=KgfStatistics.js.map
+//# sourceMappingURL=VoidStatistics.js.map

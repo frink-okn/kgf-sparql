@@ -1,5 +1,5 @@
 export * from './QueryEngine';
 export * from './QueryEngineFactory';
-export { KEY_KGF_STATISTICS } from '@kgf/actor-rdf-join-selectivity-kgf';
-export type { IKgfDatasetStats, IKgfPredicateStats, KgfStatisticsRegistry, } from '@kgf/actor-rdf-join-selectivity-kgf';
+export { KEY_VOID_STATISTICS } from '@kgf/actor-rdf-join-selectivity-void';
+export type { IVoidClassPartition, IVoidDatasetStatistics, IVoidPropertyPartition, VoidStatisticsRegistry, } from '@kgf/actor-rdf-join-selectivity-void';
 //# sourceMappingURL=index.d.ts.map
