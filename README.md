@@ -29,6 +29,26 @@ Measured on one benchmark query against a live KGF server:
 Same answers. The bindings column is the point: stock Comunica never uses brTPF bindings
 pushdown on this query, because the bad estimates price the pushdown operator out.
 
+### Across a 60-query corpus, it is a *tail* fix
+
+Measured over all 60 single-KG tasks of the mcp-okn benchmark, both arms back to back:
+
+| | |
+|---|---|
+| requests | 82,186 → 56,772 (1.45x) |
+| per task | **37 unchanged, 5 better, 2 worse** |
+| median per-task request ratio | **1.000** |
+| wrong answers | **0** |
+
+**99.6% of that saving is one query.** Excluding it, the corpus total is unchanged (1.00x).
+The estimator does nothing for plans that were already fine, and rescues the ones that were
+catastrophic — including one query that ran out of memory in stock Comunica and completes in
+5.9 s with VoID. Two queries got modestly worse; the worst is an aggregate-over-everything
+query that gains nothing from pushdown but is flipped to it anyway (see the caveats below).
+
+If your workload is agent-driven, tail risk is usually what matters. If you need broad
+throughput, this is not that.
+
 ## Install
 
 ```bash
@@ -131,8 +151,16 @@ Real data breaks both:
 - **Untrustworthy VoID.** Statistics are taken on faith. For a third-party endpoint,
   consider a higher `safetyFactor` or simply not registering it.
 
-Note also that Comunica's join actors carry hand-tuned `selectivityModifier` constants
+**Calibration.** Comunica's join actors carry hand-tuned `selectivityModifier` constants
 (`0.0001` for `multi-smallest-filter-bindings`) that exist to compensate for the syntactic
 heuristic's over-estimation. Supplying accurate selectivity leaves those corrections
-double-counted. That biases toward pushdown, which is usually what you want against a
-paged remote source — but it is a calibration artifact, not a judgement.
+double-counted, biasing toward pushdown. That is usually what you want against a paged remote
+source, but it is a calibration artifact, not a judgement — and it is the measured cause of
+the corpus's worst regression, on a `GROUP BY`/`COUNT` query that must read everything and so
+gains nothing from pushdown.
+
+Setting `selectivityModifier` to `1` removes that regression exactly, but destroys two of the
+wins. A sweep across `0.0001 / 0.01 / 0.1 / 1` moved the total by under 6%, against a baseline
+3.2x worse than any of them. **The modifier is second-order; supplying VoID at all is the
+first-order effect.** Prefer `safetyFactor` on this actor as the tuning lever, since it does
+not perturb plans for sources without statistics.
