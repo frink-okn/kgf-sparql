@@ -1,0 +1,9 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX obo:  <http://purl.obolibrary.org/obo/>
+PREFIX edam: <http://edamontology.org/>
+SELECT ?s ?name ?dsstox ?cas WHERE {
+  ?s a obo:CHEMINF_000000 ;
+     rdfs:label ?name .
+  OPTIONAL { ?s edam:has_identifier ?dsstox . ?dsstox a obo:CHEMINF_000568 . }
+  OPTIONAL { ?s edam:has_identifier ?cas .    ?cas    a obo:CHEMINF_000446 . }
+} LIMIT 10

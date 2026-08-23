@@ -1,0 +1,45 @@
+{
+  "name": "kgf-sparql",
+  "version": "0.1.0",
+  "description": "Comunica SPARQL engine tuned for Knowledge Graph Fragments endpoints",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "kgf-sparql": "bin/query.js"
+  },
+  "files": [
+    "bin/**/*.js",
+    "config",
+    "engine-default.js",
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b . && comunica-compile-config config/config-default.json > engine-default.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@comunica/actor-init-query": "^5.3.0",
+    "@comunica/config-query-sparql": "^5.3.0",
+    "@comunica/query-sparql": "^5.3.0",
+    "@comunica/runner": "^5.3.0",
+    "@comunica/runner-cli": "^5.3.0",
+    "@comunica/types": "^5.3.0",
+    "@kgf/actor-rdf-join-selectivity-kgf": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "directory": "packages/kgf-sparql"
+  }
+}

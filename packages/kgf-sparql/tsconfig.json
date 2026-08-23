@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {},
+  "include": [
+    "lib/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../actor-rdf-join-selectivity-kgf"
+    }
+  ]
+}
