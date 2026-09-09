@@ -5,12 +5,16 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w @kgf/actor-rdf-join-selectivity-void && npm run build -w @kgf/actor-query-source-identify-kgf && npm run build -w kgf-sparql",
+    "test": "npm run build && node --test test/native-kgf.test.mjs",
+    "test:live": "node test/native-kgf-live.mjs",
     "clean": "rm -rf packages/*/lib/*.js packages/*/lib/*.d.ts packages/*/lib/*.map packages/*/components packages/*/*.tsbuildinfo packages/kgf-sparql/engine-default.js"
   },
   "devDependencies": {
     "@comunica/runner": "^5.3.0",
     "componentsjs-generator": "^4.2.0",
+    "n3": "^1.26.0",
+    "rdf-data-factory": "^2.0.2",
     "typescript": "^5.9.0"
   }
 }

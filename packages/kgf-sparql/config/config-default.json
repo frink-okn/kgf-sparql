@@ -2,7 +2,8 @@
   "@context": [
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/runner/^5.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/config-query-sparql/^5.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-void/^0.0.0/components/context.jsonld"
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-void/^0.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-query-source-identify-kgf/^0.0.0/components/context.jsonld"
   ],
   "import": [
     "ccqs:config/config-default.json"
@@ -10,6 +11,13 @@
   "@id": "urn:comunica:default:Runner",
   "@type": "Runner",
   "actors": [
+    {
+      "@id": "urn:kgf:query-source-identify/actors#kgf",
+      "@type": "ActorQuerySourceIdentifyKgf",
+      "beforeActors": [{ "@id": "urn:comunica:default:query-source-identify/actors#hypermedia" }],
+      "mediatorHttp": { "@id": "urn:comunica:default:http/mediators#main" },
+      "mediatorMergeBindingsContext": { "@id": "urn:comunica:default:merge-bindings-context/mediators#main" }
+    },
     {
       "@id": "urn:kgf:rdf-join-selectivity/actors#void",
       "@type": "ActorRdfJoinSelectivityVoid",

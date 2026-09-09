@@ -12,9 +12,15 @@ This actor connects those statistics to the join-selectivity bus, where they cha
 - Registers at `accuracy: 0.8`, outbidding the shipped `variable-counting` heuristic's `0.5`.
 - **Declines** when no join entry resolves to an endpoint with known statistics, so the
   default actor answers and behaviour is unchanged everywhere else.
-- Uses VoID only for the *divisor* — the distinct counts. Pattern cardinality keeps coming
-  from `hydra:totalItems`, which on an LDF endpoint is exact.
-- Makes no HTTP requests of its own.
+- Uses VoID only for the *divisor* — the distinct counts. Pattern cardinality comes
+  from source metadata: `hydra:totalItems` for LDF, or `/count` for native KGF.
+- Accepts explicit registries through `KEY_VOID_STATISTICS` and static configuration.
+  These take precedence over a source's lazy statistics provider.
+- Can invoke `metadata[VOID_STATISTICS_PROVIDER]()` while testing a pairwise join
+  with shared variables. Native KGF uses this to load relevant `/schema` partitions
+  on demand; no full VoID download or config preparation is required. Sources should
+  memoize providers. Missing statistics or provider failures leave the default
+  estimator available. The actor itself contains no HTTP transport.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
 with this actor already registered.

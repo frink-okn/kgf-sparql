@@ -35,3 +35,7 @@ export interface IVoidDatasetStatistics {
 
 /** Endpoint URL -> VoID statistics for the dataset that endpoint serves. */
 export type VoidStatisticsRegistry = Record<string, IVoidDatasetStatistics>;
+
+/** Optional lazy provider on pattern metadata; invoked only when estimating a join. */
+export const VOID_STATISTICS_PROVIDER = '@kgf:getVoidStatistics';
+export type VoidStatisticsProvider = () => Promise<IVoidDatasetStatistics | undefined>;

@@ -7,6 +7,7 @@ import type { IJoinEntry } from '@comunica/types';
 import { Algebra } from '@comunica/utils-algebra';
 import { getOperationSource } from '@comunica/utils-query-operation';
 import type { IVoidDatasetStatistics, VoidStatisticsRegistry } from './VoidStatistics';
+import { VOID_STATISTICS_PROVIDER } from './VoidStatistics';
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
@@ -40,8 +41,8 @@ export const KEY_VOID_STATISTICS = new ActionContextKey<VoidStatisticsRegistry>(
  *
  * ## What it deliberately does NOT do
  *
- * It never estimates |A| or |B|. Those come from `hydra:totalItems`, which on an LDF
- * endpoint is an *exact* per-pattern count; VoID's own pattern-cardinality formulae
+ * It never estimates |A| or |B|. Those come from source metadata (`hydra:totalItems`
+ * on LDF, or KGF's `/count` endpoint); VoID's own pattern-cardinality formulae
  * would be a regression. VoID is used only for the divisor.
  *
  * ## Known limits of the estimate
@@ -72,7 +73,11 @@ export class ActorRdfJoinSelectivityVoid extends ActorRdfJoinSelectivity {
     if (!action.entries.every(entry => entry.operation.type === Algebra.Types.PATTERN)) {
       return failTest(`${this.name} only estimates joins between triple patterns`);
     }
-    if (!action.entries.some(entry => this.statsFor(entry, action))) {
+    if (ActorRdfJoinSelectivityVoid.sharedVariables(action.entries[0], action.entries[1]).length === 0) {
+      return failTest(`${this.name} found no shared variables`);
+    }
+    const statistics = await Promise.all(action.entries.map(entry => this.statsFor(entry, action)));
+    if (!statistics.some(Boolean)) {
       return failTest(`${this.name} found no source with published VoID statistics`);
     }
     return passTest({ accuracy: this.accuracy });
@@ -83,6 +88,7 @@ export class ActorRdfJoinSelectivityVoid extends ActorRdfJoinSelectivity {
     // Cardinality is memoized by ActorRdfJoin, so reading it costs no HTTP.
     const metadatas = await Promise.all(action.entries.map(async entry => entry.output.metadata()));
     const [ leftCard, rightCard ] = metadatas.map(meta => meta.cardinality.value);
+    const [ leftStats, rightStats ] = await Promise.all(action.entries.map(entry => this.statsFor(entry, action)));
     if (![ leftCard, rightCard ].every(card => Number.isFinite(card) && card > 0)) {
       return { selectivity: 1 };
     }
@@ -96,8 +102,8 @@ export class ActorRdfJoinSelectivityVoid extends ActorRdfJoinSelectivity {
     let estimate = crossProduct;
     for (const variable of shared) {
       estimate /= Math.max(
-        this.distinctValues(left, variable, leftCard, action),
-        this.distinctValues(right, variable, rightCard, action),
+        this.distinctValues(left, variable, leftCard, leftStats),
+        this.distinctValues(right, variable, rightCard, rightStats),
         1,
       );
     }
@@ -117,10 +123,9 @@ export class ActorRdfJoinSelectivityVoid extends ActorRdfJoinSelectivity {
     entry: IJoinEntry,
     variable: string,
     cardinality: number,
-    action: IActionRdfJoinSelectivity,
+    stats: IVoidDatasetStatistics | undefined,
   ): number {
     const pattern = <Algebra.Pattern> entry.operation;
-    const stats = this.statsFor(entry, action);
     const predicate = pattern.predicate.termType === 'NamedNode' ? pattern.predicate.value : undefined;
     const partition = predicate ? stats?.propertyPartitions?.[predicate] : undefined;
 
@@ -148,13 +153,26 @@ export class ActorRdfJoinSelectivityVoid extends ActorRdfJoinSelectivity {
   }
 
   /** VoID statistics for the endpoint this entry is assigned to, if any are known. */
-  private statsFor(entry: IJoinEntry, action: IActionRdfJoinSelectivity): IVoidDatasetStatistics | undefined {
+  private async statsFor(entry: IJoinEntry, action: IActionRdfJoinSelectivity): Promise<IVoidDatasetStatistics | undefined> {
     const wrapper = getOperationSource(entry.operation);
     if (!wrapper) {
       return undefined;
     }
     const url = String(wrapper.source.referenceValue);
-    return action.context.get(KEY_VOID_STATISTICS)?.[url] ?? this.staticStatistics[url];
+    const supplied = action.context.get(KEY_VOID_STATISTICS)?.[url] ?? this.staticStatistics[url];
+    if (supplied) {
+      return supplied;
+    }
+    const metadata = await entry.output.metadata();
+    const provider = metadata[VOID_STATISTICS_PROVIDER];
+    if (typeof provider === 'function') {
+      try {
+        return await provider();
+      } catch {
+        // Missing or unavailable statistics must leave the default estimator usable.
+      }
+    }
+    return undefined;
   }
 
   private static sharedVariables(left: IJoinEntry, right: IJoinEntry): string[] {

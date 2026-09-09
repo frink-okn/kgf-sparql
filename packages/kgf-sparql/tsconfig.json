@@ -6,6 +6,9 @@
   ],
   "references": [
     {
+      "path": "../actor-query-source-identify-kgf"
+    },
+    {
       "path": "../actor-rdf-join-selectivity-void"
     }
   ]

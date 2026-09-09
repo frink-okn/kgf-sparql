@@ -5,6 +5,7 @@ const bus_rdf_join_selectivity_1 = require("@comunica/bus-rdf-join-selectivity")
 const core_1 = require("@comunica/core");
 const utils_algebra_1 = require("@comunica/utils-algebra");
 const utils_query_operation_1 = require("@comunica/utils-query-operation");
+const VoidStatistics_1 = require("./VoidStatistics");
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 /**
  * Context key carrying VoID statistics, keyed by endpoint URL.
@@ -33,8 +34,8 @@ exports.KEY_VOID_STATISTICS = new core_1.ActionContextKey('@kgf/actor-rdf-join-s
  *
  * ## What it deliberately does NOT do
  *
- * It never estimates |A| or |B|. Those come from `hydra:totalItems`, which on an LDF
- * endpoint is an *exact* per-pattern count; VoID's own pattern-cardinality formulae
+ * It never estimates |A| or |B|. Those come from source metadata (`hydra:totalItems`
+ * on LDF, or KGF's `/count` endpoint); VoID's own pattern-cardinality formulae
  * would be a regression. VoID is used only for the divisor.
  *
  * ## Known limits of the estimate
@@ -63,7 +64,11 @@ class ActorRdfJoinSelectivityVoid extends bus_rdf_join_selectivity_1.ActorRdfJoi
         if (!action.entries.every(entry => entry.operation.type === utils_algebra_1.Algebra.Types.PATTERN)) {
             return (0, core_1.failTest)(`${this.name} only estimates joins between triple patterns`);
         }
-        if (!action.entries.some(entry => this.statsFor(entry, action))) {
+        if (ActorRdfJoinSelectivityVoid.sharedVariables(action.entries[0], action.entries[1]).length === 0) {
+            return (0, core_1.failTest)(`${this.name} found no shared variables`);
+        }
+        const statistics = await Promise.all(action.entries.map(entry => this.statsFor(entry, action)));
+        if (!statistics.some(Boolean)) {
             return (0, core_1.failTest)(`${this.name} found no source with published VoID statistics`);
         }
         return (0, core_1.passTest)({ accuracy: this.accuracy });
@@ -73,6 +78,7 @@ class ActorRdfJoinSelectivityVoid extends bus_rdf_join_selectivity_1.ActorRdfJoi
         // Cardinality is memoized by ActorRdfJoin, so reading it costs no HTTP.
         const metadatas = await Promise.all(action.entries.map(async (entry) => entry.output.metadata()));
         const [leftCard, rightCard] = metadatas.map(meta => meta.cardinality.value);
+        const [leftStats, rightStats] = await Promise.all(action.entries.map(entry => this.statsFor(entry, action)));
         if (![leftCard, rightCard].every(card => Number.isFinite(card) && card > 0)) {
             return { selectivity: 1 };
         }
@@ -83,7 +89,7 @@ class ActorRdfJoinSelectivityVoid extends bus_rdf_join_selectivity_1.ActorRdfJoi
         const crossProduct = leftCard * rightCard;
         let estimate = crossProduct;
         for (const variable of shared) {
-            estimate /= Math.max(this.distinctValues(left, variable, leftCard, action), this.distinctValues(right, variable, rightCard, action), 1);
+            estimate /= Math.max(this.distinctValues(left, variable, leftCard, leftStats), this.distinctValues(right, variable, rightCard, rightStats), 1);
         }
         // Guard the dangerous direction: never predict fewer than one row, and allow a
         // deliberate over-estimate as insurance against skew the statistics cannot express.
@@ -95,9 +101,8 @@ class ActorRdfJoinSelectivityVoid extends bus_rdf_join_selectivity_1.ActorRdfJoi
      * Falls through: property partition, then rdf:type reasoning, then the dataset-wide
      * count, then the pattern cardinality.
      */
-    distinctValues(entry, variable, cardinality, action) {
+    distinctValues(entry, variable, cardinality, stats) {
         const pattern = entry.operation;
-        const stats = this.statsFor(entry, action);
         const predicate = pattern.predicate.termType === 'NamedNode' ? pattern.predicate.value : undefined;
         const partition = predicate ? stats?.propertyPartitions?.[predicate] : undefined;
         if (pattern.subject.termType === 'Variable' && pattern.subject.value === variable) {
@@ -121,13 +126,27 @@ class ActorRdfJoinSelectivityVoid extends bus_rdf_join_selectivity_1.ActorRdfJoi
         return cardinality;
     }
     /** VoID statistics for the endpoint this entry is assigned to, if any are known. */
-    statsFor(entry, action) {
+    async statsFor(entry, action) {
         const wrapper = (0, utils_query_operation_1.getOperationSource)(entry.operation);
         if (!wrapper) {
             return undefined;
         }
         const url = String(wrapper.source.referenceValue);
-        return action.context.get(exports.KEY_VOID_STATISTICS)?.[url] ?? this.staticStatistics[url];
+        const supplied = action.context.get(exports.KEY_VOID_STATISTICS)?.[url] ?? this.staticStatistics[url];
+        if (supplied) {
+            return supplied;
+        }
+        const metadata = await entry.output.metadata();
+        const provider = metadata[VoidStatistics_1.VOID_STATISTICS_PROVIDER];
+        if (typeof provider === 'function') {
+            try {
+                return await provider();
+            }
+            catch {
+                // Missing or unavailable statistics must leave the default estimator usable.
+            }
+        }
+        return undefined;
     }
     static sharedVariables(left, right) {
         const names = (entry) => {

@@ -31,8 +31,8 @@ export declare const KEY_VOID_STATISTICS: ActionContextKey<VoidStatisticsRegistr
  *
  * ## What it deliberately does NOT do
  *
- * It never estimates |A| or |B|. Those come from `hydra:totalItems`, which on an LDF
- * endpoint is an *exact* per-pattern count; VoID's own pattern-cardinality formulae
+ * It never estimates |A| or |B|. Those come from source metadata (`hydra:totalItems`
+ * on LDF, or KGF's `/count` endpoint); VoID's own pattern-cardinality formulae
  * would be a regression. VoID is used only for the divisor.
  *
  * ## Known limits of the estimate

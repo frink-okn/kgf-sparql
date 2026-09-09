@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["lib/**/*.ts"],
+  "references": [{ "path": "../actor-rdf-join-selectivity-void" }]
+}

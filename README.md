@@ -1,166 +1,157 @@
 # kgf-sparql
 
-A [Comunica](https://comunica.dev/) SPARQL engine tuned for
-**Knowledge Graph Fragments (KGF)** endpoints.
+A [Comunica](https://comunica.dev/) SPARQL engine with a native
+[Knowledge Graph Fragments (KGF)](https://apps.okn.us/kgf/) triple source.
 
-It is stock `@comunica/query-sparql` with one extra actor registered: a join-selectivity
-actor that estimates join sizes from **published VoID statistics** instead of from the shape
-of the query. Everything else — parsing, execution, serialisation, every other source type —
-is unchanged upstream Comunica.
-
-**The actor is not KGF-specific.** It works for any TPF, brTPF, or LDF endpoint whose dataset
-publishes VoID. KGF is simply an endpoint that publishes good VoID.
-
-## Why
-
-Comunica's shipped selectivity actor is a purely syntactic heuristic (Stocker et al. 2008).
-It estimates every join at roughly 0.39 × the cross product regardless of the data. Because
-`join-inner(symmetric-hash)` is the only join operator whose cost contains no selectivity
-term, it wins by default whenever those estimates are wrong — and it materialises both
-sides, which on a paged remote source means enumerating everything.
-
-Measured on one benchmark query against a live KGF server:
-
-| | requests | of those, pushing bindings | wall clock | rows |
-|---|---:|---:|---:|---:|
-| stock Comunica | 14,928 | 0 | 69.8 s | 10 |
-| `kgf-sparql` with VoID | **59** | **31** | **0.3 s** | 10 |
-
-Same answers. The bindings column is the point: stock Comunica never uses brTPF bindings
-pushdown on this query, because the bad estimates price the pushdown operator out.
-
-### Across a 60-query corpus, it is a *tail* fix
-
-Measured over all 60 single-KG tasks of the mcp-okn benchmark, both arms back to back:
-
-| | |
-|---|---|
-| requests | 82,186 → 56,772 (1.45x) |
-| per task | **37 unchanged, 5 better, 2 worse** |
-| median per-task request ratio | **1.000** |
-| wrong answers | **0** |
-
-**99.6% of that saving is one query.** Excluding it, the corpus total is unchanged (1.00x).
-The estimator does nothing for plans that were already fine, and rescues the ones that were
-catastrophic — including one query that ran out of memory in stock Comunica and completes in
-5.9 s with VoID. Two queries got modestly worse; the worst is an aggregate-over-everything
-query that gains nothing from pushdown but is flipped to it anyway (see the caveats below).
-
-If your workload is agent-driven, tail risk is usually what matters. If you need broad
-throughput, this is not that.
-
-## Install
-
-```bash
-npm install kgf-sparql
-```
+Use `type: 'kgf'` to query KGF's JSON API. The source gets cardinalities from
+`/count` before opening fragment pages, passes bindings using HTTP `QUERY`, and
+follows opaque cursors. Standard Comunica sources, including brTPF, RDF/JS stores,
+files, and SPARQL endpoints, remain available.
 
 ## Use as a library
 
 ```js
-import { QueryEngine, KEY_VOID_STATISTICS } from 'kgf-sparql';
+import { QueryEngine } from 'kgf-sparql';
 
-const EP = 'https://example.org/mykg/v/1.0.0/fragment';
 const engine = new QueryEngine();
-
-const bindings = await engine.queryBindings(query, {
-  sources: [{ type: 'brtpf', value: EP }],
-  // Statistics keyed by endpoint URL. Optional — without them the engine
-  // behaves exactly like stock Comunica.
-  [KEY_VOID_STATISTICS.name]: {
-    [EP]: {
-      triples: 27386547,
-      distinctSubjects: 4509929,
-      distinctObjects: 4845730,
-      propertyPartitions: {
-        'http://www.w3.org/2000/01/rdf-schema#label': { distinctSubjects: 4314237 },
-      },
-    },
-  },
+const bindings = await engine.queryBindings(`
+  SELECT ?s ?label WHERE {
+    VALUES ?s { <http://identifiers.org/cas/100-00-5> }
+    ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label
+  }
+`, {
+  sources: [{
+    type: 'kgf',
+    value: 'https://apps.okn.us/kgf/biobricks-tox21/v/v0.0.2/fragment',
+  }],
 });
+
+for await (const binding of bindings) {
+  console.log(binding.toString());
+}
 ```
+
+A dataset URL such as `https://apps.okn.us/kgf/biobricks-tox21` or its
+`/latest/fragment` alias also works. Its current release is resolved through the
+dataset descriptor and pinned for the duration of each query.
+A version URL ending in `/v/v0.0.2/` is accepted too. The service root lists
+datasets; select a dataset rather than using the root as a triple source.
 
 ## Use as a CLI
 
 ```bash
 npx kgf-sparql -q 'SELECT * WHERE { ?s ?p ?o } LIMIT 10' \
-  brtpf@https://example.org/mykg/v/1.0.0/fragment
+  kgf@https://apps.okn.us/kgf/biobricks-tox21/v/v0.0.2/fragment
 ```
 
-## How the actor decides
+## Planning and transport
 
-`ActorRdfJoinSelectivityVoid` registers at `accuracy: 0.8`, outbidding the shipped actor's
-`0.5` on Comunica's accuracy-max mediator. It **declines** (`test()` fails) for any join
-where no entry resolves to an endpoint with published VoID; the mediator's
-`ignoreFailures` then lets the default actor answer. So it is safe in a mixed federation:
-instrumented sources get data-driven estimates, everything else is untouched.
+- Each triple pattern supplies metadata from `GET /count`. Planning does not
+  download a fragment page. Fragment pages are fetched only as results are consumed.
+- Pages default to **1,000 rows**, capped by the service descriptor. Bindings
+  batches default to the server's advertised **max_bindings** (200 if absent),
+  and also respect its request-byte budget. Comunica may supply smaller batches.
+- Comunica's `filterBindings` interface maps to KGF's pattern-and-bindings JSON
+  body. Restricted queries use `QUERY /count` before `QUERY /fragment`.
+  Comunica supports the custom HTTP method through its HTTP mediator.
+- HTTP 405 or 501 on QUERY triggers a POST retry, remembered for the query.
+  Other errors propagate. POST can also be explicitly selected.
+- Cursor requests preserve the original pattern and bindings. Incomplete pages
+  without an advancing cursor fail rather than silently returning partial answers.
+- Duplicate and overlapping binding rows are handled as a set of matching triples
+  for `filterBindings`; Comunica performs the join and preserves SPARQL duplicate
+  solutions. Per-binding counts are upper estimates when those rows may overlap.
+- The source exposes KGF's published union as the default graph. Named graphs have
+  no triples in this source. Quoted triple terms and graph-scoped KGF operations are
+  not implemented.
 
-Sources are identified by `IQuerySource.referenceValue` — the endpoint URL. Comunica query
-sources carry no type field, and the concrete class is a wrapper stack
-(`QuerySourceSkolemized` → `QuerySourceHypermedia` → `QuerySourceQpf`), so URL identity is
-the only sound discriminator.
+Requests use Comunica's HTTP mediator, so its `fetch`, authentication, timeout,
+and logging settings apply. Destroying a result stream stops further pagination.
 
-The estimate is the containment formula. Because Comunica multiplies the input
-cardinalities itself and asks this actor only for the ratio, the returned value is
-`1 / max(d_v(A), d_v(B))` for each shared variable `v`.
+## VoID without preloading
 
-Statistics fall through tiers: per-predicate distinct counts, then `rdf:type` reasoning
-(a subject is typed at most once, so distinct == cardinality), then the dataset-wide
-ceiling, then the pattern cardinality. Per-predicate counts are the tier that matters;
-the measurement above was obtained with only the dataset-wide ceiling.
+Automatic VoID join estimates are enabled for native KGF sources. No statistics
+registry or config-generation step is required.
 
-The actor makes **no HTTP requests of its own** — cardinality comes from
-`hydra:totalItems`, already memoized by Comunica.
+Pattern metadata carries a lazy statistics provider. The join-selectivity actor
+invokes it only when comparing two triple patterns with a shared variable. It
+requests `/schema?view=queryable&predicate=<IRI>` for the predicates involved.
+When a partition lacks distinct-subject or distinct-object counts, it also reads
+the dataset root `/schema?view=queryable` as a fallback. It never requests
+`/void`, lists all predicates, or traverses the partition tree.
+
+Requests are memoized within each query. The `queryable` view describes the same
+merged graph as the fragments. Missing statistics or schema errors leave
+Comunica's default estimator available.
+
+These estimates assume uniformity and containment, and may still worsen plans
+on skewed data. They apply only to pairwise triple-pattern joins, not arbitrary
+multiway or OPTIONAL joins. Disable automatic statistics when that tradeoff is
+undesirable:
+
+```js
+import {
+  QueryEngine,
+  KEY_KGF_PAGE_SIZE,
+  KEY_KGF_BINDINGS_SIZE,
+  KEY_KGF_HTTP_METHOD,
+  KEY_KGF_VOID_STATISTICS,
+} from 'kgf-sparql';
+
+const engine = new QueryEngine();
+const context = {
+  sources: [{ type: 'kgf', value: 'https://apps.okn.us/kgf/biobricks-tox21' }],
+  [KEY_KGF_PAGE_SIZE.name]: 5000,
+  [KEY_KGF_BINDINGS_SIZE.name]: 200, // Optional override; omit to use the server limit.
+  [KEY_KGF_HTTP_METHOD.name]: 'POST',
+  [KEY_KGF_VOID_STATISTICS.name]: false,
+};
+```
+
+The corresponding raw context keys are `@kgf:pageSize`,
+`@kgf:bindingsSize`, `@kgf:httpMethod`, and `@kgf:voidStatistics`.
+Settings may also be placed in a source's `context`.
+
+The existing `KEY_VOID_STATISTICS` registry and the actor's static `statistics`
+configuration remain supported, including for non-KGF sources. Explicit entries,
+keyed by the configured source URL, take precedence over automatic loading.
+Disabling automatic loading does not disable explicitly supplied statistics.
+
+The estimator uses `1 / max(distinctValuesLeft, distinctValuesRight)` for each
+shared variable. Distinct counts fall through predicate partitions, `rdf:type`
+reasoning, dataset totals, and pattern cardinality. The actor's `safetyFactor`
+(default 1) can raise estimates to compensate for skew; its `accuracy` (0.8)
+outbids Comunica's syntactic heuristic (0.5) when statistics are available.
 
 ## Development
 
 ```bash
-npm install --ignore-scripts   # link workspaces without running prepare
-npm run build                  # tsc -> componentsjs-generator -> comunica-compile-config
+npm install --ignore-scripts
+npm test
+npm run test:live
 ```
 
-`--ignore-scripts` matters on a *fresh clone*: `prepare` compiles the Components.js config,
-which needs the workspace symlinks that the same install is still creating.
+`--ignore-scripts` allows npm to link the workspaces before compiling their
+Components.js configurations. `npm test` builds all packages and runs deterministic
+protocol and SPARQL regression tests. `test:live` is an opt-in, bounded comparison
+against the public KGF server; it also checks count-first QUERY bindings and
+pagination. Set `KGF_ROOT` and `KGF_DATASET` to test another deployment.
 
-## Layout
-
+```text
+packages/actor-query-source-identify-kgf/  Native JSON source and HTTP transport
+packages/actor-rdf-join-selectivity-void/  Generic VoID join-selectivity actor
+packages/kgf-sparql/                      Engine configuration, library, and CLI
 ```
-packages/actor-rdf-join-selectivity-void/  the actor - generic, publishable on its own
-packages/kgf-sparql/                       the engine: config + compiled engine + CLI
-```
 
-`packages/kgf-sparql/config/config-default.json` imports the stock Comunica config and
-*adds* one actor. Nothing upstream is removed or forked.
+## Earlier brTPF benchmarks
+
+The original VoID-only engine rescued some expensive brTPF plans: one benchmark
+went from 14,928 requests to 59; across a 60-query corpus, totals fell from 82,186
+to 56,772, with most savings concentrated in one query. Some queries regressed
+because Comunica's join-cost modifiers were calibrated for its syntactic estimator.
+Those measurements describe the earlier brTPF integration, **not the native
+source**. Native throughput has not yet been benchmarked across that corpus.
 
 ## License
 
 MIT
-
-## What the estimate can and cannot know
-
-This is **more information, not uniformly better decisions.** The containment estimate
-assumes the smaller value set is contained in the larger, and that values are uniform.
-Real data breaks both:
-
-- **Disjoint value sets** make it over-estimate. Still far better than the syntactic
-  heuristic, which over-estimates by orders of magnitude more.
-- **Skew** makes it *under*-estimate, and that is the dangerous direction: an
-  under-estimate biases the planner toward bind/pushdown plans that then issue many more
-  requests than predicted. `safetyFactor` (default `1`) multiplies the estimate; raise it
-  to buy insurance. The estimate is also floored at one row.
-- **Untrustworthy VoID.** Statistics are taken on faith. For a third-party endpoint,
-  consider a higher `safetyFactor` or simply not registering it.
-
-**Calibration.** Comunica's join actors carry hand-tuned `selectivityModifier` constants
-(`0.0001` for `multi-smallest-filter-bindings`) that exist to compensate for the syntactic
-heuristic's over-estimation. Supplying accurate selectivity leaves those corrections
-double-counted, biasing toward pushdown. That is usually what you want against a paged remote
-source, but it is a calibration artifact, not a judgement — and it is the measured cause of
-the corpus's worst regression, on a `GROUP BY`/`COUNT` query that must read everything and so
-gains nothing from pushdown.
-
-Setting `selectivityModifier` to `1` removes that regression exactly, but destroys two of the
-wins. A sweep across `0.0001 / 0.01 / 0.1 / 1` moved the total by under 6%, against a baseline
-3.2x worse than any of them. **The modifier is second-order; supplying VoID at all is the
-first-order effect.** Prefer `safetyFactor` on this actor as the tuning lever, since it does
-not perturb plans for sources without statistics.
