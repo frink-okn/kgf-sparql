@@ -10,7 +10,8 @@
     "access": "public"
   },
   "bin": {
-    "kgf-sparql": "bin/query.js"
+    "kgf-sparql": "bin/kgf-sparql.js",
+    "kgf-sparql-comunica": "bin/query.js"
   },
   "files": [
     "bin/**/*.js",
@@ -28,12 +29,14 @@
   "dependencies": {
     "@comunica/actor-init-query": "^5.3.0",
     "@comunica/config-query-sparql": "^5.3.0",
+    "@comunica/context-entries": "^5.3.0",
     "@comunica/query-sparql": "^5.3.0",
     "@comunica/runner": "^5.3.0",
     "@comunica/runner-cli": "^5.3.0",
     "@comunica/types": "^5.3.0",
+    "@kgf/actor-query-source-identify-kgf": "^0.1.0",
     "@kgf/actor-rdf-join-selectivity-void": "^0.1.0",
-    "@kgf/actor-query-source-identify-kgf": "^0.1.0"
+    "asynciterator": "^3.9.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"

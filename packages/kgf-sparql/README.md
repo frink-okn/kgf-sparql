@@ -39,10 +39,102 @@ datasets; select a dataset rather than using the root as a triple source.
 
 ## Use as a CLI
 
+`kgf-sparql` runs one query to completion, or fails, and accounts for every request it
+made. Results go to a file and a receipt describes the run:
+
 ```bash
-npx kgf-sparql -q 'SELECT * WHERE { ?s ?p ?o } LIMIT 10' \
-  kgf@https://apps.okn.us/kgf/biobricks-tox21/v/v0.0.2/fragment
+kgf-sparql -f query.rq \
+  --source kgf@https://apps.okn.us/kgf/phaseskg/v/v0.0.1/fragment \
+  --out results.srj --receipt receipt.json \
+  --max-requests 5000 --max-bytes 256M --timeout 120
 ```
+
+- **Query:** `-q '<sparql>'` or `-f query.rq` (`-f -` reads standard input). SELECT, ASK,
+  CONSTRUCT, and DESCRIBE are run; updates are refused.
+- **Sources** are `kind@url`, repeatable. `kgf@` takes a fragment URL, a version URL, a
+  dataset URL, or its `/latest/fragment` alias; a dataset URL is pinned to its current
+  release through the dataset descriptor before the query runs, and the receipt names the
+  release. `sparql@` names a SPARQL endpoint explicitly, for a graph that has one; other
+  Comunica source types pass through. A bare URL is refused rather than guessed at.
+- **Output** goes to `--out`, never to a pipe: Node truncates unflushed writes at exit and
+  pipes cap at 64 KB. The file is closed before the process exits. `--format` is `srj`
+  (SPARQL Results JSON, the default), `csv`, `tsv`, or `xml` for SELECT and ASK; `nt` (the
+  default), `nq`, `ttl`, or `jsonld` for CONSTRUCT and DESCRIBE; or any media type the
+  engine serializes. Comunica's own serializers write every format.
+- **Transport:** `--http-method QUERY|POST`, `--page-size`, `--bindings-size`, and
+  `--no-void-statistics` set the context keys described below. `--http-retries N` retries
+  429, 502, 503, and 504 responses; network errors are not retried.
+- `kgf-sparql-comunica` is Comunica's own command line over this engine, for scripts
+  written against it.
+
+### Budgets
+
+Comunica has no plan-level budget: in the public-deployment evaluation, every task that
+never finished died in the client, at a timeout or with an 8 GB heap exhausted after
+receiving between 68 MB and 514 MB. Each budget is optional and unlimited when absent, so a
+run without budgets behaves as the engine does.
+
+| flag | checked | counts |
+|---|---|---|
+| `--max-requests N` | before each request | every request the run makes, including the descriptor request that pins a release |
+| `--max-bytes B` (`k`, `M`, `G` suffixes) | before each request and while each body streams | decoded bytes received, which is what occupies the heap; the wire size is recorded beside it |
+| `--max-rows R` | as each result row is written | rows of the result |
+| `--timeout S` | wall clock from the start of the run | seconds, fractions allowed |
+
+Exceeding a budget aborts the run: in-flight requests are aborted through their signal,
+no further request is made, the receipt is written, and the exit status is 3. The row
+budget ends the result stream cleanly, so the output holds exactly `R` rows as a
+well-formed document. The other budgets fail the stream, and the output is whatever was
+serialized before the abort, possibly cut mid-document: it cannot be mistaken for a
+complete answer, and the receipt is the account of what it is.
+
+Exit status: **0** complete, the output is exactly the solution set the query denotes;
+**1** the query, a source, or the process was wrong; **2** the command line was wrong;
+**3** aborted at a budget, receipt written.
+
+### The receipt
+
+`--receipt receipt.json` is written on every exit path, including abort and error:
+
+```json
+{
+  "schema": "kgf-sparql.receipt/1",
+  "query": "SELECT ...",
+  "sources": [{ "kind": "kgf", "url": "https://apps.okn.us/kgf/phaseskg/v/v0.0.1/fragment",
+                "dataset": "phaseskg", "version": "v0.0.1", "content_digest": "sha256:..." }],
+  "outcome": { "contract": "complete", "rows": 2750, "result_type": "bindings" },
+  "output": { "path": "results.srj", "format": "application/sparql-results+json", "variables": ["s", "p", "o"] },
+  "requests": [{ "method": "GET", "url": ".../fragment?limit=10000", "status": 200,
+                 "request_id": "837a18811bab11fb-0000cecb", "bytes": 48213, "elapsed_ms": 41.2,
+                 "bindings": false, "complete": false, "truncation_reason": "page_limit" }],
+  "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114, "elapsed_ms": 1812 },
+  "statistics": { "void": true, "schema_requests": 0 },
+  "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120 },
+  "engine": { "kgf_sparql": "0.1.0", "comunica": "5.3.0", "node": "v25.9.0" },
+  "started": "2026-09-09T22:14:03.000Z",
+  "finished": "2026-09-09T22:14:04.812Z"
+}
+```
+
+- `outcome.contract` is `complete`, `aborted` (with `budget` naming which one), or
+  `error` (with `error`). Nothing in between: no partial result is ever labelled complete.
+  `rows` is how many rows were written before the run ended.
+- `sources[]` for a KGF source carries the dataset, the pinned version, and the release's
+  `content_digest` from one request to its dataset descriptor, the same identity every
+  `kgfq` receipt carries, so the two join.
+- `requests[]` is every request, in order, as the engine's HTTP actor saw it: the server's
+  `KGF-Request-Id`, which joins the entry to the server's access log; `bytes` the engine
+  received, with `bytes_wire` beside it when the server sent a `Content-Length`; whether the
+  request pushed `bindings`; and the server's `KGF-Complete` and `KGF-Truncation-Reason`
+  headers. A request that failed before any response carries `error` instead of a status.
+- `statistics.schema_requests` counts the `/schema` requests the lazy VoID provider made,
+  the run's planning cost apart from its data cost.
+
+Every request the engine makes passes through a `fetch` the command installs in the query
+context under Comunica's `KeysHttp.fetch`; the HTTP actor prefers a fetch supplied there.
+No actor or configuration changes for the budget or the receipt. The same pieces are
+exported for programs: `RunAccount` is the counting fetch with its budgets, and `runCli`
+runs the command line in-process.
 
 ## Planning and transport
 
@@ -133,9 +225,17 @@ npm run test:live
 
 `--ignore-scripts` allows npm to link the workspaces before compiling their
 Components.js configurations. `npm test` builds all packages and runs deterministic
-protocol and SPARQL regression tests. `test:live` is an opt-in, bounded comparison
-against the public KGF server; it also checks count-first QUERY bindings and
-pagination. Set `KGF_ROOT` and `KGF_DATASET` to test another deployment.
+protocol, SPARQL regression, and command-line tests against a mock KGF server, the
+latter through both the in-process entry point and the executable. `test:live` is an
+opt-in, bounded run against the public KGF server; it checks count-first QUERY bindings
+and pagination, then runs the command line on a small graph and asserts a complete
+receipt with request ids and a budget abort. Set `KGF_ROOT` and `KGF_DATASET` to test
+another deployment.
+
+`python3 test/registry-corpus-cli.py` runs the okn-registry query corpus through the
+command line with budgets and receipts, and compares the outcome with the earlier brTPF
+run in `test/registry-query-results-20260827.json`. `test/registry-corpus.py` is that
+earlier runner.
 
 ```text
 packages/actor-query-source-identify-kgf/  Native JSON source and HTTP transport

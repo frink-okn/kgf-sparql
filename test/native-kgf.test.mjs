@@ -6,8 +6,6 @@ import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import { MetadataValidationState } from '@comunica/utils-metadata';
 import { ArrayIterator } from 'asynciterator';
-import { DataFactory } from 'rdf-data-factory';
-import { Parser } from 'n3';
 import { QueryEngine as StockQueryEngine } from '@comunica/query-sparql';
 import { QueryEngine, QueryEngineFactory, KEY_KGF_PAGE_SIZE, KEY_KGF_BINDINGS_SIZE, KEY_KGF_HTTP_METHOD, KEY_KGF_VOID_STATISTICS,
   KEY_VOID_STATISTICS } from 'kgf-sparql';
@@ -15,118 +13,11 @@ import { QuerySourceKgf } from '../packages/actor-query-source-identify-kgf/lib/
 import { ActorRdfJoinSelectivityVoid, VOID_STATISTICS_PROVIDER } from '@kgf/actor-rdf-join-selectivity-void';
 import { Bus } from '@comunica/core';
 import { assignOperationSource } from '@comunica/utils-query-operation';
+import { df, iri, triples, wire, server, EP, ROOT } from './helpers/mock-kgf.mjs';
 
-const df = new DataFactory();
 const af = new AlgebraFactory(df);
 const bf = new BindingsFactory(df);
-const iri = value => df.namedNode(`urn:${value}`);
 const variable = value => df.variable(value);
-const EP = 'https://kgf.test/mount/graph/v/1/fragment';
-const ROOT = 'https://kgf.test/mount/';
-const triples = [
-  df.quad(iri('a'), iri('p'), iri('b')),
-  df.quad(iri('a'), iri('p'), iri('c')),
-  df.quad(iri('b'), iri('p'), iri('c')),
-  df.quad(iri('b'), iri('p'), iri('b')),
-  df.quad(iri('d'), iri('p'), iri('b')),
-  df.quad(iri('a'), iri('label'), df.literal('A\n"quoted" \\ café', 'en')),
-  df.quad(iri('b'), iri('label'), df.literal('2', df.namedNode('http://www.w3.org/2001/XMLSchema#integer'))),
-  df.quad(iri('c'), iri('label'), df.literal('C')),
-  df.quad(iri('a'), iri('q'), iri('b')),
-];
-const positions = ['subject', 'predicate', 'object'];
-const wirePositions = ['s', 'p', 'o'];
-const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-function wire(term) {
-  return term.termType === 'NamedNode' ? { type: 'iri', value: term.value } :
-    term.termType === 'BlankNode' ? { type: 'bnode', value: term.value } :
-      { type: 'literal', value: term.value, ...(term.language ? { lang: term.language } : { datatype: term.datatype.value }) };
-}
-function unwire(term) {
-  if (term === null || term === undefined || typeof term === 'string' && term.startsWith('?')) return undefined;
-  if (typeof term === 'string') return new Parser().parse(`<urn:test:s> <urn:test:p> ${term} .`)[0].object;
-  if (term.type === 'iri') return df.namedNode(term.value);
-  if (term.type === 'bnode') return df.blankNode(term.value);
-  return df.literal(term.value, term.lang ?? (term.datatype ? df.namedNode(term.datatype) : undefined));
-}
-
-// A small, deterministic KGF server model, preserving the native per-input-row bag semantics.
-function server(options = {}) {
-  const requests = [];
-  const caps = { max_limit: 2, max_bindings: 2, ...options.caps };
-  const fetch = async(input, init = {}) => {
-    const url = new URL(typeof input === 'string' ? input : input.url);
-    const body = init.body ? JSON.parse(init.body) : undefined;
-    const method = init.method ?? 'GET';
-    const call = { url, method, body, init };
-    requests.push(call);
-    if (options.queryUnsupported && method === 'QUERY') return json({}, 405);
-    if (options.queryFailure && method === 'QUERY') return json({}, 400);
-    if (url.href === ROOT) return json({ caps, budgets: { max_request_bytes: options.maxRequestBytes ?? 100000 } });
-    if (url.pathname === '/mount/graph') return json({ current: '1', releases: [{ version: '1', links: { fragment: '/mount/graph/v/1/fragment' } }] });
-    if (url.pathname.endsWith('/schema')) {
-      if (options.schemaFailure) return json({}, 503);
-      assert.equal(url.searchParams.get('view'), 'queryable');
-      assert.equal(url.searchParams.has('children'), false);
-      const predicate = unwire(url.searchParams.get('predicate'));
-      const selected = triples.filter(quad => !predicate || quad.predicate.equals(predicate));
-      const counts = { triples: selected.length };
-      if (!options.datasetStatsOnly || !predicate) {
-        counts.distinct_subjects = new Set(selected.map(quad => quad.subject.value)).size;
-        counts.distinct_objects = new Set(selected.map(quad => quad.object.value)).size;
-      }
-      return json({ complete: true, node: selected.length ? { counts } : null });
-    }
-    const pattern = body?.pattern ?? Object.fromEntries(wirePositions.map(key => [key, url.searchParams.get(key)]));
-    const inputRows = body?.bindings.rows ?? [undefined];
-    if (body) {
-      assert.ok(inputRows.length <= caps.max_bindings, 'binding row cap');
-      assert.ok(Buffer.byteLength(init.body) <= (options.maxRequestBytes ?? 100000), 'request byte cap');
-    }
-    const counts = [];
-    const rows = [];
-    for (const [binding, values] of inputRows.entries()) {
-      let matches = 0;
-      for (const quad of triples) {
-        const assignment = new Map();
-        const match = positions.every((position, i) => {
-          const selector = pattern[wirePositions[i]];
-          let term = unwire(selector);
-          if (typeof selector === 'string' && selector.startsWith('?')) {
-            const index = body.bindings.vars.indexOf(selector);
-            if (index >= 0) term = unwire(values[index]);
-            if (assignment.has(selector) && !assignment.get(selector).equals(quad[position])) return false;
-            assignment.set(selector, quad[position]);
-          }
-          return !term || term.termType !== 'BlankNode' && term.equals(quad[position]);
-        });
-        if (!match) continue;
-        matches++;
-        const row = body ? { binding } : {};
-        positions.forEach((position, i) => {
-          if (!unwire(pattern[wirePositions[i]])) row[wirePositions[i]] = wire(quad[position]);
-        });
-        rows.push(row);
-      }
-      counts.push({ binding, count: { value: matches, exact: true } });
-    }
-    if (url.pathname.endsWith('/count')) {
-      if (options.countFailure) return json({}, 500);
-      if (options.countEstimateZero) return json({ count: { value: 0, exact: false }, complete: false, next: 'count-more' });
-      return json(body ? { counts, complete: true, next: null } : { count: counts[0].count, complete: true, next: null });
-    }
-    assert.ok(url.pathname.endsWith('/fragment'), `unexpected endpoint ${url}`);
-    const limit = body?.limit ?? Number(url.searchParams.get('limit'));
-    assert.ok(limit <= caps.max_limit && limit > 0, 'fragment page cap');
-    const cursor = body?.cursor ?? url.searchParams.get('cursor');
-    const offset = cursor ? Number(cursor.split(':')[1]) : 0;
-    const page = rows.slice(offset, offset + limit);
-    const next = offset + page.length < rows.length ? `opaque:${offset + page.length}` : null;
-    if (options.badCursor) return json({ rows: page, complete: false, next: options.badCursor === 'missing' ? null : 'opaque:0' });
-    return json({ rows: page, complete: next === null, next });
-  };
-  return { requests, fetch, http: { mediate: ({ input, init }) => fetch(input, init) } };
-}
 function source(mock, settings = {}) {
   const context = new ActionContext({ [KeysInitQuery.queryTimestamp.name]: new Date(), ...settings });
   return { source: new QuerySourceKgf(EP, mock.http, df, bf), context };
