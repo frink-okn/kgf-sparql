@@ -456,6 +456,60 @@ test it separately from local KGF behavior.
 | `ubergraph/adrenal-gland` | GOOD | 35 | 4 | 0.346 |
 | `ubergraph/processes-that-output-glucose` | GOOD | 1 | 4 | 0.465 |
 
+## The native source through the command line (2026-09-09)
+
+The corpus was rerun against the public deployment (`https://apps.okn.us/kgf`, 41
+graphs) through the `kgf-sparql` command line: native `kgf@` sources with count-first
+planning and lazy VoID statistics, a budget of 5,000 requests, 256 MB received, and 30
+seconds per query, eight status-code retries, and a receipt for every run. The runner is
+[`test/registry-corpus-cli.py`](../test/registry-corpus-cli.py); the results are in
+[`test/registry-query-results-cli.json`](../test/registry-query-results-cli.json), in the
+shape of the August file so the two compare directly. The registry has grown to 97
+queries since August (six `evoweb`, two `spatialkg`); three Wikidata queries are skipped,
+so 94 ran.
+
+**Every run ended with a receipt and a classification; none died.** 52 completed, 34
+were aborted at a budget (26 at requests, 4 at bytes, 4 at the clock), and 8 failed: three
+name external `SERVICE` endpoints the runner does not configure, three call an Ontotext
+function, and two hit Comunica's unretried network error (`fetch failed`) after a burst
+of parallel connections. Of the 20 August timeouts and heap deaths, two now complete
+(`federation/list-things-and-their-labels`, `spoke-okn/drugs-for-sdoh-associated-diseases`),
+17 are budget aborts with receipts, and one is the network error. The byte budget did what
+it was added for: `fiokg/fio-facilities-by-NAICS-Subsector` and
+`scales/scales-ontology-event-labels` each stopped at 268 MB after reading 1,841 and 887
+fragment pages of a whole relation, where the earlier public evaluation had lost such runs
+to an exhausted 8 GB heap.
+
+**45 queries are non-empty, as in August, but only 34 are the same queries.** Of the 25
+non-empty in both runs whose query denotes one bag (no `LIMIT` without `ORDER BY`), 21
+return an identical multiset. Two of the four that differ read a different release
+(`ncipidkg` 0.0.2 to v0.0.3, `ubergraph` 2026-05-31 to v0.0.2); `nde/dataset-count-by-agent`
+concatenates with `GROUP_CONCAT`, whose order is unspecified; `sockg/who_works_agcros`
+returns the same 66 rows from the same release number and the difference is unexplained.
+Eleven August results are gone, all but two aborted at 5,000 requests, and eleven are new:
+the eight added queries, three `nestkg` queries whose graph was unavailable locally, and
+the two rescued timeouts.
+
+**The native source spends more requests than brTPF on the same plans.** Over the 41
+queries complete in both runs the median is 1.9 times the August request count, and the
+tail is long: `hydrologykg/sawgraph-hydrology-02` went from 22 requests to 1,791 for the
+same 296 rows, `spatialkg/sawgraph-spatial-04` from 8 to 273, `ubergraph/adrenal-gland`
+from 4 to 79. The receipts show where they go. Comunica's default bind join rebinds each
+input row into the pattern and asks the source for that fully bound pattern; count-first
+planning answers each with a `GET /count` and then a `GET /fragment`, so every probe costs
+two requests and carries no bindings body (`sawgraph-hydrology-02`: 896 counts, 889
+pages, 0 bindings requests). Where the bindings-pushing join is chosen instead, every
+batch is counted before it is read (`biobricks-ice/names-of-chemical-entities`: 4,522
+requests, half of them counts, for 200 rows). This is the reason the eleven August
+results were lost: `sockg/fields_on_sites` needed 111 requests on brTPF and exceeded
+5,000 here. The cost is in the source, not the command line: a fragment page already
+carries the pattern's cardinality, so a count is redundant whenever the page will be read
+anyway, and a fully bound pattern from a per-row bind join never needs one.
+
+Against the client-stack plan's phase A criterion (the same 45 non-empty results, every
+former timeout a budget abort with a receipt), the receipt half holds and the result half
+does not, for the reason above.
+
 ## Reproducing the run
 
 With the KGF server running at `127.0.0.1:8080`:
@@ -474,3 +528,19 @@ node --max-old-space-size=2048 test/run-registry-query.mjs \
 ```
 
 Replace `CURRENT` with the release advertised by the KGF root document.
+
+The command-line run against the public deployment, with its comparison against the
+August results:
+
+```sh
+python3 test/registry-corpus-cli.py test/registry-query-results-cli.json
+```
+
+Budgets, the server, and the output directory are environment variables documented at
+the top of the script; `--compare-only <results.json>` reprints the comparison. One query
+directly:
+
+```sh
+kgf-sparql -f query.rq --source kgf@https://apps.okn.us/kgf/ncipidkg/v/CURRENT/fragment \
+  --out results.srj --receipt receipt.json --max-requests 5000 --max-bytes 256M --timeout 30
+```

@@ -149,7 +149,8 @@ def compare(results: dict[str, dict], earlier_path: Path) -> None:
         if keys:
             print(f"  {name} ({len(keys)}):")
             for k in sorted(keys):
-                print(f"    {k}: earlier {label(earlier[k]['result'])} | now {label(ran.get(k, {'error': 'not run'}))}")
+                before = earlier.get(k, {}).get("result", {"error": "not in earlier run"})
+                print(f"    {k}: earlier {label(before)} | now {label(ran.get(k, {'error': 'not run'}))}")
     failed = {k for k, v in earlier.items() if v["result"].get("error") in ("timeout", "oom")}
     print(f"  earlier timeouts and heap deaths ({len(failed)}), now:")
     for k in sorted(failed):
