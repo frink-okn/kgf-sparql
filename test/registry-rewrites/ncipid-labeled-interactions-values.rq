@@ -1,0 +1,19 @@
+# Rewrite of registry ncipidkg/list-all-labeled-interactions: use the finite
+# predicate inventory published by KGF /schema instead of scanning ?s ?p ?o.
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX RO: <http://purl.obolibrary.org/obo/RO_>
+
+SELECT ?sourceLabel ?relation ?targetLabel
+WHERE {
+  VALUES ?relation {
+    RO:0002211
+    RO:0002351
+    RO:0002436
+    RO:0002578
+    RO:0002629
+    RO:0002630
+  }
+  ?source ?relation ?target .
+  OPTIONAL { ?source rdfs:label ?sourceLabel }
+  OPTIONAL { ?target rdfs:label ?targetLabel }
+}

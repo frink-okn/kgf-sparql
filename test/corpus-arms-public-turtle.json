@@ -1,0 +1,1784 @@
+{
+ "biobricks-ice/assays-from-invitrodb": {
+  "kg": "biobricks-ice",
+  "endpoint": "https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.259,
+    "engineMs": 258,
+    "rssMb": 190.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "a4446b1daebe9030:8ed95067985d076e",
+    "requests": 12,
+    "requestsWithValues": 8,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 1.26,
+    "engineMs": 1972,
+    "rssMb": 422.4
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>\nPREFIX CAS: <http://identifiers.org/cas/>\nPREFIX EDAM: <http://edamontology.org/>\nPREFIX dce: <http://purl.org/dc/elements/1.1/>\nPREFIX BAO: <http://www.bioassayontology.org/bao#BAO_>\nSELECT ?assay \nWHERE {\n  ?assay a BAO:0000015 ;\n         dce:source \"InvitroDB\" .\n}\nLIMIT 100"
+ },
+ "dreamkg/services-available-weekend": {
+  "kg": "dreamkg",
+  "endpoint": "https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 19,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.576,
+    "engineMs": 235,
+    "rssMb": 192
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.321,
+    "engineMs": 2043,
+    "rssMb": 477.2
+   }
+  },
+  "sparql": "PREFIX dreamkg: <http://www.semanticweb.org/dreamkg/ijcai/>\nPREFIX sdo: <http://schema.org/>\nSELECT DISTINCT ?service {\n  ?service sdo:hoursAvailable ?hours .\n  ?hours sdo:dayOfWeek ?dow .\n  FILTER(?dow IN (\"Saturday\",\"Sunday\"))\n}"
+ },
+ "dreamkg/services-in-more-than-one-language": {
+  "kg": "dreamkg",
+  "endpoint": "https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.375,
+    "engineMs": 249,
+    "rssMb": 190.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 1.511,
+    "engineMs": 1926,
+    "rssMb": 447
+   }
+  },
+  "sparql": "PREFIX dreamkg: <http://www.semanticweb.org/dreamkg/ijcai/>\nPREFIX sdo: <http://schema.org/>\nSELECT ?service (GROUP_CONCAT(DISTINCT ?languageLabel; separator=\" / \") AS ?languages) \nWHERE {\n  ?service sdo:category ?language .\n  ?language sdo:inCodeSet dreamkg:_CategoryCodeSet_Languages .\n  ?language sdo:codeValue ?languageLabel\n}\nGROUP BY ?service\nHAVING(COUNT(DISTINCT ?languageLabel) > 1)"
+ },
+ "fiokg/fio-NAICS-classification-for-facility": {
+  "kg": "fiokg",
+  "endpoint": "https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.236,
+    "engineMs": 227,
+    "rssMb": 188.2
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.223,
+    "engineMs": 2099,
+    "rssMb": 430.9
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX fio: <http://w3id.org/fio/v1/fio#>\nPREFIX naics: <http://w3id.org/fio/v1/naics#> \nPREFIX epa-frs-data: <http://w3id.org/fio/v1/epa-frs-data#>\n\nselect ?o ?label where {\n    epa-frs-data:d.FRS-Facility.110000428662 fio:ofIndustry ?o .\n    ?o rdfs:label ?label.\n}"
+ },
+ "biobricks-ice/names-of-chemical-entities": {
+  "kg": "biobricks-ice",
+  "endpoint": "https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8473,
+    "requestsWithValues": 5027,
+    "statuses": {
+     "200": 8465
+    },
+    "seconds": 59.751,
+    "engineMs": 249,
+    "rssMb": 1497.2
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 200,
+    "hash": "701cfa095f43f1e4:944e763dd2d7e35a",
+    "requests": 1067,
+    "requestsWithValues": 834,
+    "statuses": {
+     "200": 1063
+    },
+    "seconds": 10.071,
+    "engineMs": 1774,
+    "rssMb": 1104.7
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>\nPREFIX CAS: <http://identifiers.org/cas/>\nPREFIX EDAM: <http://edamontology.org/>\nSELECT  ?cas ?dsstox ?name\nWHERE {\n  ?s a CHEMINF:000000 ;\n    rdfs:label ?name .\n  OPTIONAL {\n    ?s EDAM:has_identifier ?dsstox.\n    ?dsstox a CHEMINF:000568. # DSSTOX SID\n  }\n  OPTIONAL {\n    ?s EDAM:has_identifier ?cas .\n    ?cas a CHEMINF:000446 . # CAS RN\n  }\n}\nLIMIT 200"
+ },
+ "hydrologykg/sawgraph-hydrology-02": {
+  "kg": "hydrologykg",
+  "endpoint": "https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 22,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 22
+    },
+    "seconds": 0.533,
+    "engineMs": 254,
+    "rssMb": 193.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 12,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.521,
+    "engineMs": 1981,
+    "rssMb": 451.1
+   }
+  },
+  "sparql": "PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>\nPREFIX nhdplusv2: <http://nhdplusv2.spatialai.org/v1/nhdplusv2#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX schema: <https://schema.org/>\n\nSELECT * WHERE {\n  # Select flowlines and desired attributes\n  ?flowline rdf:type hyf:HY_FlowPath ;\n            schema:name ?name ;\n            nhdplusv2:hasCOMID ?COMID ;\n            nhdplusv2:hasFTYPE ?FTYPE .\n  # Keep only flowlines with the desired name\n  FILTER (?name = \"Illinois River\")\n} ORDER BY ?COMID"
+ },
+ "fiokg/fio-facilities-by-NAICS-Subsector": {
+  "kg": "fiokg",
+  "endpoint": "https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 3329,
+    "requestsWithValues": 1695,
+    "statuses": {
+     "200": 3328
+    },
+    "seconds": 59.759,
+    "engineMs": 240,
+    "rssMb": 936.9
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX fio: <http://w3id.org/fio/v1/fio#>\nPREFIX naics: <http://w3id.org/fio/v1/naics#> \nPREFIX epa-frs: <http://w3id.org/fio/v1/epa-frs#>\nPREFIX geo: <http://www.opengis.net/ont/geosparql#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\n\nSELECT ?fac ?faclabel ?code ?codelabel  WHERE {\n  VALUES ?subsector {naics:NAICS-325}\n  ?fac rdf:type fio:Facility ;\n       fio:ofIndustry ?code .\n  ?code rdf:type naics:NAICS-IndustryCode; \n    fio:subcodeOf ?subsector.\n\n  # also retrieve any labels associated with the facility and industry \n  OPTIONAL { ?fac rdfs:label ?faclabel . }\n  OPTIONAL { ?code rdfs:label ?codelabel . }\n}"
+ },
+ "hydrologykg/sawgraph-hydrology-04": {
+  "kg": "hydrologykg",
+  "endpoint": "https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2164,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2163
+    },
+    "seconds": 59.704,
+    "engineMs": 295,
+    "rssMb": 655.1
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 966,
+    "requestsWithValues": 907,
+    "statuses": {
+     "200": 934,
+     "429": 32
+    },
+    "seconds": 58.186,
+    "engineMs": 1813,
+    "rssMb": 2039
+   }
+  },
+  "sparql": "PREFIX spatial: <http://purl.org/spatialai/spatial/spatial-full#>\nPREFIX geo: <http://www.opengis.net/ont/geosparql#>\nPREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX nhdplusv2: <http://nhdplusv2.spatialai.org/v1/nhdplusv2#>\nPREFIX schema: <https://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT ?us_fl_name ?downstream_flowline ?ds_fl_name ?ds_fl_ftype WHERE {\n  ?upstream_flowline rdf:type hyf:HY_FlowPath ;\n                     spatial:connectedTo <http://stko-kwg.geog.ucsb.edu/lod/resource/s2.level13.5526595845832572928> ;\n                     # find all flowlines downstream\n                     # hyf:downstreamWaterBodyTC gets the transitive closure\n                     hyf:downstreamFlowPathTC ?downstream_flowline ;\n                     geo:hasGeometry/geo:asWKT ?us_fl_geom .\n  # If available, pull the GNIS name for each flowline\n  OPTIONAL { ?upstream_flowline schema:name ?us_fl_name . }\n  OPTIONAL { ?downstream_flowline schema:name ?ds_fl_name . }\n  # Retrieve the flowline type and geometry for each downstream flowline\n  ?downstream_flowline nhdplusv2:hasFTYPE ?ds_fl_ftype ;\n                       geo:hasGeometry/geo:asWKT ?ds_fl_geom .\n} ORDER BY ?downstream_flowline"
+ },
+ "nasa-gesdisc-kg/count-publications-use-each-dataset": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 15.39,
+    "engineMs": 246,
+    "rssMb": 418.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 8,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 1.133,
+    "engineMs": 1996,
+    "rssMb": 625.4
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT ?Dataset (COUNT (DISTINCT ?Publication) AS ?PublicationCount)\nWHERE {\n\t?Publication schema:USES_DATASET ?Dataset\n}\nGROUP BY ?Dataset\nORDER BY DESC(?PublicationCount)\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/datasets-science-keywords": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 123,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 122
+    },
+    "seconds": 1.924,
+    "engineMs": 267,
+    "rssMb": 258.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "c4f91c669392d3f6:f3ae406c267bbe66",
+    "requests": 7,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 2.369,
+    "engineMs": 1980,
+    "rssMb": 495.5
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT *\nWHERE {\n\t?Dataset schema:HAS_SCIENCEKEYWORD ?ScienceKeyword .\n  \t?ScienceKeyword rdfs:label ?KeywordLabel\n}\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/publications-datasets-used": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.169,
+    "engineMs": 225,
+    "rssMb": 178.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.253,
+    "engineMs": 1981,
+    "rssMb": 442
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT *\nWHERE {\n\t?Publication schema:USES_DATASET ?Dataset\n}\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/pubs-by-year-title": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "e59b1ed33868e6f7:aa30e64d51f3afa3",
+    "requests": 243,
+    "requestsWithValues": 98,
+    "statuses": {
+     "200": 240
+    },
+    "seconds": 2.537,
+    "engineMs": 336,
+    "rssMb": 315.2
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "be0edfc9734e7352:6bcca427c214981c",
+    "requests": 18,
+    "requestsWithValues": 13,
+    "statuses": {
+     "200": 13
+    },
+    "seconds": 0.926,
+    "engineMs": 2260,
+    "rssMb": 487.3
+   }
+  },
+  "sparql": "PREFIX time: <http://www.w3.org/2006/time#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX schema: <https://schema.org/>\nPREFIX gesdisc: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT ?pub ?year ?title   {\n  ?pub a gesdisc:Publication .\n  ?pub time:year ?year .\n  ?pub schema:title ?title .\n}\nLIMIT 100"
+ },
+ "ncipidkg/list-all-hdac1-neighbors": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.285,
+    "engineMs": 234,
+    "rssMb": 187.6
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.271,
+    "engineMs": 2246,
+    "rssMb": 446
+   }
+  },
+  "sparql": "PREFIX uniprot: <http://identifiers.org/uniprot/>\nPREFIX RO: <http://purl.obolibrary.org/obo/RO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?relation ?neighbor ?neighborLabel\nWHERE {\n  uniprot:Q13547 ?relation ?neighbor .\n  FILTER(STRSTARTS(STR(?relation), STR(RO:)))\n\n  OPTIONAL { ?neighbor rdfs:label ?neighborLabel }\n}"
+ },
+ "nasa-gesdisc-kg/frequent-sciencekeywords": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6019,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6018
+    },
+    "seconds": 59.763,
+    "engineMs": 236,
+    "rssMb": 1004.9
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 25,
+    "hash": "0c299a28fe70a41e:5d6aec5b96802b50",
+    "requests": 132,
+    "requestsWithValues": 29,
+    "statuses": {
+     "200": 132
+    },
+    "seconds": 13.048,
+    "engineMs": 1980,
+    "rssMb": 2114.5
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT ?ScienceKeyword (COUNT (DISTINCT ?Publication) AS ?PublicationCount)\nWHERE {\n        ?Publication schema:USES_DATASET ?Dataset .\n        ?Dataset schema:HAS_SCIENCEKEYWORD ?Keyword .\n        ?Keyword rdfs:label ?ScienceKeyword\n}\nGROUP BY ?ScienceKeyword\nORDER BY DESC(?PublicationCount)\nLIMIT 25"
+ },
+ "ncipidkg/list-all-labeled-proteins": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 68,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 68
+    },
+    "seconds": 1.427,
+    "engineMs": 253,
+    "rssMb": 218.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 14,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.533,
+    "engineMs": 1975,
+    "rssMb": 425.6
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX SIO: <http://semanticscience.org/resource/SIO_>\n\nSELECT ?protein ?label\nWHERE {\n  ?protein a SIO:010043 ;\n           rdfs:label ?label .\n}\nORDER BY ?label"
+ },
+ "ncipidkg/list-all-labeled-interactions": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1834,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1833
+    },
+    "seconds": 59.715,
+    "engineMs": 285,
+    "rssMb": 352.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 75322,
+    "hash": "0972e21bbe7090f2:7f717828ba24a4fe",
+    "requests": 81,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 81
+    },
+    "seconds": 33.133,
+    "engineMs": 1830,
+    "rssMb": 821.5
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX RO: <http://purl.obolibrary.org/obo/RO_>\n\nSELECT ?sourceLabel ?relation ?targetLabel\nWHERE {\n  ?source ?relation ?target .\n  FILTER(STRSTARTS(STR(?relation), STR(RO:)))\n\n  OPTIONAL { ?source rdfs:label ?sourceLabel }\n  OPTIONAL { ?target rdfs:label ?targetLabel }\n}"
+ },
+ "nde/dataset-count-by-agent": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "92b154820440a05c:515a9efb1854ce80",
+    "requests": 1256,
+    "requestsWithValues": 911,
+    "statuses": {
+     "200": 1256
+    },
+    "seconds": 17.834,
+    "engineMs": 231,
+    "rssMb": 646.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "155e6212c8fdee1d:afecff62b33579b9",
+    "requests": 238,
+    "requestsWithValues": 229,
+    "statuses": {
+     "200": 238
+    },
+    "seconds": 3.406,
+    "engineMs": 2087,
+    "rssMb": 694.2
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT DISTINCT ?agent ?agentName (COUNT(?dataset) AS ?datasetCount) (GROUP_CONCAT(DISTINCT ?catalogShort; separator=\", \") AS ?catalogs)\nWHERE {\n    ?dataset rdf:type schema:Dataset ;\n             schema:infectiousAgent ?agent ;\n             schema:includedInDataCatalog ?catalog .\n    ?agent schema:name ?agentName .\n    BIND(REPLACE(STR(?catalog), \"^https://okn\\\\.wobd\\\\.org/catalog/\", \"\") AS ?catalogShort)\n}\nGROUP BY ?agent ?agentName\nORDER BY DESC(?datasetCount)"
+ },
+ "nde/nde-influenza-studies": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 666,
+    "requestsWithValues": 466,
+    "statuses": {
+     "200": 666
+    },
+    "seconds": 8.901,
+    "engineMs": 257,
+    "rssMb": 465.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 125,
+    "requestsWithValues": 118,
+    "statuses": {
+     "200": 125
+    },
+    "seconds": 3.842,
+    "engineMs": 1941,
+    "rssMb": 658.4
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT DISTINCT ?dataset ?datasetName ?diseaseName ?doi\nWHERE {\n    ?dataset rdf:type schema:Dataset ;\n             schema:name ?datasetName ;\n             schema:healthCondition ?disease ;\n  \t\t\t schema:sameAs ?doi .\n    ?disease schema:name ?diseaseName .\n    FILTER(\n        ?disease = <http://purl.obolibrary.org/obo/MONDO_0005812> ||\n        CONTAINS(LCASE(?diseaseName), \"influenza\")\n    )\n   FILTER(REGEX(STR(?doi), \"^https://doi\\\\.org/\"))\n}\nORDER BY ?diseaseName ?datasetName"
+ },
+ "oard-kg/diseases-associated-with-phenotype": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 25.816,
+    "engineMs": 243,
+    "rssMb": 947.6
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6591,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6591
+    },
+    "seconds": 23.303,
+    "engineMs": 1901,
+    "rssMb": 1090
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX hp: <http://purl.obolibrary.org/obo/HP_>\n\nSELECT ?disease ?label ?data_set ?pair_count ?log_odds ?lower_ci ?upper_ci \nWHERE {\n  VALUES ?phenotype {hp:0012311}  # Increased total monocyte count\n  \n    # Find associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:object ?phenotype .\n    ?disease biolink:category biolink:Disease ;\n               rdfs:label ?label .\n\n    # Get study\n    ?assoc biolink:has_supporting_studies ?study .\n  \n    # Get Data Set (currently buried in Count Result. TODO: move to Study node)\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n  \n    # Get Log Odds Analysis Result\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n              biolink:log_odds_ratio ?log_odds ;\n                      biolink:total_sample_size ?pair_count .\n  \n    # Log odds confidence interval is represented as two unordered values\n    ?results_log_odds  biolink:log_odds_ratio_95_ci ?lower_ci , ?upper_ci .\n    FILTER(?lower_ci < ?upper_ci) \n\n    # Use the lower bound of the CI (value closest to 0) as an indication of association strength with high confidence\n    BIND(IF(ABS(?lower_ci) < ABS(?upper_ci), ABS(?lower_ci), ABS(?upper_ci)) AS ?dist_to_zero)\n}\nORDER BY DESC(?dist_to_zero)\nLIMIT 100"
+ },
+ "oard-kg/oard-ubergraph-concordance": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.316,
+    "engineMs": 240,
+    "rssMb": 191.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.353,
+    "engineMs": 1868,
+    "rssMb": 449.2
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX mondo: <http://purl.obolibrary.org/obo/MONDO_>\nPREFIX ro: <http://purl.obolibrary.org/obo/RO_>\n\nSELECT DISTINCT ?phenotype ?phenotype_label ?oard_predicate ?data_set ?log_odds ?ci1 ?ci2 ?confirming_edge\nWHERE {\n    VALUES ?disease {mondo:0015691}\n    VALUES ?confirming_edge {ro:0004029} # Define the confirming relationship\n\n    # Find OARD associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:predicate ?oard_predicate ;\n           biolink:object ?phenotype .\n    ?phenotype biolink:category biolink:PhenotypicFeature ;\n               rdfs:label ?phenotype_label .\n    # OARD and Ubergraph each have labels for the phenotype. This filter helps select 1 label\n  \tFILTER(lang(?phenotype_label) = \"en\")\n\n    # Confirm with Ubergraph relationship (condition for inclusion)\n    ?disease ?confirming_edge ?phenotype .\n\n    # Pull out OARD association data\n    ?assoc biolink:has_supporting_studies ?study .\n    # Counts Results\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n    # Log-Odds Results\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n                  biolink:log_odds_ratio ?log_odds .    \n    ?results_log_odds biolink:log_odds_ratio_95_ci ?ci1 , ?ci2 .\n    FILTER(?ci1 < ?ci2) \n}\nORDER BY DESC(?log_odds)\nLIMIT 100"
+ },
+ "nde/nde-resources-by-count": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2160,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2159
+    },
+    "seconds": 59.747,
+    "engineMs": 252,
+    "rssMb": 447.4
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "fetch failed",
+    "requests": 835,
+    "requestsWithValues": 806,
+    "statuses": {
+     "200": 318
+    },
+    "seconds": 4.456,
+    "engineMs": 1714,
+    "rssMb": 1069.3
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\n\nSELECT ?catalog (COUNT(?dataset) AS ?datasetCount)\nWHERE {\n  ?dataset a schema:Dataset ;\n           schema:includedInDataCatalog ?catalog .\n}\nGROUP BY ?catalog\nORDER BY DESC(?datasetCount)"
+ },
+ "oard-kg/phenotypes-associated-with-disease": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 8.991,
+    "engineMs": 256,
+    "rssMb": 716.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3654,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3654
+    },
+    "seconds": 9.592,
+    "engineMs": 1862,
+    "rssMb": 774.8
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX mondo: <http://purl.obolibrary.org/obo/MONDO_>\n\nSELECT ?phenotype ?phenotype_label ?data_set ?pair_count ?log_odds ?lower_ci ?upper_ci \nWHERE {\n  VALUES ?disease {mondo:0007947}  # Marfan syndrome\n  \n    # Find associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:object ?phenotype .\n    ?phenotype biolink:category biolink:PhenotypicFeature ;\n               rdfs:label ?phenotype_label .\n\n    # Get study\n    ?assoc biolink:has_supporting_studies ?study .\n  \n    # Get Data Set (currently buried in Count Result. TODO: move to Study node)\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n  \n    # Get Log Odds Analysis Result\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n              biolink:log_odds_ratio ?log_odds ;\n                      biolink:total_sample_size ?pair_count .\n  \n    # Log odds confidence interval is represented as two unordered values\n    ?results_log_odds  biolink:log_odds_ratio_95_ci ?lower_ci , ?upper_ci .\n    FILTER(?lower_ci < ?upper_ci) \n\n    # Use the lower bound of the CI (value closest to 0) as an indication of association strength with high confidence\n    BIND(IF(ABS(?lower_ci) < ABS(?upper_ci), ABS(?lower_ci), ABS(?upper_ci)) AS ?dist_to_zero)\n}\nORDER BY DESC(?dist_to_zero)\nLIMIT 100"
+ },
+ "oard-kg/rank-diseases-given-phenotypes": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 21449,
+    "requestsWithValues": 2772,
+    "statuses": {
+     "200": 21001
+    },
+    "seconds": 59.776,
+    "engineMs": 221,
+    "rssMb": 2184.8
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX hp: <http://purl.obolibrary.org/obo/HP_>\n\nSELECT ?disease ?disease_label \n       (SUM(?best_pair_score) AS ?total_score)\n       (GROUP_CONCAT(DISTINCT ?pheno_id; SEPARATOR=\", \") AS ?matched_pheno_ids)\n       (GROUP_CONCAT(DISTINCT ?pheno_label; SEPARATOR=\"|\") AS ?matched_pheno_labels)\nWHERE {\n  {\n    # INNER QUERY: Find the strongest result per Disease-Phenotype pair\n    SELECT ?disease ?phenotype (STR(?phenotype) AS ?pheno_id) ?pheno_label (MAX(?log_odds) AS ?best_pair_score)\n    WHERE {\n      # Input: Your list of Phenotypes\n      VALUES ?phenotype { hp:0012771 hp:0001166 hp:0001657 }\n\n      # Match Association path\n      ?assoc biolink:object ?phenotype ;\n             biolink:subject ?disease .\n      \n      ?disease biolink:category biolink:Disease .\n      \n      # Get Phenotype labels here to pass them up\n      OPTIONAL { \n        ?phenotype rdfs:label ?pheno_label . \n      }\n      \n      # Navigate to stats\n      ?assoc biolink:has_supporting_studies/biolink:has_study_results ?stats .\n      ?stats biolink:category biolink:LogOddsAnalysisResult ;\n             biolink:log_odds_ratio ?log_odds .\n    }\n    GROUP BY ?disease ?phenotype ?pheno_label\n  }\n\n  # Pull the disease label for the final output\n  OPTIONAL {\n    ?disease rdfs:label ?disease_label .\n  }\n}\nGROUP BY ?disease ?disease_label\nORDER BY DESC(?total_score)\nLIMIT 100"
+ },
+ "prokn/gene_properties_relationships": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.925,
+    "engineMs": 226,
+    "rssMb": 188.6
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 6,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.381,
+    "engineMs": 1835,
+    "rssMb": 445.6
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT \n(?Subject   AS ?SubjectURI)\n(?Predicate AS ?PredicateURI)\n(?Object    AS ?ObjectValue)\nWHERE {\n  ?Subject a upcore:Gene;\n    rdfs:label \"APOE\".\n  ?Subject ?Predicate ?Object\n}\nORDER BY ?Subject"
+ },
+ "prokn/alzheimers_associated_genes": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 12327,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 12318
+    },
+    "seconds": 59.756,
+    "engineMs": 244,
+    "rssMb": 1326.6
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 10993,
+    "requestsWithValues": 275,
+    "statuses": {
+     "200": 10991
+    },
+    "seconds": 57.809,
+    "engineMs": 2189,
+    "rssMb": 1418.5
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX efo: <http://www.ebi.ac.uk/efo/EFO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX biolink: <https://biolink.github.io/biolink-model/>\n\nSELECT DISTINCT\n(?gene AS ?GeneURI)\n(?geneLabel AS ?GeneName)\n(?gSAB AS ?GeneSource)\n(?disease AS ?DiseaseURI)\n(?diseaseLabel AS ?DiseaseName)\n(?dSAB AS ?DiseaseSource)\nWHERE {\n  # Find the Alzheimer's disease by its label\n        ?disease a ?diseaseType ;\n    rdfs:label ?diseaseLabel ;\n    dc:source ?dSAB.\n        FILTER((?diseaseType = upcore:Disease || ?diseaseType = efo:0000651) && CONTAINS(LCASE(?diseaseLabel), \"alzheimer\"))\n\n  # Find genes associated with this disease\n        ?gene biolink:associated_with ?disease ;\n    a upcore:Gene;\n    rdfs:label ?geneLabel ;\n    dc:source ?gSAB.\n}\nORDER BY ?geneLabel"
+ },
+ "prokn/kinase_inhibition_phosphosites": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX fma: <http://sig.uw.edu/fma#>\nPREFIX up: <http://purl.uniprot.org/core/>\nPREFIX bao: <http://www.bioassayontology.org/bao#BAO_>\nPREFIX allotrope: <http://purl.allotrope.org/ontologies/result#>\nPREFIX biolink: <https://biolink.github.io/biolink-model/>\nPREFIX so: <http://purl.obolibrary.org/obo/SO_>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX eco: <http://purl.obolibrary.org/obo/ECO_>\nPREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX schema: <http://schema.org/>\nPREFIX reproduceme: <https://w3id.org/reproduceme#>\n\nSELECT DISTINCT (?pertLabel as ?Perturbagen) (?e as ?Experiment) (?ptmLabel as ?PhosphorylationSite) (?log2Ratio as ?Value)\nWHERE {\n  # 1. Find the perturbagen entity\n  ?pert a bao:0003059 ;\n        rdfs:label ?pertLabel .\n  FILTER(LCASE(STR(?pertLabel)) = \"selumetinib\")\n\n  # 2. Link the perturbagen to the experiment(s) it was used in\n  ?pert eco:9000000 ?e .\n  \n  # 3. Find the reified statements for affected phosphorylation sites\n  # Matches your current data: subject is Experiment, object is PTMSite\n  ?stmt rdf:type rdf:Statement ;\n        rdf:predicate biolink:affected_by ;\n        rdf:subject ?ptmSite ;\n        rdf:object ?e;\n        ns:log2Ratio ?log2Ratio ;\n        dc:source ?source .\n  \n  # 4. Filter for downregulation (e.g., log2Ratio <= -1.0)\n  FILTER(xsd:decimal(?log2Ratio) <= -1.0)\n\n  # 5. Verify the target is a Phosphorylation PTM\n  ?ptmSite dc:type 'PHOSPHORYLATION' ;\n           rdfs:label ?ptmLabel .\n}\nORDER BY ?log2Ratio\nLIMIT 500"
+ },
+ "prokn/lincs_kinase_perturbations": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 16226,
+    "requestsWithValues": 6352,
+    "statuses": {
+     "200": 16210
+    },
+    "seconds": 59.656,
+    "engineMs": 343,
+    "rssMb": 1658.2
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 12326,
+    "requestsWithValues": 2914,
+    "statuses": {
+     "200": 12325
+    },
+    "seconds": 57.843,
+    "engineMs": 2153,
+    "rssMb": 1610.4
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX bao: <http://www.bioassayontology.org/bao#BAO_>\nPREFIX ncit: <http://purl.obolibrary.org/obo/NCIT_>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX ro: <http://purl.obolibrary.org/obo/RO_>\nPREFIX sio: <http://semanticscience.org/resource/SIO_>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX edam: <http://edamontology.org/>\n\nSELECT DISTINCT ?compoundLabel ?pubchemURI\nWHERE {\n  # Perturbagen\n  ?pert rdf:type bao:0003059 ;\n            dc:source \"LINCS_P100\" ;\n            obo:has_dbxref ?pubchemURI.\n\n  # Compound\n  ?comp rdf:type ncit:C43366 ;\n            dc:source \"DDKG_LINCS\" ;\n            rdfs:label ?compoundLabel.\n   optional {\n  \t\t?comp rdfs:seeAlso ?pubchemURI .\n  }\n\n  # Relationship: Compound -> Gene\n  { ?comp ro:0002213 ?kgene. } # POSITIVELY_REGULATES\n  UNION\n  { ?comp ro:0002212 ?kgene. } # NEGATIVELY_REGULATES\n\n  # Gene\n  ?kgene rdf:type upcore:Gene.\n\n  # Relationship: Gene -> Protein(IS_PROTEIN)\n  ?kgene sio:010078 ?pr.\n\n  # Protein\n  ?pr rdf:type upcore:Protein ;\n    edam:data_1011 ?ecNumber.\n\n  FILTER regex(?ecNumber, \"(^|;)2\\\\.7[^;]*\")\n}\nORDER BY ?compoundLabel ?pubchemURI\nLIMIT 100"
+ },
+ "prokn/list_diseases": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2146,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2145
+    },
+    "seconds": 59.775,
+    "engineMs": 225,
+    "rssMb": 639.2
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX efo: <http://www.ebi.ac.uk/efo/EFO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT \n(?disease AS ?DiseaseURI)\n(?label AS ?Name)\n(?SAB AS ?Source)\nWHERE {\n  ?disease a ?diseaseType.\n\n  # Filter for both Disease and DiseaseOrPhenotype types\n    FILTER(?diseaseType = upcore:Disease || ?diseaseType = efo:0000651)\n\n        ?disease rdfs:label ?label.\n  ?disease dc:source ?SAB.\n}"
+ },
+ "prokn/protein_kinases": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 1031,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 1031
+    },
+    "seconds": 7.223,
+    "engineMs": 232,
+    "rssMb": 508
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 220,
+    "requestsWithValues": 213,
+    "statuses": {
+     "200": 220
+    },
+    "seconds": 2.008,
+    "engineMs": 1945,
+    "rssMb": 646.5
+   }
+  },
+  "sparql": "PREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX edam: <http://edamontology.org/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\n\nSELECT ?kinase ?accession ?ecNumber WHERE {\n    ?kinase a upcore:Protein ;\n            dc:source \"UniProtKB\" ;\n            obo:NCIT_C25402 ?accession ;\n            edam:data_1011 ?ecNumber .\n    FILTER regex(?ecNumber, \"(^|;)2\\\\.7[^;]*\")\n}"
+ },
+ "prokn/protein_properties_relationships": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 34,
+    "requestsWithValues": 31,
+    "statuses": {
+     "200": 34
+    },
+    "seconds": 1.165,
+    "engineMs": 237,
+    "rssMb": 212.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 5,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.434,
+    "engineMs": 1927,
+    "rssMb": 493.5
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\n\nSELECT DISTINCT \n(?Subject   AS ?SubjectURI)\n(?Predicate AS ?PredicateURI)\n(?Object    AS ?ObjectValue)\nWHERE {\n  ?Subject a upcore:Protein;\n    obo:NCIT_C164806 \"TP53\".\n  ?Subject ?Predicate ?Object\n}\nORDER BY ?Subject"
+ },
+ "ruralkg/find_nibrs_justice_topics_to_variables": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 4.754,
+    "engineMs": 227,
+    "rssMb": 322.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 10,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 0.852,
+    "engineMs": 2310,
+    "rssMb": 511.6
+   }
+  },
+  "sparql": "PREFIX rdfs:     <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX justice:  <http://sail.ua.edu/ruralkg/justice/>\nPREFIX variable: <http://sail.ua.edu/ruralkg/variable/>\n\nSELECT ?justiceTopic ?justiceLabel ?variable ?variableCode ?variableContent\nWHERE {\n  ?justiceTopic justice:hasVariable ?variable .\n\n  OPTIONAL { ?justiceTopic rdfs:label ?justiceLabel . }\n  OPTIONAL { ?variable variable:code ?variableCode . }\n  OPTIONAL { ?variable variable:content ?variableContent . }\n}\nORDER BY ?justiceLabel ?variableCode\nLIMIT 100"
+ },
+ "ruralkg/find_nsduh_variables_that_mention_substances": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 73,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 73
+    },
+    "seconds": 1.007,
+    "engineMs": 231,
+    "rssMb": 247.7
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 23,
+    "requestsWithValues": 16,
+    "statuses": {
+     "200": 23
+    },
+    "seconds": 0.697,
+    "engineMs": 2363,
+    "rssMb": 466.7
+   }
+  },
+  "sparql": "PREFIX schema:         <https://schema.org/>\nPREFIX substanceabuse: <http://sail.ua.edu/ruralkg/substanceabuse/>\nPREFIX variable:       <http://sail.ua.edu/ruralkg/variable/>\n\nSELECT ?substanceName ?variable ?variableCode ?variableContent\nWHERE {\n  ?variable variable:fromDataset ?dataset ;\n            variable:code ?variableCode ;\n            variable:content ?variableContent ;\n            substanceabuse:mentionsSubstance ?substance .\n\n  ?substance schema:name ?substanceName .\n\n  FILTER(STR(?dataset) = \"NSDUH\")\n}\nORDER BY ?substanceName ?variableCode\nLIMIT 100"
+ },
+ "ruralkg/list-providers": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 590,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 590
+    },
+    "seconds": 4.474,
+    "engineMs": 391,
+    "rssMb": 473.6
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 48,
+    "requestsWithValues": 36,
+    "statuses": {
+     "200": 48
+    },
+    "seconds": 2.131,
+    "engineMs": 2202,
+    "rssMb": 534.5
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?provider ?providerName ?address ?postalCode ?telephone ?gnisLocation\nWHERE {\n  ?provider rdf:type treatment:TreatmentProvider ;\n            schema:name ?providerName .\n\n  OPTIONAL { ?provider schema:address ?address . }\n  OPTIONAL { ?provider schema:postalCode ?postalCode . }\n  OPTIONAL { ?provider schema:telephone ?telephone . }\n  OPTIONAL { ?provider schema:serviceLocation ?gnisLocation . }\n}\nORDER BY ?providerName\nLIMIT 100"
+ },
+ "ruralkg/list-substances": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.327,
+    "engineMs": 256,
+    "rssMb": 188.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.318,
+    "engineMs": 1900,
+    "rssMb": 440.1
+   }
+  },
+  "sparql": "PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema: <https://schema.org/>\nPREFIX sa:     <http://sail.ua.edu/ruralkg/substanceabuse/>\n\nSELECT ?substance ?name\nWHERE {\n  ?substance rdf:type sa:Substance ;\n             schema:name ?name .\n}\nORDER BY ?name\nLIMIT 100"
+ },
+ "ruralkg/mental_health_service_categories": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 9,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.334,
+    "engineMs": 264,
+    "rssMb": 190.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.36,
+    "engineMs": 1927,
+    "rssMb": 403.2
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?category ?categoryName ?categoryCode (COUNT(DISTINCT ?service) AS ?serviceCount)\nWHERE {\n  ?category rdf:type treatment:MentalHealthServiceCategory ;\n            schema:name ?categoryName ;\n            treatment:code ?categoryCode ;\n            treatment:containsService ?service .\n}\nGROUP BY ?category ?categoryName ?categoryCode\nORDER BY DESC(?serviceCount) ?categoryName\nLIMIT 100"
+ },
+ "ruralkg/rural_counties_rucc_7_9": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 244,
+    "requestsWithValues": 237,
+    "statuses": {
+     "200": 244
+    },
+    "seconds": 1.61,
+    "engineMs": 228,
+    "rssMb": 309.2
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 60,
+    "requestsWithValues": 53,
+    "statuses": {
+     "200": 60
+    },
+    "seconds": 1.193,
+    "engineMs": 1829,
+    "rssMb": 509.8
+   }
+  },
+  "sparql": "PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX settlement: <http://sail.ua.edu/ruralkg/settlementtype/>\n\nSELECT ?kwgCounty ?year ?population ?ruccCode\nWHERE {\n  ?countyStatus rdf:type settlement:CountyStatus ;\n                settlement:censusCounty ?kwgCounty ;\n                settlement:year ?year ;\n                settlement:population ?population ;\n                settlement:hasRUCC ?rucc .\n\n  ?rucc settlement:code ?ruccCode .\n\n  FILTER(STR(?ruccCode) IN (\"7\", \"8\", \"9\"))\n}\nORDER BY DESC(?year) DESC(?population)\nLIMIT 100"
+ },
+ "ruralkg/telehealth_treatment_providers": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 470,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 470
+    },
+    "seconds": 3.836,
+    "engineMs": 241,
+    "rssMb": 405.6
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 66,
+    "requestsWithValues": 56,
+    "statuses": {
+     "200": 66
+    },
+    "seconds": 1.32,
+    "engineMs": 1865,
+    "rssMb": 600.8
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?providerName ?serviceName ?gnisLocation ?telephone\nWHERE {\n  ?provider rdf:type treatment:TreatmentProvider ;\n            schema:name ?providerName ;\n            treatment:providesService treatment:MHS_TELE .\n\n  treatment:MHS_TELE schema:name ?serviceName .\n\n  OPTIONAL { ?provider schema:serviceLocation ?gnisLocation . }\n  OPTIONAL { ?provider schema:telephone ?telephone . }\n}\nORDER BY ?providerName\nLIMIT 100"
+ },
+ "scales/distinct-judges": {
+  "kg": "scales",
+  "endpoint": "https://apps.okn.us/kgf/scales/v/v0.0.25/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.206,
+    "engineMs": 245,
+    "rssMb": 185.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.245,
+    "engineMs": 1853,
+    "rssMb": 440.6
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX j: <http://release.niem.gov/niem/domains/jxdm/7.2/#>\nPREFIX nc: <http://release.niem.gov/niem/niem-core/5.0/>\nSELECT DISTINCT ?judgeName\nWHERE {\n  ?judge rdf:type j:Judge ;\n         nc:PersonFullName ?judgeName .\n}\nLIMIT 100"
+ },
+ "securechainkg/ffmpeg-dependencies": {
+  "kg": "securechainkg",
+  "endpoint": "https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 32,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 29
+    },
+    "seconds": 0.331,
+    "engineMs": 227,
+    "rssMb": 183.7
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 12,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.343,
+    "engineMs": 1825,
+    "rssMb": 451.2
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX sc: <https://w3id.org/secure-chain/>\nSELECT ?package ?dependency {\n  ?software schema:name \"ffmpeg\" .\n  ?software sc:hasSoftwareVersion ?package .\n  ?package sc:dependsOn ?dependency\n}\nLIMIT 100"
+ },
+ "securechainkg/ffmpeg-vulnerabilities": {
+  "kg": "securechainkg",
+  "endpoint": "https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 14,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.376,
+    "engineMs": 250,
+    "rssMb": 190
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.269,
+    "engineMs": 1831,
+    "rssMb": 438.1
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX sc: <https://w3id.org/secure-chain/>\nSELECT ?vuln ?software {\n  ?software schema:name \"ffmpeg\" .\n  ?software sc:hasSoftwareVersion ?package .\n  ?package sc:vulnerableTo ?vuln .\n}\nLIMIT 100"
+ },
+ "sockg/avg_soc_stock_by_state": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "crash: at /Users/jim/Documents/Source/kgf-sparql/node_modules/asynciterator/dist/asynciterator.js:1176:30\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.9.0\n"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT ?state (ROUND(AVG(?SOCStockExpUnit) * 100) / 100 AS ?AvgSocStock)\nWHERE {\n    {\n        SELECT DISTINCT ?e ?date (SUM(?SOCStock) AS ?SOCStockExpUnit)\n        WHERE {\n            ?sc a sockg:SoilChemicalSample ;\n                sockg:lowerDepth ?ld ;\n                sockg:upperDepth ?ud ;\n                sockg:hasMeasurement ?scm ;\n                sockg:fromUnit ?e ;\n                dcterms:date ?date .\n\n            ?ld qudt:numericValue ?lowerDepth .\n            ?ud qudt:numericValue ?upperDepth .\n\n            ?scm sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n\t            qudt:quantityValue ?scv .\n            ?scv qudt:numericValue ?soc .\n\n            FILTER (?soc != 0)\n\n            ?sp a sockg:SoilPhysicalSample ;\n                sockg:lowerDepth ?ldp ;\n                sockg:fromUnit ?e ;\n                sockg:hasMeasurement ?spm ;\n                dcterms:date ?date .\n\n            ?ldp qudt:numericValue ?physLowerDepth .\n\n            FILTER(?lowerDepth = ?physLowerDepth)\n\n            ?spm sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n            \tqudt:quantityValue ?spv .\n            ?spv qudt:numericValue ?bulkDensity ;\n\n            BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCStock)\n        }\n        GROUP BY ?e ?date \n    }\n\n    ?e a sockg:ExperimentalUnit ;\n\t\tkwg-ont:sfWithin ?w . # site\n    \n    ?w kwg-ont:sfWithin ?f . # field\n    ?f kwg-ont:sfWithin ?s . #state\n    \n\t?s rdfs:label ?state .\n    \n    FILTER (?state != \"United States\")\n}\nGROUP BY ?state"
+ },
+ "sockg/avg_temp_increase": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?crop ?ChambPlacement ?label (ROUND(AVG(?DiffTemp) * 1000) / 1000 AS ?AvgTempDiff) \n\t\t\t\t(SAMPLE(?Unit) AS ?unit) (COUNT(*) AS ?NumOfSamples) \nWHERE {\n    BIND(\"air_temp_degc\" AS ?label)\n\n\t?b a sockg:GHGFlux ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n\t\tsockg:usesTreatment ?t ;\n    \tsockg:hasChamberPlacement ?cp ;\n\t\tsockg:hasCrop ?c ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?cp rdfs:label ?ChambPlacement .\n    ?c rdfs:label ?crop .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n    \n    {\n        SELECT ?expUnit (MIN(?date) AS ?baselineDate) (SAMPLE(?baseValue) AS ?baselineValue)\n        WHERE {\n            ?b a sockg:GHGFlux ;\n                sockg:hasMeasurement ?m ;\n                sockg:fromUnit ?e ;\n                dcterms:date ?date .\n            \n            ?e dcterms:identifier ?expUnit .\n            \n            ?m sockg:of ?param ;\n                qudt:quantityValue ?v .\n            ?param a sockg:Parameter ;\n                    rdfs:label ?label .\n            ?v qudt:numericValue ?baseValue ;\n                qudt:hasUnit ?Unit .\n        }\n        GROUP BY ?expUnit\n    }\n    \n    FILTER(?date != ?baselineDate)\n    \n    BIND(?Value - ?baselineValue AS ?DiffTemp)\n}\nGROUP BY ?expUnit ?treatment ?crop ?ChambPlacement ?label\nORDER BY DESC(?AvgTempDiff)"
+ },
+ "scales/scales-ontology-event-labels": {
+  "kg": "scales",
+  "endpoint": "https://apps.okn.us/kgf/scales/v/v0.0.25/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2340,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2340
+    },
+    "seconds": 59.763,
+    "engineMs": 237,
+    "rssMb": 379.2
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 567,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 566
+    },
+    "seconds": 58.1,
+    "engineMs": 1900,
+    "rssMb": 1883.8
+   }
+  },
+  "sparql": "PREFIX scales: <http://schemas.scales-okn.org/rdf/scales#>\nSELECT DISTINCT ?eventLabel\nWHERE {\n  ?docket scales:OntologyLabel ?eventLabel .\n}\nLIMIT 100"
+ },
+ "sockg/biomassCarbohydrate": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?date (SAMPLE(?crop) AS ?Crop) ?plantFraction (SAMPLE(?growthStage) AS ?GrowthStage) ?label (SAMPLE(?value) AS ?Value) (SAMPLE(?unit) AS ?Unit) WHERE {\n    ?f a sockg:BiomassCarbohydrate ;\n    \tsockg:fromUnit ?e ;\n    \tsockg:hasPlantFraction ?pf ;\n    \tsockg:hasGrowthStage ?gs ;\n    \tsockg:hasCrop ?c ;\n    \tdcterms:date ?date ;\n    \tsockg:hasMeasurement ?m .\n    \n    # Get literals\n    ?e dcterms:identifier ?expUnit .\n    ?pf rdfs:label ?plantFraction .\n    ?gs rdfs:label ?growthStage .\n    ?c rdfs:label ?crop .\n    \n    ?m sockg:of ?param ;\n    \tqudt:quantityValue ?v .\n    \n    ?param a sockg:Parameter ;\n    \trdfs:label ?label .\n    \n    ?v qudt:numericValue ?value ;\n    \tqudt:hasUnit ?unit .\n}\nGROUP BY ?expUnit ?date ?plantFraction ?label \nORDER BY ?expUnit ?date ?plantFraction"
+ },
+ "sockg/field_location": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 43,
+    "requestsWithValues": 36,
+    "statuses": {
+     "200": 43
+    },
+    "seconds": 1.561,
+    "engineMs": 246,
+    "rssMb": 204.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 17,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 17
+    },
+    "seconds": 0.46,
+    "engineMs": 1852,
+    "rssMb": 446.3
+   }
+  },
+  "sparql": "PREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX dc: <https://datacommons.org/browser/geoId>\n\nSELECT DISTINCT ?country ?state (GROUP_CONCAT(DISTINCT ?fieldId; SEPARATOR=\", \") AS ?fieldIDs) WHERE {\n    ?ar a kwg-ont:AdministrativeRegion_0 ;\n\t\trdfs:label ?country ;\n    \tkwg-ont:sfContains ?contained_regions .\n    \n    ?contained_regions a kwg-ont:AdministrativeRegion_1 .\n    BIND(?contained_regions AS ?sp)\n    FILTER(STRSTARTS(STR(?sp), STR(dc:)))\n   \n    ?sp kwg-ont:sfContains ?field ;\n    \trdfs:label ?state .\n    \n    ?field a sockg:Location ;\n    \tdcterms:identifier ?fieldId .\n}\nGROUP BY ?country ?state"
+ },
+ "sockg/fields_in_texas": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 15,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 15
+    },
+    "seconds": 0.521,
+    "engineMs": 238,
+    "rssMb": 192.5
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 10,
+    "requestsWithValues": 5,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 0.464,
+    "engineMs": 1786,
+    "rssMb": 448.4
+   }
+  },
+  "sparql": "PREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\nSELECT DISTINCT ?fieldId ?site ?stateAbbr \nWHERE {\n    ?s a sockg:Site ;\n        kwg-ont:sfWithin ?l ;\n        dcterms:identifier ?site .\n    \n    FILTER(STRSTARTS(STR(?l), STR(ind:Location)))\n    \n    ?l kwg-ont:sfWithin ?stateIRI ;\n        dcterms:identifier ?fieldId .\n    \n    ?stateIRI rdfs:label ?stateAbbr .\n    \n    FILTER(?stateAbbr = \"TX\")\n\n}"
+ },
+ "sockg/fields_on_sites": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 111,
+    "requestsWithValues": 105,
+    "statuses": {
+     "200": 111
+    },
+    "seconds": 1.801,
+    "engineMs": 276,
+    "rssMb": 244.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 26,
+    "requestsWithValues": 20,
+    "statuses": {
+     "200": 26
+    },
+    "seconds": 0.634,
+    "engineMs": 1801,
+    "rssMb": 467.5
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX schema: <https://schema.org/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?site ?fieldId  (xsd:integer(?tmp) AS ?PostalCode)  WHERE {\n    ?f a sockg:Site ;\n    \tdcterms:identifier ?site ;\n    \tschema:postalCode ?postalCode ;\n    \tkwg-ont:sfWithin ?within .\n    \n    ?within a sockg:Location ;\n    \tdcterms:identifier ?fieldId .\n    \n    # cant directly convert to int\n    BIND(xsd:float(?postalCode) AS ?tmp)\n    \n}"
+ },
+ "sockg/location": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 52,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 52
+    },
+    "seconds": 3.198,
+    "engineMs": 232,
+    "rssMb": 359
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 10,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 2.29,
+    "engineMs": 1868,
+    "rssMb": 515.8
+   }
+  },
+  "sparql": "PREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX spatial: <http://purl.org/spatialai/spatial/spatial-full#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\n\nSELECT DISTINCT ?loc (GROUP_CONCAT(DISTINCT ?superLoc; SEPARATOR=\", \") AS ?superLocs) (GROUP_CONCAT(DISTINCT ?subLoc) AS ?subLocs) (GROUP_CONCAT(DISTINCT ?s2) AS ?s2cells) WHERE {\n    ?f a sockg:Location ;\n    \tdcterms:identifier ?loc;\n    \tkwg-ont:sfContains ?subLoc ;\n    \tkwg-ont:sfWithin ?superLoc ;\n    \tspatial:connectedTo ?s2 .\n    \n    FILTER(STRSTARTS(STR(?s2), STR(kwgr:s2)))\n}\nGROUP BY ?loc \nORDER BY ?loc\nLIMIT 10"
+ },
+ "sockg/soc_stock": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nSELECT ?expUnitId ?treatmentId ?date (xsd:integer(?upperDepth) AS ?UpperDepth) (xsd:integer(?lowerDepth) AS ?LowerDepth) (xsd:decimal(?soc) AS ?SOC) (xsd:decimal(?bulkDensity) AS ?BulkDensity) (xsd:decimal(?deltaDepth) AS ?DeltaDepth) ?SOCstock     \nWHERE {     \n    BIND(\"1998-04-20\"^^xsd:date AS ?date)  \n    BIND(\"GAJPCSR1_F1H2\" AS ?treatmentId)  \n\n\n    ?expUnit a sockg:ExperimentalUnit ;\n        dcterms:identifier ?expUnitId ;\n        kwg-ont:sfWithin ?spatial_data .\n\n\n    # Make sure it is a field, not site ID\n    FILTER(STRSTARTS(STR(?spatial_data), STR(ind:Location))) \n    ?spatial_data dcterms:identifier ?fieldId .        \n\n\n\n\n    # Gather CHEM samples\n    ?soilChem a sockg:SoilChemicalSample ;\n        sockg:usesTreatment ?treatment ;\n        sockg:lowerDepth ?LDepth ;\n        sockg:upperDepth ?UDepth ;\n        sockg:hasMeasurement ?meas ;\n        sockg:fromUnit ?expUnit ;\n        dcterms:date ?date .\n    ?treatment dcterms:identifier ?treatmentId .\n\n\n    ?LDepth qudt:numericValue ?lowerDepth .\n    ?UDepth qudt:numericValue ?upperDepth ;\n        qudt:hasUnit ?depthUnit .\n    ?meas sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n        qudt:quantityValue ?result .\n    ?result qudt:numericValue ?soc ;\n        qudt:hasUnit ?socUnit .\n    FILTER (?soc != 0)\n\n\n\n\n    # ===================\n    # Gather PHYS samples\n    ?physSample a sockg:SoilPhysicalSample ;\n        sockg:fromUnit ?expUnit ;\n        sockg:usesTreatment ?treatment ;\n        sockg:lowerDepth ?physLDepth ;\n        sockg:hasMeasurement ?physMeasurement ;\n        dcterms:date ?date .\n    # To keep it simple, assume phys and chem samples have same layer depths\n    ?physLDepth qudt:numericValue ?physLowerDepth .\n    FILTER (?physLowerDepth = ?lowerDepth)\n    ?physMeasurement sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n        qudt:quantityValue ?physResult .\n    ?physResult qudt:numericValue ?bulkDensity ;\n        qudt:hasUnit ?bulkDensityUnit .\n\n\n\n\n    BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCstock) \n    BIND((?lowerDepth - ?upperDepth) AS ?deltaDepth)\n\n\n}\nORDER BY ?LowerDepth"
+ },
+ "sockg/sock_stock_for_treatmnent_id": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nSELECT ?expUnitId ?treatmentId ?date (xsd:integer(?upperDepth) AS ?UpperDepth) (xsd:integer(?lowerDepth) AS ?LowerDepth) (xsd:decimal(?soc) AS ?SOC) (xsd:decimal(?bulkDensity) AS ?BulkDensity) (xsd:decimal(?deltaDepth) AS ?DeltaDepth) ?SOCstock     \nWHERE {     \n    BIND(\"1998-04-20\"^^xsd:date AS ?date)  \n    BIND(\"GAJPCSR1_F1H2\" AS ?treatmentId)  \n\n\n    ?expUnit a sockg:ExperimentalUnit ;\n             dcterms:identifier ?expUnitId ;\n             kwg-ont:sfWithin ?spatial_data .\n\n\n    # Make sure it is a field, not site ID\n    FILTER(STRSTARTS(STR(?spatial_data), STR(ind:Location))) \n    ?spatial_data dcterms:identifier ?fieldId .        \n\n\n\n\n    # Gather CHEM samples\n    ?soilChem a sockg:SoilChemicalSample ;\n              sockg:usesTreatment ?treatment ;\n              sockg:lowerDepth ?LDepth ;\n              sockg:upperDepth ?UDepth ;\n              sockg:hasMeasurement ?meas ;\n              sockg:fromUnit ?expUnit ;\n              dcterms:date ?date .\n    ?treatment dcterms:identifier ?treatmentId .\n\n\n    ?LDepth qudt:numericValue ?lowerDepth .\n    ?UDepth qudt:numericValue ?upperDepth ;\n            qudt:hasUnit ?depthUnit .\n    ?meas sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n          qudt:quantityValue ?result .\n    ?result qudt:numericValue ?soc ;\n            qudt:hasUnit ?socUnit .\n    FILTER (?soc != 0)\n\n\n\n\n    # ===================\n    # Gather PHYS samples\n    ?physSample a sockg:SoilPhysicalSample ;\n                sockg:fromUnit ?expUnit ;\n                sockg:usesTreatment ?treatment ;\n                sockg:lowerDepth ?physLDepth ;\n                sockg:hasMeasurement ?physMeasurement ;\n                dcterms:date ?date .\n    # To keep it simple, assume phys and chem samples have same layer depths\n    ?physLDepth qudt:numericValue ?physLowerDepth .\n    FILTER (?physLowerDepth = ?lowerDepth)\n    ?physMeasurement sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n                     qudt:quantityValue ?physResult .\n    ?physResult qudt:numericValue ?bulkDensity ;\n                qudt:hasUnit ?bulkDensityUnit .\n\n\n\n\n    BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCstock) \n    BIND((?lowerDepth - ?upperDepth) AS ?deltaDepth)\n\n\n}\nORDER BY ?LowerDepth"
+ },
+ "sockg/harvest_fraction": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?date ?crop ?plantFraction ?growthStage ?label ?Value ?Unit WHERE {\n    ?b a sockg:HarvestFraction ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n    \tsockg:hasPlantFraction ?pf ;\n    \tsockg:hasGrowthStage ?gs ;\n    \tsockg:hasCrop ?c ;\n\t\tsockg:usesTreatment ?t ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?pf rdfs:label ?plantFraction .\n    ?gs rdfs:label ?growthStage .\n    ?c rdfs:label ?crop .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n}\nORDER BY ?expUnit ?date ?label"
+ },
+ "sockg/soilBiologicalSample": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 38965,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 38949
+    },
+    "seconds": 59.754,
+    "engineMs": 246,
+    "rssMb": 2049
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 32319,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 32310
+    },
+    "seconds": 58.086,
+    "engineMs": 1913,
+    "rssMb": 1981
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?date ?upperDepth ?lowerDepth ?label WHERE {\n    ?b a sockg:SoilBiologicalSample ;\n        sockg:fromUnit ?e ;\n        sockg:lowerDepth ?ld ;\n        sockg:upperDepth ?ud ;\n        dcterms:date ?date .\n\n    ?e dcterms:identifier ?expUnit .\n    ?ld qudt:numericValue ?lowerDepth .\n    ?ud qudt:numericValue ?upperDepth .\n}\nORDER BY ?expUnit ?date ?label\nLIMIT 5"
+ },
+ "sockg/soil_samples": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\n\nPREFIX ns1: <http://qudt.org/schema/qudt/>\nSELECT DISTINCT ?treatmentId ?date ?crop ?plantFraction ?carbon_concentration ?Unit \nWHERE {\n    ?b a sockg:BiomassMineral ;\n        dcterms:date ?date ;\n        sockg:usesTreatment ?t ;\n        sockg:hasMeasurement ?meas ;\n        sockg:hasPlantFraction ?pf ;\n        sockg:hasCrop ?c .\n    \n    # get human readable labels\n    ?t dcterms:identifier ?treatmentId .\n        ?pf rdfs:label ?plantFraction .\n    ?c rdfs:label ?crop .\n    \n    # get carbon concentration vals and unit\n    ?meas sockg:of ind:Parameter.MeasBiomassMinAn.9 ;\n        ns1:quantityValue ?vals .\n    ?vals ns1:numericValue ?carbon_concentration ;\n        ns1:hasUnit ?Unit\n    \n    FILTER(?carbon_concentration >= 475.0)\n       \n}\nORDER BY ?date"
+ },
+ "sockg/who_works_agcros": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.683,
+    "engineMs": 251,
+    "rssMb": 192
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 14,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.512,
+    "engineMs": 1971,
+    "rssMb": 449
+   }
+  },
+  "sparql": "PREFIX schema: <https://schema.org/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\n\nSELECT DISTINCT ?name ?role (GROUP_CONCAT(?ename; SEPARATOR=\", \") AS ?fieldName)\nWHERE {\n    ?e a schema:Person ;\n       schema:givenName ?fname ;\n       schema:additionalName ?mname ;\n       schema:familyName ?lname ;\n       schema:workLocation ?l ;\n       schema:role ?role .\n\n\n    ?l dcterms:identifier ?ename .\n    \n    BIND(IF(CONTAINS(STR(?mname), \".\"),\n            CONCAT(STR(?fname), \" \", STR(?mname), \" \", STR(?lname)), \n            CONCAT(STR(?fname), \" \", STR(?mname), \". \", STR(?lname)) \n        ) AS ?name)\n}\nGROUP BY ?name ?role\nORDER BY ?name"
+ },
+ "spatialkg/sawgraph-spatial-02": {
+  "kg": "spatialkg",
+  "endpoint": "https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.463,
+    "engineMs": 229,
+    "rssMb": 190.4
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.391,
+    "engineMs": 1918,
+    "rssMb": 453.2
+   }
+  },
+  "sparql": "PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?cousub_label ?cousub WHERE {\n    # Select county subdivisions and their names\n    #    from Clare County, MI (FIPS = 26035)\n    ?cousub rdf:type kwg-ont:AdministrativeRegion_3 ;\n            kwg-ont:administrativePartOf kwgr:administrativeRegion.USA.26035 ;\n            rdfs:label ?cousub_label .\n} ORDER BY ?cousub_label"
+ },
+ "spatialkg/sawgraph-spatial-04": {
+  "kg": "spatialkg",
+  "endpoint": "https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.331,
+    "engineMs": 226,
+    "rssMb": 190.7
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.372,
+    "engineMs": 1751,
+    "rssMb": 443.9
+   }
+  },
+  "sparql": "PREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT * WHERE {\n  ?s rdf:type kwg-ont:AdministrativeRegion_2 ;\n     rdfs:label ?name ;\n     kwg-ont:administrativePartOf kwgr:administrativeRegion.USA.35 .\n  FILTER(regex(str(?s), \"datacommons\"))\n} ORDER BY ?name"
+ },
+ "ubergraph/abdominal-cell-types": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 2592,
+    "requestsWithValues": 52,
+    "statuses": {
+     "200": 2592
+    },
+    "seconds": 7.597,
+    "engineMs": 220,
+    "rssMb": 437.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 279,
+    "requestsWithValues": 42,
+    "statuses": {
+     "200": 279
+    },
+    "seconds": 1.599,
+    "engineMs": 1807,
+    "rssMb": 497.3
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX cell: <http://purl.obolibrary.org/obo/CL_0000000>\nPREFIX organ: <http://purl.obolibrary.org/obo/UBERON_0000062>\nPREFIX abdomen: <http://purl.obolibrary.org/obo/UBERON_0000916>\nPREFIX part_of: <http://purl.obolibrary.org/obo/BFO_0000050>\nSELECT DISTINCT ?cell ?cell_label ?organ ?organ_label\nWHERE {\n  ?cell rdfs:subClassOf cell: .\n  ?cell part_of: ?organ .\n  ?organ rdfs:subClassOf organ: .\n  ?organ part_of: abdomen: .\n  ?cell rdfs:label ?cell_label .\n  ?organ rdfs:label ?organ_label .\n}"
+ },
+ "ubergraph/adrenal-gland": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.298,
+    "engineMs": 236,
+    "rssMb": 186.8
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.223,
+    "engineMs": 1812,
+    "rssMb": 441
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX adrenal_gland: <http://purl.obolibrary.org/obo/UBERON_0002369>\nPREFIX part_of: <http://purl.obolibrary.org/obo/BFO_0000050>\nSELECT DISTINCT ?x ?x_label\nWHERE {\n  adrenal_gland: part_of: ?x .\n  ?x rdfs:label ?x_label .\n}"
+ },
+ "ubergraph/processes-that-output-glucose": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "turtle": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.331,
+    "engineMs": 236,
+    "rssMb": 188.3
+   },
+   "all+turtle": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.226,
+    "engineMs": 1800,
+    "rssMb": 438.8
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>\nPREFIX has_output: <http://purl.obolibrary.org/obo/RO_0002234>\nSELECT ?process ?label\nWHERE {\n  ?process has_output: CHEBI:17234 .\n  ?process rdfs:label ?label .\n}"
+ },
+ "sockg/water_sample": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "turtle": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 5044,
+    "requestsWithValues": 636,
+    "statuses": {
+     "200": 5042
+    },
+    "seconds": 59.738,
+    "engineMs": 262,
+    "rssMb": 1925.2
+   },
+   "all+turtle": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?date ?SurfOrLeach ?LossOrDep ?label ?Value ?Unit WHERE {\n    ?b a sockg:WaterQualityArea ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n\t\tsockg:usesTreatment ?t ;\n    \tsockg:hasSurfaceOrLeaching ?sl ;\n\t\tsockg:hasLossesOrDeposition ?ld ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?sl rdfs:label ?SurfOrLeach .\n    ?ld rdfs:label ?LossOrDep .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n}\nORDER BY ?expUnit ?date ?label"
+ }
+}

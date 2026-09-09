@@ -9,3 +9,5 @@ test/void-stats.json
 test/cfg-mod-*.json
 test/config-nofudge.json
 test/corpus.log
+handoff/
+__pycache__/

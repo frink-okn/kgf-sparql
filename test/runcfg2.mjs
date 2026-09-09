@@ -6,7 +6,8 @@ let n=0, vals=0; const rf=globalThis.fetch;
 globalThis.fetch=(i,o)=>{n++; const u=typeof i==='string'?i:i.url; if(/values=/.test(u))vals++; return rf(i,o);};
 const ctx={sources:[{type:'brtpf',value:ep}],
   '@comunica/bus-http:http-retry-count':8,
-  '@comunica/bus-http:http-retry-status-codes':[429,502,503,504],
+  // Leave 429, 503, and 504 to Comunica's native Retry-After-aware paths.
+  '@comunica/bus-http:http-retry-status-codes':[502],
   '@comunica/bus-http:http-retry-delay-fallback':250};
 if (statsPath && statsPath!=='none') ctx[KEY_VOID_STATISTICS.name]=JSON.parse(fs.readFileSync(statsPath,'utf8'));
 const engine = await new QueryEngineFactory().create({ configPath: cfg });

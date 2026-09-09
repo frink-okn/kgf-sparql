@@ -1,0 +1,6519 @@
+{
+ "biobricks-ice/assays-from-invitrodb": {
+  "kg": "biobricks-ice",
+  "endpoint": "https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 6,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.66,
+    "rssMb": 210.8
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.523,
+    "rssMb": 207.8
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "8a13dfbb0a175a44:ab1c18e6c39448e0",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.665,
+    "rssMb": 206.5
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "608b5979edf66100:ce0209144e50cc6a",
+    "requests": 23,
+    "requestsWithValues": 20,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.92,
+    "rssMb": 303.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "15d93f997338b23e:fb545487d54b966c",
+    "requests": 36,
+    "requestsWithValues": 32,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.666,
+    "rssMb": 216.7
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "15d93f997338b23e:fb545487d54b966c",
+    "requests": 36,
+    "requestsWithValues": 32,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.648,
+    "rssMb": 217.8
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 12,
+    "requestsWithValues": 8,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.481,
+    "engineMs": 1916,
+    "rssMb": 473.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 9,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.422,
+    "engineMs": 1864,
+    "rssMb": 421.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "49a3569f9c728ae9:54cc453b7e908e2b",
+    "requests": 9,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.408,
+    "engineMs": 1855,
+    "rssMb": 416.7
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>\nPREFIX CAS: <http://identifiers.org/cas/>\nPREFIX EDAM: <http://edamontology.org/>\nPREFIX dce: <http://purl.org/dc/elements/1.1/>\nPREFIX BAO: <http://www.bioassayontology.org/bao#BAO_>\nSELECT ?assay \nWHERE {\n  ?assay a BAO:0000015 ;\n         dce:source \"InvitroDB\" .\n}\nLIMIT 100"
+ },
+ "dreamkg/services-available-weekend": {
+  "kg": "dreamkg",
+  "endpoint": "https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 15,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 15
+    },
+    "seconds": 0.909,
+    "rssMb": 215.7
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 19,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.939,
+    "rssMb": 216.9
+   },
+   "void": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 19,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.85,
+    "rssMb": 218.5
+   },
+   "page10k": {
+    "ok": false,
+    "error": "Query source hypermedia identification failed: none of the configured actors were able to identify https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment\n    Error messages of failing actors:\n        Illegal state: found no TPF/QPF search form anymore in metadata.\n        Actor urn:comunica:default:query",
+    "requests": 1,
+    "requestsWithValues": 0,
+    "statuses": {
+     "500": 1
+    },
+    "seconds": 0.366,
+    "rssMb": 168.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 14,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.717,
+    "rssMb": 219.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 14,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.625,
+    "rssMb": 218.5
+   },
+   "all": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.462,
+    "engineMs": 1927,
+    "rssMb": 461.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 16,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.78,
+    "engineMs": 1837,
+    "rssMb": 466.7
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 87,
+    "hash": "c52495a80b6bfa80:66a145019db9ccac",
+    "requests": 16,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.653,
+    "engineMs": 1838,
+    "rssMb": 468.1
+   }
+  },
+  "sparql": "PREFIX dreamkg: <http://www.semanticweb.org/dreamkg/ijcai/>\nPREFIX sdo: <http://schema.org/>\nSELECT DISTINCT ?service {\n  ?service sdo:hoursAvailable ?hours .\n  ?hours sdo:dayOfWeek ?dow .\n  FILTER(?dow IN (\"Saturday\",\"Sunday\"))\n}"
+ },
+ "dreamkg/services-in-more-than-one-language": {
+  "kg": "dreamkg",
+  "endpoint": "https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 48,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 48
+    },
+    "seconds": 0.753,
+    "rssMb": 213.1
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.624,
+    "rssMb": 205.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.535,
+    "rssMb": 207.1
+   },
+   "page10k": {
+    "ok": false,
+    "error": "Query source hypermedia identification failed: none of the configured actors were able to identify https://apps.okn.us/kgf/dreamkg/v/v0.0.4/fragment\n    Error messages of failing actors:\n        Illegal state: found no TPF/QPF search form anymore in metadata.\n        Actor urn:comunica:default:query",
+    "requests": 1,
+    "requestsWithValues": 0,
+    "statuses": {
+     "500": 1
+    },
+    "seconds": 0.47,
+    "rssMb": 168.5
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.52,
+    "rssMb": 206.1
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.606,
+    "rssMb": 206.8
+   },
+   "all": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.381,
+    "engineMs": 1877,
+    "rssMb": 515
+   },
+   "block256": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.317,
+    "engineMs": 1875,
+    "rssMb": 454.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 13,
+    "hash": "58fd776ff9e42d3c:6175f2ae6db97fc0",
+    "requests": 7,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 0.327,
+    "engineMs": 1936,
+    "rssMb": 463.5
+   }
+  },
+  "sparql": "PREFIX dreamkg: <http://www.semanticweb.org/dreamkg/ijcai/>\nPREFIX sdo: <http://schema.org/>\nSELECT ?service (GROUP_CONCAT(DISTINCT ?languageLabel; separator=\" / \") AS ?languages) \nWHERE {\n  ?service sdo:category ?language .\n  ?language sdo:inCodeSet dreamkg:_CategoryCodeSet_Languages .\n  ?language sdo:codeValue ?languageLabel\n}\nGROUP BY ?service\nHAVING(COUNT(DISTINCT ?languageLabel) > 1)"
+ },
+ "fiokg/fio-NAICS-classification-for-facility": {
+  "kg": "fiokg",
+  "endpoint": "https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 8,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.638,
+    "rssMb": 191.9
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.462,
+    "rssMb": 187.3
+   },
+   "void": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.548,
+    "rssMb": 186.6
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 1.48,
+    "rssMb": 309.6
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.458,
+    "rssMb": 187.1
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.601,
+    "rssMb": 190
+   },
+   "all": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.321,
+    "engineMs": 1839,
+    "rssMb": 448.6
+   },
+   "block256": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.251,
+    "engineMs": 1842,
+    "rssMb": 446.5
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 5,
+    "hash": "98714ae1afbf0281:326e92a3db7d2f73",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.315,
+    "engineMs": 1877,
+    "rssMb": 446.1
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX fio: <http://w3id.org/fio/v1/fio#>\nPREFIX naics: <http://w3id.org/fio/v1/naics#> \nPREFIX epa-frs-data: <http://w3id.org/fio/v1/epa-frs-data#>\n\nselect ?o ?label where {\n    epa-frs-data:d.FRS-Facility.110000428662 fio:ofIndustry ?o .\n    ?o rdfs:label ?label.\n}"
+ },
+ "hydrologykg/sawgraph-hydrology-02": {
+  "kg": "hydrologykg",
+  "endpoint": "https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 895,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 895
+    },
+    "seconds": 3.334,
+    "rssMb": 365.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 22,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 22
+    },
+    "seconds": 0.823,
+    "rssMb": 216.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 22,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 22
+    },
+    "seconds": 0.781,
+    "rssMb": 219.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 20,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 20
+    },
+    "seconds": 2.249,
+    "rssMb": 367.2
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 21,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 21
+    },
+    "seconds": 0.746,
+    "rssMb": 219.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 21,
+    "requestsWithValues": 15,
+    "statuses": {
+     "200": 21
+    },
+    "seconds": 0.752,
+    "rssMb": 217.4
+   },
+   "all": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 12,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.581,
+    "engineMs": 1944,
+    "rssMb": 418.9
+   },
+   "block256": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 19,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.866,
+    "engineMs": 1928,
+    "rssMb": 418
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 296,
+    "hash": "ef72e72f021d4dab:f3ab9229a9458a89",
+    "requests": 19,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.846,
+    "engineMs": 1881,
+    "rssMb": 469.9
+   }
+  },
+  "sparql": "PREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>\nPREFIX nhdplusv2: <http://nhdplusv2.spatialai.org/v1/nhdplusv2#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX schema: <https://schema.org/>\n\nSELECT * WHERE {\n  # Select flowlines and desired attributes\n  ?flowline rdf:type hyf:HY_FlowPath ;\n            schema:name ?name ;\n            nhdplusv2:hasCOMID ?COMID ;\n            nhdplusv2:hasFTYPE ?FTYPE .\n  # Keep only flowlines with the desired name\n  FILTER (?name = \"Illinois River\")\n} ORDER BY ?COMID"
+ },
+ "biobricks-ice/names-of-chemical-entities": {
+  "kg": "biobricks-ice",
+  "endpoint": "https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 5890,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5888
+    },
+    "seconds": 60.004,
+    "rssMb": 1551.3
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8230,
+    "requestsWithValues": 4883,
+    "statuses": {
+     "200": 8224
+    },
+    "seconds": 60.002,
+    "rssMb": 1809.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 200,
+    "hash": "77ee6146bcddc02e:eb4a957d2d0e3832",
+    "requests": 849,
+    "requestsWithValues": 537,
+    "statuses": {
+     "200": 845
+    },
+    "seconds": 3.78,
+    "engineMs": 221,
+    "rssMb": 445.5
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 200,
+    "hash": "8545526978653052:fb3cfe51bcc23b86",
+    "requests": 1414,
+    "requestsWithValues": 1185,
+    "statuses": {
+     "200": 1412
+    },
+    "seconds": 12.096,
+    "engineMs": 553,
+    "rssMb": 1450
+   },
+   "all": {
+    "ok": true,
+    "rows": 200,
+    "hash": "4f62a377f159ab5e:d9f97b3abf106cf0",
+    "requests": 1300,
+    "requestsWithValues": 1069,
+    "statuses": {
+     "200": 914
+    },
+    "seconds": 12.049,
+    "engineMs": 1874,
+    "rssMb": 1608.6
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6084,
+    "requestsWithValues": 2603,
+    "statuses": {
+     "200": 6080
+    },
+    "seconds": 58.04,
+    "engineMs": 1959,
+    "rssMb": 1809.9
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 200,
+    "hash": "b143c52fc9d35d23:cda50147c6fb5905",
+    "requests": 765,
+    "requestsWithValues": 449,
+    "statuses": {
+     "200": 760
+    },
+    "seconds": 3.517,
+    "engineMs": 1781,
+    "rssMb": 535.8
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX CHEMINF: <http://purl.obolibrary.org/obo/CHEMINF_>\nPREFIX CAS: <http://identifiers.org/cas/>\nPREFIX EDAM: <http://edamontology.org/>\nSELECT  ?cas ?dsstox ?name\nWHERE {\n  ?s a CHEMINF:000000 ;\n    rdfs:label ?name .\n  OPTIONAL {\n    ?s EDAM:has_identifier ?dsstox.\n    ?dsstox a CHEMINF:000568. # DSSTOX SID\n  }\n  OPTIONAL {\n    ?s EDAM:has_identifier ?cas .\n    ?cas a CHEMINF:000446 . # CAS RN\n  }\n}\nLIMIT 200"
+ },
+ "fiokg/fio-facilities-by-NAICS-Subsector": {
+  "kg": "fiokg",
+  "endpoint": "https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 3477,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3476
+    },
+    "seconds": 60.001,
+    "rssMb": 1148.9
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 3543,
+    "requestsWithValues": 1695,
+    "statuses": {
+     "200": 3542
+    },
+    "seconds": 60.002,
+    "rssMb": 1103.9
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1874,
+    "requestsWithValues": 63,
+    "statuses": {
+     "200": 1874
+    },
+    "seconds": 59.775,
+    "engineMs": 228,
+    "rssMb": 970
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 3140,
+    "requestsWithValues": 1237,
+    "statuses": {
+     "200": 3139
+    },
+    "seconds": 58.145,
+    "engineMs": 1854,
+    "rssMb": 1170.7
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1878,
+    "requestsWithValues": 23,
+    "statuses": {
+     "200": 1877
+    },
+    "seconds": 58.169,
+    "engineMs": 1831,
+    "rssMb": 1008.4
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX fio: <http://w3id.org/fio/v1/fio#>\nPREFIX naics: <http://w3id.org/fio/v1/naics#> \nPREFIX epa-frs: <http://w3id.org/fio/v1/epa-frs#>\nPREFIX geo: <http://www.opengis.net/ont/geosparql#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\n\nSELECT ?fac ?faclabel ?code ?codelabel  WHERE {\n  VALUES ?subsector {naics:NAICS-325}\n  ?fac rdf:type fio:Facility ;\n       fio:ofIndustry ?code .\n  ?code rdf:type naics:NAICS-IndustryCode; \n    fio:subcodeOf ?subsector.\n\n  # also retrieve any labels associated with the facility and industry \n  OPTIONAL { ?fac rdfs:label ?faclabel . }\n  OPTIONAL { ?code rdfs:label ?codelabel . }\n}"
+ },
+ "hydrologykg/sawgraph-hydrology-04": {
+  "kg": "hydrologykg",
+  "endpoint": "https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1960,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1959
+    },
+    "seconds": 60.002,
+    "rssMb": 2016.3
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2034,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2033
+    },
+    "seconds": 60.002,
+    "rssMb": 661.1
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1917,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1916
+    },
+    "seconds": 59.539,
+    "engineMs": 464,
+    "rssMb": 649.3
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2041,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2040
+    },
+    "seconds": 58.15,
+    "engineMs": 1849,
+    "rssMb": 670.6
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2005,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2004
+    },
+    "seconds": 58.128,
+    "engineMs": 1870,
+    "rssMb": 693.5
+   }
+  },
+  "sparql": "PREFIX spatial: <http://purl.org/spatialai/spatial/spatial-full#>\nPREFIX geo: <http://www.opengis.net/ont/geosparql#>\nPREFIX hyf: <https://www.opengis.net/def/schema/hy_features/hyf/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX nhdplusv2: <http://nhdplusv2.spatialai.org/v1/nhdplusv2#>\nPREFIX schema: <https://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT ?us_fl_name ?downstream_flowline ?ds_fl_name ?ds_fl_ftype WHERE {\n  ?upstream_flowline rdf:type hyf:HY_FlowPath ;\n                     spatial:connectedTo <http://stko-kwg.geog.ucsb.edu/lod/resource/s2.level13.5526595845832572928> ;\n                     # find all flowlines downstream\n                     # hyf:downstreamWaterBodyTC gets the transitive closure\n                     hyf:downstreamFlowPathTC ?downstream_flowline ;\n                     geo:hasGeometry/geo:asWKT ?us_fl_geom .\n  # If available, pull the GNIS name for each flowline\n  OPTIONAL { ?upstream_flowline schema:name ?us_fl_name . }\n  OPTIONAL { ?downstream_flowline schema:name ?ds_fl_name . }\n  # Retrieve the flowline type and geometry for each downstream flowline\n  ?downstream_flowline nhdplusv2:hasFTYPE ?ds_fl_ftype ;\n                       geo:hasGeometry/geo:asWKT ?ds_fl_geom .\n} ORDER BY ?downstream_flowline"
+ },
+ "nasa-gesdisc-kg/count-publications-use-each-dataset": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 20.15,
+    "engineMs": 255,
+    "rssMb": 524
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 24.069,
+    "engineMs": 294,
+    "rssMb": 506.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 18.066,
+    "engineMs": 249,
+    "rssMb": 502.9
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 7,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 4.116,
+    "engineMs": 239,
+    "rssMb": 533.1
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 8,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 2.59,
+    "engineMs": 245,
+    "rssMb": 541.5
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 8,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 2.555,
+    "engineMs": 243,
+    "rssMb": 538.5
+   },
+   "all": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 8,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 3.061,
+    "engineMs": 1921,
+    "rssMb": 730.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 17.033,
+    "engineMs": 1785,
+    "rssMb": 595.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "48103936fe373a1c:76a357581deebc1e",
+    "requests": 555,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 17.163,
+    "engineMs": 1832,
+    "rssMb": 599
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT ?Dataset (COUNT (DISTINCT ?Publication) AS ?PublicationCount)\nWHERE {\n\t?Publication schema:USES_DATASET ?Dataset\n}\nGROUP BY ?Dataset\nORDER BY DESC(?PublicationCount)\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/datasets-science-keywords": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 116,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 116
+    },
+    "seconds": 2.2,
+    "engineMs": 259,
+    "rssMb": 337
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 118,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 117
+    },
+    "seconds": 2.346,
+    "engineMs": 271,
+    "rssMb": 339.4
+   },
+   "void": {
+    "ok": true,
+    "rows": 25,
+    "hash": "c4f91c669392d3f6:f3ae406c267bbe66",
+    "requests": 148,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 147
+    },
+    "seconds": 4.921,
+    "engineMs": 342,
+    "rssMb": 348.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 1.332,
+    "engineMs": 251,
+    "rssMb": 345.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 6,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 1.059,
+    "engineMs": 235,
+    "rssMb": 344.5
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "c4f91c669392d3f6:f3ae406c267bbe66",
+    "requests": 7,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 1.604,
+    "engineMs": 247,
+    "rssMb": 376.2
+   },
+   "all": {
+    "ok": true,
+    "rows": 25,
+    "hash": "c4f91c669392d3f6:f3ae406c267bbe66",
+    "requests": 7,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 7
+    },
+    "seconds": 1.758,
+    "engineMs": 1822,
+    "rssMb": 557.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "1cfb532b163f610c:53ddc420e64d4366",
+    "requests": 119,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 118
+    },
+    "seconds": 2.075,
+    "engineMs": 1795,
+    "rssMb": 522.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "c4f91c669392d3f6:f3ae406c267bbe66",
+    "requests": 259,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 259
+    },
+    "seconds": 7.355,
+    "engineMs": 1845,
+    "rssMb": 510.5
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT *\nWHERE {\n\t?Dataset schema:HAS_SCIENCEKEYWORD ?ScienceKeyword .\n  \t?ScienceKeyword rdfs:label ?KeywordLabel\n}\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/publications-datasets-used": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.329,
+    "engineMs": 243,
+    "rssMb": 188.7
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.324,
+    "engineMs": 243,
+    "rssMb": 189.2
+   },
+   "void": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.425,
+    "engineMs": 233,
+    "rssMb": 189.3
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 1.109,
+    "engineMs": 235,
+    "rssMb": 317.7
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.427,
+    "engineMs": 249,
+    "rssMb": 187.1
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.296,
+    "engineMs": 237,
+    "rssMb": 190.3
+   },
+   "all": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.212,
+    "engineMs": 1855,
+    "rssMb": 441.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.28,
+    "engineMs": 1822,
+    "rssMb": 441.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 25,
+    "hash": "64068c1136dc88e5:f9534fb7629ffe3f",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2
+    },
+    "seconds": 0.184,
+    "engineMs": 1937,
+    "rssMb": 439
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT *\nWHERE {\n\t?Publication schema:USES_DATASET ?Dataset\n}\nLIMIT 25"
+ },
+ "nasa-gesdisc-kg/pubs-by-year-title": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "ba1a1f5e87ff1e34:a4f7c804055dbfdc",
+    "requests": 614,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 612
+    },
+    "seconds": 7.289,
+    "engineMs": 228,
+    "rssMb": 561.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "9f52e945d6b49d72:0ee3d26fd876266e",
+    "requests": 246,
+    "requestsWithValues": 101,
+    "statuses": {
+     "200": 244
+    },
+    "seconds": 2.907,
+    "engineMs": 248,
+    "rssMb": 393
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "be0edfc9734e7352:6bcca427c214981c",
+    "requests": 12,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 11
+    },
+    "seconds": 0.417,
+    "engineMs": 244,
+    "rssMb": 213.2
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "3b7b22e1a50c3d01:a52aaab55d5999c3",
+    "requests": 158,
+    "requestsWithValues": 152,
+    "statuses": {
+     "200": 98
+    },
+    "seconds": 3.553,
+    "engineMs": 231,
+    "rssMb": 458.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "0f2933f6ba20511e:c66cefad5226927a",
+    "requests": 109,
+    "requestsWithValues": 100,
+    "statuses": {
+     "200": 90
+    },
+    "seconds": 2.07,
+    "engineMs": 257,
+    "rssMb": 467.8
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "960d0bc7419d87ea:ed2b418d9be6d1ae",
+    "requests": 61,
+    "requestsWithValues": 56,
+    "statuses": {
+     "200": 18
+    },
+    "seconds": 1.036,
+    "engineMs": 247,
+    "rssMb": 335.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "da8be2a3d35c013c:f137712374921dfc",
+    "requests": 48,
+    "requestsWithValues": 42,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 1.372,
+    "engineMs": 1811,
+    "rssMb": 503.5
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "086f99a684ee1ca3:2e4b8a908e5cb57d",
+    "requests": 221,
+    "requestsWithValues": 76,
+    "statuses": {
+     "200": 219
+    },
+    "seconds": 2.909,
+    "engineMs": 1804,
+    "rssMb": 580.5
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "be0edfc9734e7352:6bcca427c214981c",
+    "requests": 19,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 15
+    },
+    "seconds": 0.609,
+    "engineMs": 1826,
+    "rssMb": 473.1
+   }
+  },
+  "sparql": "PREFIX time: <http://www.w3.org/2006/time#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX schema: <https://schema.org/>\nPREFIX gesdisc: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nSELECT ?pub ?year ?title   {\n  ?pub a gesdisc:Publication .\n  ?pub time:year ?year .\n  ?pub schema:title ?title .\n}\nLIMIT 100"
+ },
+ "ncipidkg/list-all-hdac1-neighbors": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.208,
+    "engineMs": 227,
+    "rssMb": 190.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.209,
+    "engineMs": 233,
+    "rssMb": 187.3
+   },
+   "void": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.361,
+    "engineMs": 237,
+    "rssMb": 187.9
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.631,
+    "engineMs": 252,
+    "rssMb": 292.4
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.207,
+    "engineMs": 228,
+    "rssMb": 186.7
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.359,
+    "engineMs": 226,
+    "rssMb": 188.6
+   },
+   "all": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.203,
+    "engineMs": 1786,
+    "rssMb": 442.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.21,
+    "engineMs": 1912,
+    "rssMb": 447.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.302,
+    "engineMs": 1920,
+    "rssMb": 403.3
+   }
+  },
+  "sparql": "PREFIX uniprot: <http://identifiers.org/uniprot/>\nPREFIX RO: <http://purl.obolibrary.org/obo/RO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?relation ?neighbor ?neighborLabel\nWHERE {\n  uniprot:Q13547 ?relation ?neighbor .\n  FILTER(STRSTARTS(STR(?relation), STR(RO:)))\n\n  OPTIONAL { ?neighbor rdfs:label ?neighborLabel }\n}"
+ },
+ "ncipidkg/list-all-labeled-proteins": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 56,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 56
+    },
+    "seconds": 1.835,
+    "engineMs": 225,
+    "rssMb": 283.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 68,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 68
+    },
+    "seconds": 1.343,
+    "engineMs": 224,
+    "rssMb": 308
+   },
+   "void": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 68,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 68
+    },
+    "seconds": 1.243,
+    "engineMs": 222,
+    "rssMb": 308.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 43,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 43
+    },
+    "seconds": 0.981,
+    "engineMs": 243,
+    "rssMb": 324.5
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 44,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 44
+    },
+    "seconds": 0.714,
+    "engineMs": 233,
+    "rssMb": 307.5
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 44,
+    "requestsWithValues": 40,
+    "statuses": {
+     "200": 44
+    },
+    "seconds": 0.71,
+    "engineMs": 230,
+    "rssMb": 310.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 14,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.639,
+    "engineMs": 1792,
+    "rssMb": 486.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 58,
+    "requestsWithValues": 30,
+    "statuses": {
+     "200": 58
+    },
+    "seconds": 1.369,
+    "engineMs": 1796,
+    "rssMb": 499.4
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 2536,
+    "hash": "93ec98759ad607b6:321ca1de73a63682",
+    "requests": 58,
+    "requestsWithValues": 30,
+    "statuses": {
+     "200": 58
+    },
+    "seconds": 1.465,
+    "engineMs": 1788,
+    "rssMb": 491.7
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX SIO: <http://semanticscience.org/resource/SIO_>\n\nSELECT ?protein ?label\nWHERE {\n  ?protein a SIO:010043 ;\n           rdfs:label ?label .\n}\nORDER BY ?label"
+ },
+ "nasa-gesdisc-kg/frequent-sciencekeywords": {
+  "kg": "nasa-gesdisc-kg",
+  "endpoint": "https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 5670,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5666
+    },
+    "seconds": 59.743,
+    "engineMs": 259,
+    "rssMb": 1123
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6476,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6476
+    },
+    "seconds": 59.76,
+    "engineMs": 240,
+    "rssMb": 1220.3
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2560,
+    "requestsWithValues": 605,
+    "statuses": {
+     "200": 2559
+    },
+    "seconds": 59.781,
+    "engineMs": 220,
+    "rssMb": 771.6
+   },
+   "page10k": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6594,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6590
+    },
+    "seconds": 59.77,
+    "engineMs": 231,
+    "rssMb": 1480.4
+   },
+   "ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6243,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6241
+    },
+    "seconds": 59.763,
+    "engineMs": 219,
+    "rssMb": 1304.9
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "Invalid UTF-8 character at position 0 in state STRING1",
+    "requests": 174,
+    "requestsWithValues": 112,
+    "statuses": {
+     "200": 174
+    },
+    "seconds": 25.886,
+    "engineMs": 222,
+    "rssMb": 2144.9
+   },
+   "all": {
+    "ok": false,
+    "error": "Invalid UTF-8 character at position 0 in state STRING1",
+    "requests": 84,
+    "requestsWithValues": 29,
+    "statuses": {
+     "200": 84
+    },
+    "seconds": 23.197,
+    "engineMs": 1838,
+    "rssMb": 2116.6
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 5215,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5212
+    },
+    "seconds": 58.149,
+    "engineMs": 1850,
+    "rssMb": 1148
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2489,
+    "requestsWithValues": 558,
+    "statuses": {
+     "200": 2488
+    },
+    "seconds": 58.157,
+    "engineMs": 1843,
+    "rssMb": 819.6
+   }
+  },
+  "sparql": "PREFIX schema: <https://purl.org/okn/frink/kg/nasa-gesdisc/schema/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT ?ScienceKeyword (COUNT (DISTINCT ?Publication) AS ?PublicationCount)\nWHERE {\n        ?Publication schema:USES_DATASET ?Dataset .\n        ?Dataset schema:HAS_SCIENCEKEYWORD ?Keyword .\n        ?Keyword rdfs:label ?ScienceKeyword\n}\nGROUP BY ?ScienceKeyword\nORDER BY DESC(?PublicationCount)\nLIMIT 25"
+ },
+ "ncipidkg/list-all-labeled-interactions": {
+  "kg": "ncipidkg",
+  "endpoint": "https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1901,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1900
+    },
+    "seconds": 59.773,
+    "engineMs": 229,
+    "rssMb": 400.4
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1737,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1737
+    },
+    "seconds": 59.753,
+    "engineMs": 249,
+    "rssMb": 429.6
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1965,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1964
+    },
+    "seconds": 59.736,
+    "engineMs": 267,
+    "rssMb": 453.6
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 75322,
+    "hash": "0972e21bbe7090f2:7f717828ba24a4fe",
+    "requests": 79,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 79
+    },
+    "seconds": 50.291,
+    "engineMs": 235,
+    "rssMb": 1992.1
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 75322,
+    "hash": "0972e21bbe7090f2:7f717828ba24a4fe",
+    "requests": 81,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 81
+    },
+    "seconds": 49.154,
+    "engineMs": 215,
+    "rssMb": 1770.9
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 75322,
+    "hash": "0972e21bbe7090f2:7f717828ba24a4fe",
+    "requests": 81,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 81
+    },
+    "seconds": 51.942,
+    "engineMs": 238,
+    "rssMb": 2098
+   },
+   "all": {
+    "ok": true,
+    "rows": 75322,
+    "hash": "0972e21bbe7090f2:7f717828ba24a4fe",
+    "requests": 81,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 81
+    },
+    "seconds": 50.827,
+    "engineMs": 2096,
+    "rssMb": 1833
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1528,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1527
+    },
+    "seconds": 58.144,
+    "engineMs": 1856,
+    "rssMb": 584.2
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1564,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1563
+    },
+    "seconds": 58.201,
+    "engineMs": 1799,
+    "rssMb": 574.2
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX RO: <http://purl.obolibrary.org/obo/RO_>\n\nSELECT ?sourceLabel ?relation ?targetLabel\nWHERE {\n  ?source ?relation ?target .\n  FILTER(STRSTARTS(STR(?relation), STR(RO:)))\n\n  OPTIONAL { ?source rdfs:label ?sourceLabel }\n  OPTIONAL { ?target rdfs:label ?targetLabel }\n}"
+ },
+ "nde/dataset-count-by-agent": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15692,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 15684
+    },
+    "seconds": 59.761,
+    "engineMs": 240,
+    "rssMb": 1741.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "fb832e1bfb2322e4:b49a7cb254a08880",
+    "requests": 1255,
+    "requestsWithValues": 910,
+    "statuses": {
+     "200": 1255
+    },
+    "seconds": 16.333,
+    "engineMs": 233,
+    "rssMb": 906.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "347362c6b760dac5:76232f56961511bb",
+    "requests": 917,
+    "requestsWithValues": 909,
+    "statuses": {
+     "200": 917
+    },
+    "seconds": 8.651,
+    "engineMs": 228,
+    "rssMb": 995.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "f567914b94e6dbf0:f4d4557acad60e80",
+    "requests": 918,
+    "requestsWithValues": 909,
+    "statuses": {
+     "200": 918
+    },
+    "seconds": 6.27,
+    "engineMs": 236,
+    "rssMb": 865.3
+   },
+   "all": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "dd1b8c43449fbe66:d25a441bb7e750aa",
+    "requests": 238,
+    "requestsWithValues": 229,
+    "statuses": {
+     "200": 238
+    },
+    "seconds": 5.017,
+    "engineMs": 1808,
+    "rssMb": 937.2
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "beedce8dff21cae5:ec5d79c399dc5ddb",
+    "requests": 918,
+    "requestsWithValues": 909,
+    "statuses": {
+     "200": 918
+    },
+    "seconds": 6.792,
+    "engineMs": 219,
+    "rssMb": 833.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "1d66676edd226f86:a189ee8caa8d56d6",
+    "requests": 1028,
+    "requestsWithValues": 683,
+    "statuses": {
+     "200": 1028
+    },
+    "seconds": 15.931,
+    "engineMs": 1873,
+    "rssMb": 821.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "22faa92e365c59f2:4b412a54c9e0fb20",
+    "requests": 1031,
+    "requestsWithValues": 686,
+    "statuses": {
+     "200": 1031
+    },
+    "seconds": 15.364,
+    "engineMs": 1856,
+    "rssMb": 880.6
+   },
+   "void": {
+    "ok": true,
+    "rows": 2208,
+    "hash": "d29394f856df8480:a2c97b636e2bff52",
+    "requests": 1254,
+    "requestsWithValues": 909,
+    "statuses": {
+     "200": 1254
+    },
+    "seconds": 13.738,
+    "engineMs": 223,
+    "rssMb": 752.3
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT DISTINCT ?agent ?agentName (COUNT(?dataset) AS ?datasetCount) (GROUP_CONCAT(DISTINCT ?catalogShort; separator=\", \") AS ?catalogs)\nWHERE {\n    ?dataset rdf:type schema:Dataset ;\n             schema:infectiousAgent ?agent ;\n             schema:includedInDataCatalog ?catalog .\n    ?agent schema:name ?agentName .\n    BIND(REPLACE(STR(?catalog), \"^https://okn\\\\.wobd\\\\.org/catalog/\", \"\") AS ?catalogShort)\n}\nGROUP BY ?agent ?agentName\nORDER BY DESC(?datasetCount)"
+ },
+ "nde/nde-influenza-studies": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 20042,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 20030
+    },
+    "seconds": 59.77,
+    "engineMs": 232,
+    "rssMb": 2454.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 664,
+    "requestsWithValues": 464,
+    "statuses": {
+     "200": 664
+    },
+    "seconds": 8.079,
+    "engineMs": 235,
+    "rssMb": 557.2
+   },
+   "void": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 666,
+    "requestsWithValues": 466,
+    "statuses": {
+     "200": 666
+    },
+    "seconds": 8.245,
+    "engineMs": 238,
+    "rssMb": 569.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 469,
+    "requestsWithValues": 463,
+    "statuses": {
+     "200": 469
+    },
+    "seconds": 4.39,
+    "engineMs": 224,
+    "rssMb": 657.4
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 470,
+    "requestsWithValues": 463,
+    "statuses": {
+     "200": 470
+    },
+    "seconds": 3.671,
+    "engineMs": 216,
+    "rssMb": 586.9
+   },
+   "all": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 125,
+    "requestsWithValues": 118,
+    "statuses": {
+     "200": 125
+    },
+    "seconds": 3.276,
+    "engineMs": 1824,
+    "rssMb": 638.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 470,
+    "requestsWithValues": 463,
+    "statuses": {
+     "200": 470
+    },
+    "seconds": 3.704,
+    "engineMs": 239,
+    "rssMb": 552.6
+   },
+   "block256": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 555,
+    "requestsWithValues": 355,
+    "statuses": {
+     "200": 555
+    },
+    "seconds": 9.533,
+    "engineMs": 1819,
+    "rssMb": 624.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 423,
+    "hash": "2aaef5831cea95a5:a5214bbb1817adfd",
+    "requests": 554,
+    "requestsWithValues": 354,
+    "statuses": {
+     "200": 554
+    },
+    "seconds": 9.161,
+    "engineMs": 1745,
+    "rssMb": 664.2
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT DISTINCT ?dataset ?datasetName ?diseaseName ?doi\nWHERE {\n    ?dataset rdf:type schema:Dataset ;\n             schema:name ?datasetName ;\n             schema:healthCondition ?disease ;\n  \t\t\t schema:sameAs ?doi .\n    ?disease schema:name ?diseaseName .\n    FILTER(\n        ?disease = <http://purl.obolibrary.org/obo/MONDO_0005812> ||\n        CONTAINS(LCASE(?diseaseName), \"influenza\")\n    )\n   FILTER(REGEX(STR(?doi), \"^https://doi\\\\.org/\"))\n}\nORDER BY ?diseaseName ?datasetName"
+ },
+ "nde/nde-resources-by-count": {
+  "kg": "nde",
+  "endpoint": "https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2122,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2121
+    },
+    "seconds": 59.737,
+    "engineMs": 230,
+    "rssMb": 604.3
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2246,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2245
+    },
+    "seconds": 59.749,
+    "engineMs": 249,
+    "rssMb": 652.1
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2060,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2059
+    },
+    "seconds": 59.75,
+    "engineMs": 251,
+    "rssMb": 601.1
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 8,
+    "hash": "3a7a03fd87435494:517cfdf26ccca6e4",
+    "requests": 4034,
+    "requestsWithValues": 4006,
+    "statuses": {
+     "200": 4034
+    },
+    "seconds": 29.527,
+    "engineMs": 227,
+    "rssMb": 2293.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 8,
+    "hash": "3a7a03fd87435494:517cfdf26ccca6e4",
+    "requests": 4035,
+    "requestsWithValues": 4006,
+    "statuses": {
+     "200": 4035
+    },
+    "seconds": 27.254,
+    "engineMs": 239,
+    "rssMb": 2282.2
+   },
+   "all": {
+    "ok": true,
+    "rows": 8,
+    "hash": "3a7a03fd87435494:517cfdf26ccca6e4",
+    "requests": 1031,
+    "requestsWithValues": 1002,
+    "statuses": {
+     "200": 1031
+    },
+    "seconds": 22.122,
+    "engineMs": 1891,
+    "rssMb": 2082.5
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1949,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1948
+    },
+    "seconds": 58.16,
+    "engineMs": 1839,
+    "rssMb": 663.2
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1694,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1694
+    },
+    "seconds": 58.035,
+    "engineMs": 1965,
+    "rssMb": 663.3
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1565,
+    "requestsWithValues": 1536,
+    "statuses": {
+     "200": 1501,
+     "429": 64
+    },
+    "seconds": 59.773,
+    "engineMs": 226,
+    "rssMb": 1956.3
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\n\nSELECT ?catalog (COUNT(?dataset) AS ?datasetCount)\nWHERE {\n  ?dataset a schema:Dataset ;\n           schema:includedInDataCatalog ?catalog .\n}\nGROUP BY ?catalog\nORDER BY DESC(?datasetCount)"
+ },
+ "oard-kg/diseases-associated-with-phenotype": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 25.201,
+    "engineMs": 482,
+    "rssMb": 1160
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 24.433,
+    "engineMs": 235,
+    "rssMb": 1200.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 24.066,
+    "engineMs": 238,
+    "rssMb": 1198.9
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6590,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6590
+    },
+    "seconds": 39.874,
+    "engineMs": 431,
+    "rssMb": 1468.4
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6591,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6591
+    },
+    "seconds": 31.069,
+    "engineMs": 277,
+    "rssMb": 1198.6
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6591,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6591
+    },
+    "seconds": 26.623,
+    "engineMs": 248,
+    "rssMb": 1148.4
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6591,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6591
+    },
+    "seconds": 24.059,
+    "engineMs": 1857,
+    "rssMb": 1220.7
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 26.992,
+    "engineMs": 1858,
+    "rssMb": 1212.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "28b1289bc7d3c648:46282705dcf28f5e",
+    "requests": 6600,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6600
+    },
+    "seconds": 25.098,
+    "engineMs": 1863,
+    "rssMb": 1256.4
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX hp: <http://purl.obolibrary.org/obo/HP_>\n\nSELECT ?disease ?label ?data_set ?pair_count ?log_odds ?lower_ci ?upper_ci \nWHERE {\n  VALUES ?phenotype {hp:0012311}  # Increased total monocyte count\n  \n    # Find associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:object ?phenotype .\n    ?disease biolink:category biolink:Disease ;\n               rdfs:label ?label .\n\n    # Get study\n    ?assoc biolink:has_supporting_studies ?study .\n  \n    # Get Data Set (currently buried in Count Result. TODO: move to Study node)\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n  \n    # Get Log Odds Analysis Result\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n              biolink:log_odds_ratio ?log_odds ;\n                      biolink:total_sample_size ?pair_count .\n  \n    # Log odds confidence interval is represented as two unordered values\n    ?results_log_odds  biolink:log_odds_ratio_95_ci ?lower_ci , ?upper_ci .\n    FILTER(?lower_ci < ?upper_ci) \n\n    # Use the lower bound of the CI (value closest to 0) as an indication of association strength with high confidence\n    BIND(IF(ABS(?lower_ci) < ABS(?upper_ci), ABS(?lower_ci), ABS(?upper_ci)) AS ?dist_to_zero)\n}\nORDER BY DESC(?dist_to_zero)\nLIMIT 100"
+ },
+ "oard-kg/oard-ubergraph-concordance": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.356,
+    "engineMs": 239,
+    "rssMb": 213.1
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.398,
+    "engineMs": 236,
+    "rssMb": 213.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.403,
+    "engineMs": 226,
+    "rssMb": 214.2
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 7.235,
+    "engineMs": 225,
+    "rssMb": 586.1
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.422,
+    "engineMs": 228,
+    "rssMb": 214.8
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.422,
+    "engineMs": 238,
+    "rssMb": 215.9
+   },
+   "all": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.406,
+    "engineMs": 1848,
+    "rssMb": 470.1
+   },
+   "block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.319,
+    "engineMs": 1873,
+    "rssMb": 470.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 16,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 16
+    },
+    "seconds": 0.307,
+    "engineMs": 1919,
+    "rssMb": 463.3
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX mondo: <http://purl.obolibrary.org/obo/MONDO_>\nPREFIX ro: <http://purl.obolibrary.org/obo/RO_>\n\nSELECT DISTINCT ?phenotype ?phenotype_label ?oard_predicate ?data_set ?log_odds ?ci1 ?ci2 ?confirming_edge\nWHERE {\n    VALUES ?disease {mondo:0015691}\n    VALUES ?confirming_edge {ro:0004029} # Define the confirming relationship\n\n    # Find OARD associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:predicate ?oard_predicate ;\n           biolink:object ?phenotype .\n    ?phenotype biolink:category biolink:PhenotypicFeature ;\n               rdfs:label ?phenotype_label .\n    # OARD and Ubergraph each have labels for the phenotype. This filter helps select 1 label\n  \tFILTER(lang(?phenotype_label) = \"en\")\n\n    # Confirm with Ubergraph relationship (condition for inclusion)\n    ?disease ?confirming_edge ?phenotype .\n\n    # Pull out OARD association data\n    ?assoc biolink:has_supporting_studies ?study .\n    # Counts Results\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n    # Log-Odds Results\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n                  biolink:log_odds_ratio ?log_odds .    \n    ?results_log_odds biolink:log_odds_ratio_95_ci ?ci1 , ?ci2 .\n    FILTER(?ci1 < ?ci2) \n}\nORDER BY DESC(?log_odds)\nLIMIT 100"
+ },
+ "oard-kg/phenotypes-associated-with-disease": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 12.367,
+    "engineMs": 228,
+    "rssMb": 831.2
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 14.573,
+    "engineMs": 228,
+    "rssMb": 785.6
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 9.733,
+    "engineMs": 238,
+    "rssMb": 829.5
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3653,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3653
+    },
+    "seconds": 19.754,
+    "engineMs": 250,
+    "rssMb": 1077.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3654,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3654
+    },
+    "seconds": 9.669,
+    "engineMs": 246,
+    "rssMb": 843.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3654,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3654
+    },
+    "seconds": 10.758,
+    "engineMs": 236,
+    "rssMb": 790.8
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3654,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3654
+    },
+    "seconds": 10.937,
+    "engineMs": 1858,
+    "rssMb": 808.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 9.786,
+    "engineMs": 1814,
+    "rssMb": 891.6
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "7497edeeea8021ce:4aec7046829a486c",
+    "requests": 3655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3655
+    },
+    "seconds": 9.891,
+    "engineMs": 1915,
+    "rssMb": 811.5
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX mondo: <http://purl.obolibrary.org/obo/MONDO_>\n\nSELECT ?phenotype ?phenotype_label ?data_set ?pair_count ?log_odds ?lower_ci ?upper_ci \nWHERE {\n  VALUES ?disease {mondo:0007947}  # Marfan syndrome\n  \n    # Find associated phenotypes\n    ?assoc biolink:subject ?disease ;\n           biolink:object ?phenotype .\n    ?phenotype biolink:category biolink:PhenotypicFeature ;\n               rdfs:label ?phenotype_label .\n\n    # Get study\n    ?assoc biolink:has_supporting_studies ?study .\n  \n    # Get Data Set (currently buried in Count Result. TODO: move to Study node)\n    ?study biolink:has_study_results ?results_counts .\n    ?results_counts biolink:category biolink:ConceptCountAnalysisResult ;\n                    biolink:supporting_data_set ?data_set .\n  \n    # Get Log Odds Analysis Result\n    ?study biolink:has_study_results ?results_log_odds .\n    ?results_log_odds biolink:category biolink:LogOddsAnalysisResult ;\n              biolink:log_odds_ratio ?log_odds ;\n                      biolink:total_sample_size ?pair_count .\n  \n    # Log odds confidence interval is represented as two unordered values\n    ?results_log_odds  biolink:log_odds_ratio_95_ci ?lower_ci , ?upper_ci .\n    FILTER(?lower_ci < ?upper_ci) \n\n    # Use the lower bound of the CI (value closest to 0) as an indication of association strength with high confidence\n    BIND(IF(ABS(?lower_ci) < ABS(?upper_ci), ABS(?lower_ci), ABS(?upper_ci)) AS ?dist_to_zero)\n}\nORDER BY DESC(?dist_to_zero)\nLIMIT 100"
+ },
+ "prokn/gene_properties_relationships": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.444,
+    "engineMs": 242,
+    "rssMb": 205.8
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.431,
+    "engineMs": 236,
+    "rssMb": 204.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.351,
+    "engineMs": 240,
+    "rssMb": 205.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 5,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.903,
+    "engineMs": 239,
+    "rssMb": 311.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 6,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.297,
+    "engineMs": 243,
+    "rssMb": 212.2
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 6,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.366,
+    "engineMs": 232,
+    "rssMb": 211.7
+   },
+   "all": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 6,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.346,
+    "engineMs": 2020,
+    "rssMb": 458.2
+   },
+   "block256": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 4.35,
+    "engineMs": 1947,
+    "rssMb": 457.5
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 461,
+    "hash": "4b6ddc63d5a800eb:10f39d834f4f13ad",
+    "requests": 9,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.959,
+    "engineMs": 1797,
+    "rssMb": 462.4
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT \n(?Subject   AS ?SubjectURI)\n(?Predicate AS ?PredicateURI)\n(?Object    AS ?ObjectValue)\nWHERE {\n  ?Subject a upcore:Gene;\n    rdfs:label \"APOE\".\n  ?Subject ?Predicate ?Object\n}\nORDER BY ?Subject"
+ },
+ "oard-kg/rank-diseases-given-phenotypes": {
+  "kg": "oard-kg",
+  "endpoint": "https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 17343,
+    "requestsWithValues": 2074,
+    "statuses": {
+     "200": 17343
+    },
+    "seconds": 59.844,
+    "engineMs": 235,
+    "rssMb": 2579.1
+   },
+   "all": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1853,
+    "requestsWithValues": 614,
+    "statuses": {
+     "200": 1830,
+     "429": 23
+    },
+    "seconds": 58.076,
+    "engineMs": 1926,
+    "rssMb": 2244.4
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 17366,
+    "requestsWithValues": 2114,
+    "statuses": {
+     "200": 17366
+    },
+    "seconds": 59.803,
+    "engineMs": 251,
+    "rssMb": 2570.5
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 126,
+    "requestsWithValues": 86,
+    "statuses": {
+     "200": 125,
+     "429": 1
+    },
+    "seconds": 59.788,
+    "engineMs": 211,
+    "rssMb": 1180.7
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15495,
+    "requestsWithValues": 514,
+    "statuses": {
+     "200": 15479
+    },
+    "seconds": 58.437,
+    "engineMs": 1915,
+    "rssMb": 2348.4
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15516,
+    "requestsWithValues": 535,
+    "statuses": {
+     "200": 15509
+    },
+    "seconds": 58.157,
+    "engineMs": 1842,
+    "rssMb": 2397.8
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "fetch failed",
+    "requests": 2918,
+    "requestsWithValues": 1876,
+    "statuses": {
+     "200": 1501
+    },
+    "seconds": 10.431,
+    "engineMs": 221,
+    "rssMb": 1405
+   }
+  },
+  "sparql": "PREFIX biolink: <https://w3id.org/biolink/vocab/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX hp: <http://purl.obolibrary.org/obo/HP_>\n\nSELECT ?disease ?disease_label \n       (SUM(?best_pair_score) AS ?total_score)\n       (GROUP_CONCAT(DISTINCT ?pheno_id; SEPARATOR=\", \") AS ?matched_pheno_ids)\n       (GROUP_CONCAT(DISTINCT ?pheno_label; SEPARATOR=\"|\") AS ?matched_pheno_labels)\nWHERE {\n  {\n    # INNER QUERY: Find the strongest result per Disease-Phenotype pair\n    SELECT ?disease ?phenotype (STR(?phenotype) AS ?pheno_id) ?pheno_label (MAX(?log_odds) AS ?best_pair_score)\n    WHERE {\n      # Input: Your list of Phenotypes\n      VALUES ?phenotype { hp:0012771 hp:0001166 hp:0001657 }\n\n      # Match Association path\n      ?assoc biolink:object ?phenotype ;\n             biolink:subject ?disease .\n      \n      ?disease biolink:category biolink:Disease .\n      \n      # Get Phenotype labels here to pass them up\n      OPTIONAL { \n        ?phenotype rdfs:label ?pheno_label . \n      }\n      \n      # Navigate to stats\n      ?assoc biolink:has_supporting_studies/biolink:has_study_results ?stats .\n      ?stats biolink:category biolink:LogOddsAnalysisResult ;\n             biolink:log_odds_ratio ?log_odds .\n    }\n    GROUP BY ?disease ?phenotype ?pheno_label\n  }\n\n  # Pull the disease label for the final output\n  OPTIONAL {\n    ?disease rdfs:label ?disease_label .\n  }\n}\nGROUP BY ?disease ?disease_label\nORDER BY DESC(?total_score)\nLIMIT 100"
+ },
+ "prokn/alzheimers_associated_genes": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8356,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8354,
+     "429": 2
+    },
+    "seconds": 59.77,
+    "engineMs": 231,
+    "rssMb": 1195.6
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 13876,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 13861
+    },
+    "seconds": 59.774,
+    "engineMs": 227,
+    "rssMb": 2224
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8745,
+    "requestsWithValues": 431,
+    "statuses": {
+     "200": 8745
+    },
+    "seconds": 59.757,
+    "engineMs": 243,
+    "rssMb": 1381.9
+   },
+   "page10k": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 7662,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 7660,
+     "429": 1
+    },
+    "seconds": 59.753,
+    "engineMs": 247,
+    "rssMb": 1314.3
+   },
+   "ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15496,
+    "requestsWithValues": 9,
+    "statuses": {
+     "200": 15490
+    },
+    "seconds": 59.54,
+    "engineMs": 460,
+    "rssMb": 2385
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 13124,
+    "requestsWithValues": 750,
+    "statuses": {
+     "200": 13112
+    },
+    "seconds": 59.752,
+    "engineMs": 249,
+    "rssMb": 2269.4
+   },
+   "all": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 13175,
+    "requestsWithValues": 315,
+    "statuses": {
+     "200": 13175
+    },
+    "seconds": 58.219,
+    "engineMs": 1781,
+    "rssMb": 2368.7
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 13087,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 13082
+    },
+    "seconds": 58.186,
+    "engineMs": 1813,
+    "rssMb": 2037.5
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8090,
+    "requestsWithValues": 232,
+    "statuses": {
+     "200": 8088
+    },
+    "seconds": 58.172,
+    "engineMs": 1826,
+    "rssMb": 1352.5
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX efo: <http://www.ebi.ac.uk/efo/EFO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX biolink: <https://biolink.github.io/biolink-model/>\n\nSELECT DISTINCT\n(?gene AS ?GeneURI)\n(?geneLabel AS ?GeneName)\n(?gSAB AS ?GeneSource)\n(?disease AS ?DiseaseURI)\n(?diseaseLabel AS ?DiseaseName)\n(?dSAB AS ?DiseaseSource)\nWHERE {\n  # Find the Alzheimer's disease by its label\n        ?disease a ?diseaseType ;\n    rdfs:label ?diseaseLabel ;\n    dc:source ?dSAB.\n        FILTER((?diseaseType = upcore:Disease || ?diseaseType = efo:0000651) && CONTAINS(LCASE(?diseaseLabel), \"alzheimer\"))\n\n  # Find genes associated with this disease\n        ?gene biolink:associated_with ?disease ;\n    a upcore:Gene;\n    rdfs:label ?geneLabel ;\n    dc:source ?gSAB.\n}\nORDER BY ?geneLabel"
+ },
+ "prokn/kinase_inhibition_phosphosites": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2056,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2048,
+     "429": 8
+    },
+    "seconds": 59.754,
+    "engineMs": 246,
+    "rssMb": 688.5
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "oom"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 6701,
+    "requestsWithValues": 2676,
+    "statuses": {
+     "200": 6650,
+     "429": 51
+    },
+    "seconds": 59.756,
+    "engineMs": 245,
+    "rssMb": 1450.1
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 5830,
+    "requestsWithValues": 2282,
+    "statuses": {
+     "200": 5752,
+     "429": 78
+    },
+    "seconds": 58.184,
+    "engineMs": 1815,
+    "rssMb": 1124.8
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX fma: <http://sig.uw.edu/fma#>\nPREFIX up: <http://purl.uniprot.org/core/>\nPREFIX bao: <http://www.bioassayontology.org/bao#BAO_>\nPREFIX allotrope: <http://purl.allotrope.org/ontologies/result#>\nPREFIX biolink: <https://biolink.github.io/biolink-model/>\nPREFIX so: <http://purl.obolibrary.org/obo/SO_>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX eco: <http://purl.obolibrary.org/obo/ECO_>\nPREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX schema: <http://schema.org/>\nPREFIX reproduceme: <https://w3id.org/reproduceme#>\n\nSELECT DISTINCT (?pertLabel as ?Perturbagen) (?e as ?Experiment) (?ptmLabel as ?PhosphorylationSite) (?log2Ratio as ?Value)\nWHERE {\n  # 1. Find the perturbagen entity\n  ?pert a bao:0003059 ;\n        rdfs:label ?pertLabel .\n  FILTER(LCASE(STR(?pertLabel)) = \"selumetinib\")\n\n  # 2. Link the perturbagen to the experiment(s) it was used in\n  ?pert eco:9000000 ?e .\n  \n  # 3. Find the reified statements for affected phosphorylation sites\n  # Matches your current data: subject is Experiment, object is PTMSite\n  ?stmt rdf:type rdf:Statement ;\n        rdf:predicate biolink:affected_by ;\n        rdf:subject ?ptmSite ;\n        rdf:object ?e;\n        ns:log2Ratio ?log2Ratio ;\n        dc:source ?source .\n  \n  # 4. Filter for downregulation (e.g., log2Ratio <= -1.0)\n  FILTER(xsd:decimal(?log2Ratio) <= -1.0)\n\n  # 5. Verify the target is a Phosphorylation PTM\n  ?ptmSite dc:type 'PHOSPHORYLATION' ;\n           rdfs:label ?ptmLabel .\n}\nORDER BY ?log2Ratio\nLIMIT 500"
+ },
+ "prokn/lincs_kinase_perturbations": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15772,
+    "requestsWithValues": 6114,
+    "statuses": {
+     "200": 15763
+    },
+    "seconds": 59.758,
+    "engineMs": 243,
+    "rssMb": 2217.4
+   },
+   "page10k": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15877,
+    "requestsWithValues": 6182,
+    "statuses": {
+     "200": 15876
+    },
+    "seconds": 59.763,
+    "engineMs": 238,
+    "rssMb": 2288.9
+   },
+   "ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 15802,
+    "requestsWithValues": 6134,
+    "statuses": {
+     "200": 15802
+    },
+    "seconds": 59.773,
+    "engineMs": 227,
+    "rssMb": 2222.3
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 12351,
+    "requestsWithValues": 4512,
+    "statuses": {
+     "200": 12344
+    },
+    "seconds": 59.765,
+    "engineMs": 234,
+    "rssMb": 1751
+   },
+   "all": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8694,
+    "requestsWithValues": 1872,
+    "statuses": {
+     "200": 8674
+    },
+    "seconds": 58.093,
+    "engineMs": 1908,
+    "rssMb": 1580.2
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 12068,
+    "requestsWithValues": 4372,
+    "statuses": {
+     "200": 12068
+    },
+    "seconds": 59.749,
+    "engineMs": 253,
+    "rssMb": 1757.9
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 9826,
+    "requestsWithValues": 2202,
+    "statuses": {
+     "200": 9826
+    },
+    "seconds": 57.899,
+    "engineMs": 2099,
+    "rssMb": 1660.9
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8664,
+    "requestsWithValues": 1883,
+    "statuses": {
+     "200": 8662
+    },
+    "seconds": 57.775,
+    "engineMs": 2224,
+    "rssMb": 1505.8
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX bao: <http://www.bioassayontology.org/bao#BAO_>\nPREFIX ncit: <http://purl.obolibrary.org/obo/NCIT_>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX ro: <http://purl.obolibrary.org/obo/RO_>\nPREFIX sio: <http://semanticscience.org/resource/SIO_>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX edam: <http://edamontology.org/>\n\nSELECT DISTINCT ?compoundLabel ?pubchemURI\nWHERE {\n  # Perturbagen\n  ?pert rdf:type bao:0003059 ;\n            dc:source \"LINCS_P100\" ;\n            obo:has_dbxref ?pubchemURI.\n\n  # Compound\n  ?comp rdf:type ncit:C43366 ;\n            dc:source \"DDKG_LINCS\" ;\n            rdfs:label ?compoundLabel.\n   optional {\n  \t\t?comp rdfs:seeAlso ?pubchemURI .\n  }\n\n  # Relationship: Compound -> Gene\n  { ?comp ro:0002213 ?kgene. } # POSITIVELY_REGULATES\n  UNION\n  { ?comp ro:0002212 ?kgene. } # NEGATIVELY_REGULATES\n\n  # Gene\n  ?kgene rdf:type upcore:Gene.\n\n  # Relationship: Gene -> Protein(IS_PROTEIN)\n  ?kgene sio:010078 ?pr.\n\n  # Protein\n  ?pr rdf:type upcore:Protein ;\n    edam:data_1011 ?ecNumber.\n\n  FILTER regex(?ecNumber, \"(^|;)2\\\\.7[^;]*\")\n}\nORDER BY ?compoundLabel ?pubchemURI\nLIMIT 100"
+ },
+ "prokn/list_diseases": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 4978,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 4977
+    },
+    "seconds": 59.771,
+    "engineMs": 228,
+    "rssMb": 1173.1
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 2198,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 2198
+    },
+    "seconds": 59.776,
+    "engineMs": 227,
+    "rssMb": 774.8
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1606,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1605
+    },
+    "seconds": 59.737,
+    "engineMs": 264,
+    "rssMb": 694.5
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1678,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1677
+    },
+    "seconds": 58.141,
+    "engineMs": 1859,
+    "rssMb": 702.9
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1509,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1508
+    },
+    "seconds": 57.777,
+    "engineMs": 2222,
+    "rssMb": 716.8
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX efo: <http://www.ebi.ac.uk/efo/EFO_>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT \n(?disease AS ?DiseaseURI)\n(?label AS ?Name)\n(?SAB AS ?Source)\nWHERE {\n  ?disease a ?diseaseType.\n\n  # Filter for both Disease and DiseaseOrPhenotype types\n    FILTER(?diseaseType = upcore:Disease || ?diseaseType = efo:0000651)\n\n        ?disease rdfs:label ?label.\n  ?disease dc:source ?SAB.\n}"
+ },
+ "prokn/protein_kinases": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 26080,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 26068
+    },
+    "seconds": 59.768,
+    "engineMs": 233,
+    "rssMb": 2432.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 1031,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 1031
+    },
+    "seconds": 8.329,
+    "engineMs": 228,
+    "rssMb": 612
+   },
+   "void": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 1031,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 1031
+    },
+    "seconds": 8.061,
+    "engineMs": 239,
+    "rssMb": 604.4
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 853,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 853
+    },
+    "seconds": 4.379,
+    "engineMs": 237,
+    "rssMb": 681.9
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 853,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 853
+    },
+    "seconds": 4.792,
+    "engineMs": 253,
+    "rssMb": 613.9
+   },
+   "all": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 220,
+    "requestsWithValues": 213,
+    "statuses": {
+     "200": 220
+    },
+    "seconds": 3.741,
+    "engineMs": 1856,
+    "rssMb": 654.1
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 852,
+    "requestsWithValues": 846,
+    "statuses": {
+     "200": 852
+    },
+    "seconds": 6.313,
+    "engineMs": 250,
+    "rssMb": 760.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 821,
+    "requestsWithValues": 636,
+    "statuses": {
+     "200": 821
+    },
+    "seconds": 9.663,
+    "engineMs": 1957,
+    "rssMb": 689.9
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 3545,
+    "hash": "c24f69268a3b8893:7f84b9bdbab5d795",
+    "requests": 821,
+    "requestsWithValues": 636,
+    "statuses": {
+     "200": 821
+    },
+    "seconds": 9.694,
+    "engineMs": 1871,
+    "rssMb": 661.6
+   }
+  },
+  "sparql": "PREFIX upcore: <http://purl.uniprot.org/core/>\nPREFIX dc: <http://purl.org/dc/terms/>\nPREFIX edam: <http://edamontology.org/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\n\nSELECT ?kinase ?accession ?ecNumber WHERE {\n    ?kinase a upcore:Protein ;\n            dc:source \"UniProtKB\" ;\n            obo:NCIT_C25402 ?accession ;\n            edam:data_1011 ?ecNumber .\n    FILTER regex(?ecNumber, \"(^|;)2\\\\.7[^;]*\")\n}"
+ },
+ "prokn/protein_properties_relationships": {
+  "kg": "prokn",
+  "endpoint": "https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 53,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 53
+    },
+    "seconds": 1.586,
+    "engineMs": 231,
+    "rssMb": 279.7
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 34,
+    "requestsWithValues": 31,
+    "statuses": {
+     "200": 34
+    },
+    "seconds": 1.575,
+    "engineMs": 245,
+    "rssMb": 223.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 34,
+    "requestsWithValues": 31,
+    "statuses": {
+     "200": 34
+    },
+    "seconds": 1.439,
+    "engineMs": 227,
+    "rssMb": 250.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 5,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.994,
+    "engineMs": 232,
+    "rssMb": 317.1
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 5,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.483,
+    "engineMs": 243,
+    "rssMb": 214.7
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 5,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.563,
+    "engineMs": 260,
+    "rssMb": 216.5
+   },
+   "all": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 5,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.433,
+    "engineMs": 1913,
+    "rssMb": 464.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 34,
+    "requestsWithValues": 31,
+    "statuses": {
+     "200": 34
+    },
+    "seconds": 1.826,
+    "engineMs": 1818,
+    "rssMb": 473
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 2983,
+    "hash": "21c240cffd46b2fe:99781e4bae7ffed8",
+    "requests": 34,
+    "requestsWithValues": 31,
+    "statuses": {
+     "200": 34
+    },
+    "seconds": 1.514,
+    "engineMs": 1957,
+    "rssMb": 470.6
+   }
+  },
+  "sparql": "PREFIX ns: <https://research.bioinformatics.udel.edu/ProKN/rdf/>\nPREFIX obo: <http://purl.obolibrary.org/obo/>\nPREFIX upcore: <http://purl.uniprot.org/core/>\n\nSELECT DISTINCT \n(?Subject   AS ?SubjectURI)\n(?Predicate AS ?PredicateURI)\n(?Object    AS ?ObjectValue)\nWHERE {\n  ?Subject a upcore:Protein;\n    obo:NCIT_C164806 \"TP53\".\n  ?Subject ?Predicate ?Object\n}\nORDER BY ?Subject"
+ },
+ "ruralkg/find_nibrs_justice_topics_to_variables": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 5.425,
+    "engineMs": 224,
+    "rssMb": 401.4
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 5.865,
+    "engineMs": 233,
+    "rssMb": 393.2
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 5.909,
+    "engineMs": 248,
+    "rssMb": 410.3
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 6,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 2.211,
+    "engineMs": 256,
+    "rssMb": 376.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 10,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 1.483,
+    "engineMs": 254,
+    "rssMb": 388.8
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 10,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 1.406,
+    "engineMs": 252,
+    "rssMb": 377.5
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 10,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 1.323,
+    "engineMs": 1886,
+    "rssMb": 564.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 5.269,
+    "engineMs": 2011,
+    "rssMb": 589.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "c54f402851254812:84c96dc72b734e74",
+    "requests": 241,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 241
+    },
+    "seconds": 4.908,
+    "engineMs": 1823,
+    "rssMb": 613
+   }
+  },
+  "sparql": "PREFIX rdfs:     <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX justice:  <http://sail.ua.edu/ruralkg/justice/>\nPREFIX variable: <http://sail.ua.edu/ruralkg/variable/>\n\nSELECT ?justiceTopic ?justiceLabel ?variable ?variableCode ?variableContent\nWHERE {\n  ?justiceTopic justice:hasVariable ?variable .\n\n  OPTIONAL { ?justiceTopic rdfs:label ?justiceLabel . }\n  OPTIONAL { ?variable variable:code ?variableCode . }\n  OPTIONAL { ?variable variable:content ?variableContent . }\n}\nORDER BY ?justiceLabel ?variableCode\nLIMIT 100"
+ },
+ "ruralkg/find_nsduh_variables_that_mention_substances": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 3482,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3482
+    },
+    "seconds": 13.321,
+    "engineMs": 242,
+    "rssMb": 652.6
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 73,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 73
+    },
+    "seconds": 1.198,
+    "engineMs": 237,
+    "rssMb": 300.9
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 73,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 73
+    },
+    "seconds": 1.171,
+    "engineMs": 227,
+    "rssMb": 299.1
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 61,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 61
+    },
+    "seconds": 2.741,
+    "engineMs": 238,
+    "rssMb": 386.9
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 62,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 62
+    },
+    "seconds": 1.059,
+    "engineMs": 235,
+    "rssMb": 308.6
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 62,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 62
+    },
+    "seconds": 1.036,
+    "engineMs": 261,
+    "rssMb": 306.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 23,
+    "requestsWithValues": 16,
+    "statuses": {
+     "200": 23
+    },
+    "seconds": 0.871,
+    "engineMs": 1918,
+    "rssMb": 449.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 61,
+    "requestsWithValues": 43,
+    "statuses": {
+     "200": 61
+    },
+    "seconds": 1.248,
+    "engineMs": 2086,
+    "rssMb": 501.2
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "f3e738908313dadd:50d3fed2b7dcc7d5",
+    "requests": 61,
+    "requestsWithValues": 43,
+    "statuses": {
+     "200": 61
+    },
+    "seconds": 1.119,
+    "engineMs": 1823,
+    "rssMb": 500.1
+   }
+  },
+  "sparql": "PREFIX schema:         <https://schema.org/>\nPREFIX substanceabuse: <http://sail.ua.edu/ruralkg/substanceabuse/>\nPREFIX variable:       <http://sail.ua.edu/ruralkg/variable/>\n\nSELECT ?substanceName ?variable ?variableCode ?variableContent\nWHERE {\n  ?variable variable:fromDataset ?dataset ;\n            variable:code ?variableCode ;\n            variable:content ?variableContent ;\n            substanceabuse:mentionsSubstance ?substance .\n\n  ?substance schema:name ?substanceName .\n\n  FILTER(STR(?dataset) = \"NSDUH\")\n}\nORDER BY ?substanceName ?variableCode\nLIMIT 100"
+ },
+ "ruralkg/list-providers": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 883,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 883
+    },
+    "seconds": 19.846,
+    "engineMs": 227,
+    "rssMb": 616
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 590,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 590
+    },
+    "seconds": 5.478,
+    "engineMs": 221,
+    "rssMb": 573.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 590,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 590
+    },
+    "seconds": 5.638,
+    "engineMs": 224,
+    "rssMb": 597.6
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 149,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 149
+    },
+    "seconds": 4.561,
+    "engineMs": 243,
+    "rssMb": 616.6
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 154,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 154
+    },
+    "seconds": 3.54,
+    "engineMs": 248,
+    "rssMb": 659.8
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 154,
+    "requestsWithValues": 142,
+    "statuses": {
+     "200": 154
+    },
+    "seconds": 3.515,
+    "engineMs": 236,
+    "rssMb": 616.2
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 48,
+    "requestsWithValues": 36,
+    "statuses": {
+     "200": 48
+    },
+    "seconds": 3.147,
+    "engineMs": 1801,
+    "rssMb": 679.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 554,
+    "requestsWithValues": 106,
+    "statuses": {
+     "200": 554
+    },
+    "seconds": 4.781,
+    "engineMs": 1820,
+    "rssMb": 682.4
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "76997a8cf0360431:8358c2c7a9a009cd",
+    "requests": 554,
+    "requestsWithValues": 106,
+    "statuses": {
+     "200": 554
+    },
+    "seconds": 4.855,
+    "engineMs": 1896,
+    "rssMb": 678
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?provider ?providerName ?address ?postalCode ?telephone ?gnisLocation\nWHERE {\n  ?provider rdf:type treatment:TreatmentProvider ;\n            schema:name ?providerName .\n\n  OPTIONAL { ?provider schema:address ?address . }\n  OPTIONAL { ?provider schema:postalCode ?postalCode . }\n  OPTIONAL { ?provider schema:telephone ?telephone . }\n  OPTIONAL { ?provider schema:serviceLocation ?gnisLocation . }\n}\nORDER BY ?providerName\nLIMIT 100"
+ },
+ "ruralkg/list-substances": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 26,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 26
+    },
+    "seconds": 0.47,
+    "engineMs": 242,
+    "rssMb": 205.3
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.693,
+    "engineMs": 254,
+    "rssMb": 190.8
+   },
+   "void": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.394,
+    "engineMs": 238,
+    "rssMb": 189.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 1.711,
+    "engineMs": 258,
+    "rssMb": 319.6
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.26,
+    "engineMs": 240,
+    "rssMb": 190.6
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.515,
+    "engineMs": 288,
+    "rssMb": 195.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.323,
+    "engineMs": 1878,
+    "rssMb": 441.2
+   },
+   "block256": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.24,
+    "engineMs": 1899,
+    "rssMb": 445.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 23,
+    "hash": "d8740867182afc19:fc2c7c6a20c52667",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.29,
+    "engineMs": 1835,
+    "rssMb": 396.4
+   }
+  },
+  "sparql": "PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema: <https://schema.org/>\nPREFIX sa:     <http://sail.ua.edu/ruralkg/substanceabuse/>\n\nSELECT ?substance ?name\nWHERE {\n  ?substance rdf:type sa:Substance ;\n             schema:name ?name .\n}\nORDER BY ?name\nLIMIT 100"
+ },
+ "ruralkg/mental_health_service_categories": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 68,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 68
+    },
+    "seconds": 1.219,
+    "engineMs": 233,
+    "rssMb": 221.2
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 9,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.519,
+    "engineMs": 245,
+    "rssMb": 211.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 9,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.494,
+    "engineMs": 222,
+    "rssMb": 212.5
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 2.632,
+    "engineMs": 230,
+    "rssMb": 320.5
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.384,
+    "engineMs": 239,
+    "rssMb": 210.5
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.487,
+    "engineMs": 225,
+    "rssMb": 213
+   },
+   "all": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 8,
+    "requestsWithValues": 3,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.402,
+    "engineMs": 1791,
+    "rssMb": 459.8
+   },
+   "block256": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 9,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.459,
+    "engineMs": 1854,
+    "rssMb": 460.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 21,
+    "hash": "8269b2d413516732:11c0f2b02fb55562",
+    "requests": 9,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 9
+    },
+    "seconds": 0.434,
+    "engineMs": 1868,
+    "rssMb": 456
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?category ?categoryName ?categoryCode (COUNT(DISTINCT ?service) AS ?serviceCount)\nWHERE {\n  ?category rdf:type treatment:MentalHealthServiceCategory ;\n            schema:name ?categoryName ;\n            treatment:code ?categoryCode ;\n            treatment:containsService ?service .\n}\nGROUP BY ?category ?categoryName ?categoryCode\nORDER BY DESC(?serviceCount) ?categoryName\nLIMIT 100"
+ },
+ "scales/distinct-judges": {
+  "kg": "scales",
+  "endpoint": "https://apps.okn.us/kgf/scales/v/v0.0.25/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.332,
+    "engineMs": 484,
+    "rssMb": 188.1
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.272,
+    "engineMs": 221,
+    "rssMb": 188.2
+   },
+   "void": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.206,
+    "engineMs": 216,
+    "rssMb": 188.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 1.023,
+    "engineMs": 302,
+    "rssMb": 305.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.288,
+    "engineMs": 224,
+    "rssMb": 187.7
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.285,
+    "engineMs": 223,
+    "rssMb": 205.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.275,
+    "engineMs": 1824,
+    "rssMb": 440.4
+   },
+   "block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.213,
+    "engineMs": 1914,
+    "rssMb": 469.7
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 0,
+    "hash": "0000000000000000:0000000000000000",
+    "requests": 3,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3
+    },
+    "seconds": 0.319,
+    "engineMs": 1818,
+    "rssMb": 445.2
+   }
+  },
+  "sparql": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX j: <http://release.niem.gov/niem/domains/jxdm/7.2/#>\nPREFIX nc: <http://release.niem.gov/niem/niem-core/5.0/>\nSELECT DISTINCT ?judgeName\nWHERE {\n  ?judge rdf:type j:Judge ;\n         nc:PersonFullName ?judgeName .\n}\nLIMIT 100"
+ },
+ "ruralkg/rural_counties_rucc_7_9": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 20334,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 20327
+    },
+    "seconds": 59.777,
+    "engineMs": 223,
+    "rssMb": 2098.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 244,
+    "requestsWithValues": 237,
+    "statuses": {
+     "200": 244
+    },
+    "seconds": 2.22,
+    "engineMs": 227,
+    "rssMb": 375
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 244,
+    "requestsWithValues": 237,
+    "statuses": {
+     "200": 244
+    },
+    "seconds": 2.569,
+    "engineMs": 233,
+    "rssMb": 353.5
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 212,
+    "requestsWithValues": 205,
+    "statuses": {
+     "200": 212
+    },
+    "seconds": 3.306,
+    "engineMs": 222,
+    "rssMb": 440.1
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 212,
+    "requestsWithValues": 205,
+    "statuses": {
+     "200": 212
+    },
+    "seconds": 2.298,
+    "engineMs": 219,
+    "rssMb": 368.6
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 212,
+    "requestsWithValues": 205,
+    "statuses": {
+     "200": 212
+    },
+    "seconds": 1.492,
+    "engineMs": 217,
+    "rssMb": 372.7
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 60,
+    "requestsWithValues": 53,
+    "statuses": {
+     "200": 60
+    },
+    "seconds": 1.44,
+    "engineMs": 1821,
+    "rssMb": 529.1
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 192,
+    "requestsWithValues": 185,
+    "statuses": {
+     "200": 192
+    },
+    "seconds": 2.122,
+    "engineMs": 1814,
+    "rssMb": 593.8
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "5262102648780fcb:efe6b2eb72039acb",
+    "requests": 192,
+    "requestsWithValues": 185,
+    "statuses": {
+     "200": 192
+    },
+    "seconds": 2.184,
+    "engineMs": 1847,
+    "rssMb": 600.2
+   }
+  },
+  "sparql": "PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX settlement: <http://sail.ua.edu/ruralkg/settlementtype/>\n\nSELECT ?kwgCounty ?year ?population ?ruccCode\nWHERE {\n  ?countyStatus rdf:type settlement:CountyStatus ;\n                settlement:censusCounty ?kwgCounty ;\n                settlement:year ?year ;\n                settlement:population ?population ;\n                settlement:hasRUCC ?rucc .\n\n  ?rucc settlement:code ?ruccCode .\n\n  FILTER(STR(?ruccCode) IN (\"7\", \"8\", \"9\"))\n}\nORDER BY DESC(?year) DESC(?population)\nLIMIT 100"
+ },
+ "ruralkg/telehealth_treatment_providers": {
+  "kg": "ruralkg",
+  "endpoint": "https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 12704,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 12696
+    },
+    "seconds": 59.778,
+    "engineMs": 223,
+    "rssMb": 1369
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 470,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 470
+    },
+    "seconds": 5.07,
+    "engineMs": 216,
+    "rssMb": 564.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 470,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 470
+    },
+    "seconds": 5.693,
+    "engineMs": 221,
+    "rssMb": 558.3
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 229,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 229
+    },
+    "seconds": 3.882,
+    "engineMs": 232,
+    "rssMb": 565.2
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 232,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 232
+    },
+    "seconds": 2.548,
+    "engineMs": 223,
+    "rssMb": 530.2
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 232,
+    "requestsWithValues": 222,
+    "statuses": {
+     "200": 232
+    },
+    "seconds": 2.655,
+    "engineMs": 233,
+    "rssMb": 554.2
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 66,
+    "requestsWithValues": 56,
+    "statuses": {
+     "200": 66
+    },
+    "seconds": 2.454,
+    "engineMs": 1770,
+    "rssMb": 693
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 414,
+    "requestsWithValues": 166,
+    "statuses": {
+     "200": 414
+    },
+    "seconds": 4.277,
+    "engineMs": 1872,
+    "rssMb": 590.1
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "86c05700d1adff40:5e5bc867a0f9942e",
+    "requests": 414,
+    "requestsWithValues": 166,
+    "statuses": {
+     "200": 414
+    },
+    "seconds": 4.22,
+    "engineMs": 1904,
+    "rssMb": 617.5
+   }
+  },
+  "sparql": "PREFIX rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX schema:    <https://schema.org/>\nPREFIX treatment: <http://sail.ua.edu/ruralkg/treatment/>\n\nSELECT ?providerName ?serviceName ?gnisLocation ?telephone\nWHERE {\n  ?provider rdf:type treatment:TreatmentProvider ;\n            schema:name ?providerName ;\n            treatment:providesService treatment:MHS_TELE .\n\n  treatment:MHS_TELE schema:name ?serviceName .\n\n  OPTIONAL { ?provider schema:serviceLocation ?gnisLocation . }\n  OPTIONAL { ?provider schema:telephone ?telephone . }\n}\nORDER BY ?providerName\nLIMIT 100"
+ },
+ "securechainkg/ffmpeg-dependencies": {
+  "kg": "securechainkg",
+  "endpoint": "https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 33,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 31
+    },
+    "seconds": 0.567,
+    "engineMs": 232,
+    "rssMb": 209.2
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 33,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 28
+    },
+    "seconds": 0.421,
+    "engineMs": 221,
+    "rssMb": 208.6
+   },
+   "void": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 12,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.392,
+    "engineMs": 217,
+    "rssMb": 206.6
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 33,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 28
+    },
+    "seconds": 1.55,
+    "engineMs": 223,
+    "rssMb": 334.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 34,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 30
+    },
+    "seconds": 0.481,
+    "engineMs": 238,
+    "rssMb": 206.9
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 12,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.391,
+    "engineMs": 224,
+    "rssMb": 205.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 12,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.49,
+    "engineMs": 1810,
+    "rssMb": 459.6
+   },
+   "block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 30,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 18
+    },
+    "seconds": 0.339,
+    "engineMs": 1974,
+    "rssMb": 473.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 100,
+    "hash": "817744873edf9233:598ed7f6ebe391a3",
+    "requests": 14,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.415,
+    "engineMs": 1906,
+    "rssMb": 459.8
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX sc: <https://w3id.org/secure-chain/>\nSELECT ?package ?dependency {\n  ?software schema:name \"ffmpeg\" .\n  ?software sc:hasSoftwareVersion ?package .\n  ?package sc:dependsOn ?dependency\n}\nLIMIT 100"
+ },
+ "securechainkg/ffmpeg-vulnerabilities": {
+  "kg": "securechainkg",
+  "endpoint": "https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 48,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 48
+    },
+    "seconds": 0.559,
+    "engineMs": 242,
+    "rssMb": 207
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 14,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.39,
+    "engineMs": 230,
+    "rssMb": 205.8
+   },
+   "void": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.498,
+    "engineMs": 273,
+    "rssMb": 201.4
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 14,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 1.363,
+    "engineMs": 233,
+    "rssMb": 331.6
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 14,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.391,
+    "engineMs": 235,
+    "rssMb": 205.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.431,
+    "engineMs": 225,
+    "rssMb": 203.8
+   },
+   "all": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.348,
+    "engineMs": 1830,
+    "rssMb": 403.8
+   },
+   "block256": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 14,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.404,
+    "engineMs": 1897,
+    "rssMb": 408.6
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 17,
+    "hash": "c8baf9cb3da2b1db:ea6a6a330c24cc61",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.369,
+    "engineMs": 1938,
+    "rssMb": 459.3
+   }
+  },
+  "sparql": "PREFIX schema: <http://schema.org/>\nPREFIX sc: <https://w3id.org/secure-chain/>\nSELECT ?vuln ?software {\n  ?software schema:name \"ffmpeg\" .\n  ?software sc:hasSoftwareVersion ?package .\n  ?package sc:vulnerableTo ?vuln .\n}\nLIMIT 100"
+ },
+ "sockg/avg_soc_stock_by_state": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "crash: at /Users/jim/Documents/Source/kgf-sparql/node_modules/asynciterator/dist/asynciterator.js:1176:30\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.9.0\n"
+   },
+   "void": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "crash: at /Users/jim/Documents/Source/kgf-sparql/node_modules/asynciterator/dist/asynciterator.js:1176:30\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.9.0\n"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "crash: at /Users/jim/Documents/Source/kgf-sparql/node_modules/asynciterator/dist/asynciterator.js:1176:30\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.9.0\n"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "all": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "block256": {
+    "ok": false,
+    "error": "crash: at /Users/jim/Documents/Source/kgf-sparql/node_modules/asynciterator/dist/asynciterator.js:1176:30\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.9.0\n"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT ?state (ROUND(AVG(?SOCStockExpUnit) * 100) / 100 AS ?AvgSocStock)\nWHERE {\n    {\n        SELECT DISTINCT ?e ?date (SUM(?SOCStock) AS ?SOCStockExpUnit)\n        WHERE {\n            ?sc a sockg:SoilChemicalSample ;\n                sockg:lowerDepth ?ld ;\n                sockg:upperDepth ?ud ;\n                sockg:hasMeasurement ?scm ;\n                sockg:fromUnit ?e ;\n                dcterms:date ?date .\n\n            ?ld qudt:numericValue ?lowerDepth .\n            ?ud qudt:numericValue ?upperDepth .\n\n            ?scm sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n\t            qudt:quantityValue ?scv .\n            ?scv qudt:numericValue ?soc .\n\n            FILTER (?soc != 0)\n\n            ?sp a sockg:SoilPhysicalSample ;\n                sockg:lowerDepth ?ldp ;\n                sockg:fromUnit ?e ;\n                sockg:hasMeasurement ?spm ;\n                dcterms:date ?date .\n\n            ?ldp qudt:numericValue ?physLowerDepth .\n\n            FILTER(?lowerDepth = ?physLowerDepth)\n\n            ?spm sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n            \tqudt:quantityValue ?spv .\n            ?spv qudt:numericValue ?bulkDensity ;\n\n            BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCStock)\n        }\n        GROUP BY ?e ?date \n    }\n\n    ?e a sockg:ExperimentalUnit ;\n\t\tkwg-ont:sfWithin ?w . # site\n    \n    ?w kwg-ont:sfWithin ?f . # field\n    ?f kwg-ont:sfWithin ?s . #state\n    \n\t?s rdfs:label ?state .\n    \n    FILTER (?state != \"United States\")\n}\nGROUP BY ?state"
+ },
+ "scales/scales-ontology-event-labels": {
+  "kg": "scales",
+  "endpoint": "https://apps.okn.us/kgf/scales/v/v0.0.25/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1638,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1637
+    },
+    "seconds": 59.776,
+    "engineMs": 225,
+    "rssMb": 411.9
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1629,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1628
+    },
+    "seconds": 59.765,
+    "engineMs": 237,
+    "rssMb": 396.1
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1635,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1634
+    },
+    "seconds": 59.749,
+    "engineMs": 252,
+    "rssMb": 390.6
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1644,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1644
+    },
+    "seconds": 58.137,
+    "engineMs": 1865,
+    "rssMb": 545.5
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1501,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 1500
+    },
+    "seconds": 57.511,
+    "engineMs": 2489,
+    "rssMb": 591.6
+   }
+  },
+  "sparql": "PREFIX scales: <http://schemas.scales-okn.org/rdf/scales#>\nSELECT DISTINCT ?eventLabel\nWHERE {\n  ?docket scales:OntologyLabel ?eventLabel .\n}\nLIMIT 100"
+ },
+ "sockg/avg_temp_increase": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 8985,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 8931,
+     "429": 53
+    },
+    "seconds": 59.784,
+    "engineMs": 216,
+    "rssMb": 1875.3
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?crop ?ChambPlacement ?label (ROUND(AVG(?DiffTemp) * 1000) / 1000 AS ?AvgTempDiff) \n\t\t\t\t(SAMPLE(?Unit) AS ?unit) (COUNT(*) AS ?NumOfSamples) \nWHERE {\n    BIND(\"air_temp_degc\" AS ?label)\n\n\t?b a sockg:GHGFlux ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n\t\tsockg:usesTreatment ?t ;\n    \tsockg:hasChamberPlacement ?cp ;\n\t\tsockg:hasCrop ?c ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?cp rdfs:label ?ChambPlacement .\n    ?c rdfs:label ?crop .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n    \n    {\n        SELECT ?expUnit (MIN(?date) AS ?baselineDate) (SAMPLE(?baseValue) AS ?baselineValue)\n        WHERE {\n            ?b a sockg:GHGFlux ;\n                sockg:hasMeasurement ?m ;\n                sockg:fromUnit ?e ;\n                dcterms:date ?date .\n            \n            ?e dcterms:identifier ?expUnit .\n            \n            ?m sockg:of ?param ;\n                qudt:quantityValue ?v .\n            ?param a sockg:Parameter ;\n                    rdfs:label ?label .\n            ?v qudt:numericValue ?baseValue ;\n                qudt:hasUnit ?Unit .\n        }\n        GROUP BY ?expUnit\n    }\n    \n    FILTER(?date != ?baselineDate)\n    \n    BIND(?Value - ?baselineValue AS ?DiffTemp)\n}\nGROUP BY ?expUnit ?treatment ?crop ?ChambPlacement ?label\nORDER BY DESC(?AvgTempDiff)"
+ },
+ "sockg/biomassCarbohydrate": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "oom"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?date (SAMPLE(?crop) AS ?Crop) ?plantFraction (SAMPLE(?growthStage) AS ?GrowthStage) ?label (SAMPLE(?value) AS ?Value) (SAMPLE(?unit) AS ?Unit) WHERE {\n    ?f a sockg:BiomassCarbohydrate ;\n    \tsockg:fromUnit ?e ;\n    \tsockg:hasPlantFraction ?pf ;\n    \tsockg:hasGrowthStage ?gs ;\n    \tsockg:hasCrop ?c ;\n    \tdcterms:date ?date ;\n    \tsockg:hasMeasurement ?m .\n    \n    # Get literals\n    ?e dcterms:identifier ?expUnit .\n    ?pf rdfs:label ?plantFraction .\n    ?gs rdfs:label ?growthStage .\n    ?c rdfs:label ?crop .\n    \n    ?m sockg:of ?param ;\n    \tqudt:quantityValue ?v .\n    \n    ?param a sockg:Parameter ;\n    \trdfs:label ?label .\n    \n    ?v qudt:numericValue ?value ;\n    \tqudt:hasUnit ?unit .\n}\nGROUP BY ?expUnit ?date ?plantFraction ?label \nORDER BY ?expUnit ?date ?plantFraction"
+ },
+ "sockg/field_location": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 173,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 173
+    },
+    "seconds": 6.847,
+    "engineMs": 508,
+    "rssMb": 340.8
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 43,
+    "requestsWithValues": 36,
+    "statuses": {
+     "200": 43
+    },
+    "seconds": 1.251,
+    "engineMs": 273,
+    "rssMb": 220.8
+   },
+   "void": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 43,
+    "requestsWithValues": 36,
+    "statuses": {
+     "200": 43
+    },
+    "seconds": 1.51,
+    "engineMs": 297,
+    "rssMb": 220.2
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 31,
+    "requestsWithValues": 24,
+    "statuses": {
+     "200": 31
+    },
+    "seconds": 1.873,
+    "engineMs": 252,
+    "rssMb": 335.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 31,
+    "requestsWithValues": 24,
+    "statuses": {
+     "200": 31
+    },
+    "seconds": 0.637,
+    "engineMs": 240,
+    "rssMb": 220.6
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 31,
+    "requestsWithValues": 24,
+    "statuses": {
+     "200": 31
+    },
+    "seconds": 0.796,
+    "engineMs": 254,
+    "rssMb": 221.5
+   },
+   "all": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 17,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 17
+    },
+    "seconds": 0.536,
+    "engineMs": 1853,
+    "rssMb": 425.1
+   },
+   "block256": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 29,
+    "requestsWithValues": 22,
+    "statuses": {
+     "200": 29
+    },
+    "seconds": 0.818,
+    "engineMs": 1990,
+    "rssMb": 424.9
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 18,
+    "hash": "a4adcb0784539355:3d6e71ec41ed1b47",
+    "requests": 29,
+    "requestsWithValues": 22,
+    "statuses": {
+     "200": 29
+    },
+    "seconds": 0.887,
+    "engineMs": 1899,
+    "rssMb": 472.1
+   }
+  },
+  "sparql": "PREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX dc: <https://datacommons.org/browser/geoId>\n\nSELECT DISTINCT ?country ?state (GROUP_CONCAT(DISTINCT ?fieldId; SEPARATOR=\", \") AS ?fieldIDs) WHERE {\n    ?ar a kwg-ont:AdministrativeRegion_0 ;\n\t\trdfs:label ?country ;\n    \tkwg-ont:sfContains ?contained_regions .\n    \n    ?contained_regions a kwg-ont:AdministrativeRegion_1 .\n    BIND(?contained_regions AS ?sp)\n    FILTER(STRSTARTS(STR(?sp), STR(dc:)))\n   \n    ?sp kwg-ont:sfContains ?field ;\n    \trdfs:label ?state .\n    \n    ?field a sockg:Location ;\n    \tdcterms:identifier ?fieldId .\n}\nGROUP BY ?country ?state"
+ },
+ "sockg/fields_in_texas": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 310,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 310
+    },
+    "seconds": 1.316,
+    "engineMs": 247,
+    "rssMb": 305.3
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 15,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 15
+    },
+    "seconds": 0.618,
+    "engineMs": 240,
+    "rssMb": 212
+   },
+   "void": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 15,
+    "requestsWithValues": 10,
+    "statuses": {
+     "200": 15
+    },
+    "seconds": 0.687,
+    "engineMs": 237,
+    "rssMb": 215
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 12,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 1.413,
+    "engineMs": 242,
+    "rssMb": 330.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 12,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.732,
+    "engineMs": 235,
+    "rssMb": 207.9
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 12,
+    "requestsWithValues": 7,
+    "statuses": {
+     "200": 12
+    },
+    "seconds": 0.451,
+    "engineMs": 231,
+    "rssMb": 213.9
+   },
+   "all": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 10,
+    "requestsWithValues": 5,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 0.472,
+    "engineMs": 1890,
+    "rssMb": 418.1
+   },
+   "block256": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 13,
+    "requestsWithValues": 8,
+    "statuses": {
+     "200": 13
+    },
+    "seconds": 0.505,
+    "engineMs": 1974,
+    "rssMb": 461.7
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 2,
+    "hash": "3eea783b0cc8f9ec:3ed477baf334f9e8",
+    "requests": 13,
+    "requestsWithValues": 8,
+    "statuses": {
+     "200": 13
+    },
+    "seconds": 0.556,
+    "engineMs": 2101,
+    "rssMb": 461.6
+   }
+  },
+  "sparql": "PREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\nSELECT DISTINCT ?fieldId ?site ?stateAbbr \nWHERE {\n    ?s a sockg:Site ;\n        kwg-ont:sfWithin ?l ;\n        dcterms:identifier ?site .\n    \n    FILTER(STRSTARTS(STR(?l), STR(ind:Location)))\n    \n    ?l kwg-ont:sfWithin ?stateIRI ;\n        dcterms:identifier ?fieldId .\n    \n    ?stateIRI rdfs:label ?stateAbbr .\n    \n    FILTER(?stateAbbr = \"TX\")\n\n}"
+ },
+ "sockg/fields_on_sites": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 3908,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3908
+    },
+    "seconds": 9.341,
+    "engineMs": 236,
+    "rssMb": 640.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 111,
+    "requestsWithValues": 105,
+    "statuses": {
+     "200": 111
+    },
+    "seconds": 2.651,
+    "engineMs": 257,
+    "rssMb": 317.4
+   },
+   "void": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 111,
+    "requestsWithValues": 105,
+    "statuses": {
+     "200": 111
+    },
+    "seconds": 2.615,
+    "engineMs": 256,
+    "rssMb": 306
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 72,
+    "requestsWithValues": 66,
+    "statuses": {
+     "200": 72
+    },
+    "seconds": 2.359,
+    "engineMs": 272,
+    "rssMb": 356.9
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 72,
+    "requestsWithValues": 66,
+    "statuses": {
+     "200": 72
+    },
+    "seconds": 1.19,
+    "engineMs": 261,
+    "rssMb": 313.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 72,
+    "requestsWithValues": 66,
+    "statuses": {
+     "200": 72
+    },
+    "seconds": 1.331,
+    "engineMs": 249,
+    "rssMb": 311.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 26,
+    "requestsWithValues": 20,
+    "statuses": {
+     "200": 26
+    },
+    "seconds": 0.894,
+    "engineMs": 2276,
+    "rssMb": 484.7
+   },
+   "block256": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 65,
+    "requestsWithValues": 59,
+    "statuses": {
+     "200": 65
+    },
+    "seconds": 2.466,
+    "engineMs": 2287,
+    "rssMb": 488.7
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 49,
+    "hash": "685968e39cb1981f:25002bab8275899b",
+    "requests": 65,
+    "requestsWithValues": 59,
+    "statuses": {
+     "200": 65
+    },
+    "seconds": 1.881,
+    "engineMs": 2518,
+    "rssMb": 436.3
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX schema: <https://schema.org/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?site ?fieldId  (xsd:integer(?tmp) AS ?PostalCode)  WHERE {\n    ?f a sockg:Site ;\n    \tdcterms:identifier ?site ;\n    \tschema:postalCode ?postalCode ;\n    \tkwg-ont:sfWithin ?within .\n    \n    ?within a sockg:Location ;\n    \tdcterms:identifier ?fieldId .\n    \n    # cant directly convert to int\n    BIND(xsd:float(?postalCode) AS ?tmp)\n    \n}"
+ },
+ "sockg/location": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 260,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 260
+    },
+    "seconds": 4.045,
+    "engineMs": 248,
+    "rssMb": 376.9
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 52,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 52
+    },
+    "seconds": 3.824,
+    "engineMs": 238,
+    "rssMb": 365.4
+   },
+   "void": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 52,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 52
+    },
+    "seconds": 4.107,
+    "engineMs": 283,
+    "rssMb": 379.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 10,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 3.759,
+    "engineMs": 240,
+    "rssMb": 485.7
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 10,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 2.475,
+    "engineMs": 236,
+    "rssMb": 377.5
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 10,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 2.279,
+    "engineMs": 237,
+    "rssMb": 375.7
+   },
+   "all": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 10,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 10
+    },
+    "seconds": 2.676,
+    "engineMs": 1891,
+    "rssMb": 567.5
+   },
+   "block256": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 52,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 52
+    },
+    "seconds": 3.25,
+    "engineMs": 1889,
+    "rssMb": 566.7
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 10,
+    "hash": "9320b1eac3e6be0a:8564ccb29ed8b110",
+    "requests": 52,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 52
+    },
+    "seconds": 3.59,
+    "engineMs": 2025,
+    "rssMb": 578
+   }
+  },
+  "sparql": "PREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX spatial: <http://purl.org/spatialai/spatial/spatial-full#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\n\nSELECT DISTINCT ?loc (GROUP_CONCAT(DISTINCT ?superLoc; SEPARATOR=\", \") AS ?superLocs) (GROUP_CONCAT(DISTINCT ?subLoc) AS ?subLocs) (GROUP_CONCAT(DISTINCT ?s2) AS ?s2cells) WHERE {\n    ?f a sockg:Location ;\n    \tdcterms:identifier ?loc;\n    \tkwg-ont:sfContains ?subLoc ;\n    \tkwg-ont:sfWithin ?superLoc ;\n    \tspatial:connectedTo ?s2 .\n    \n    FILTER(STRSTARTS(STR(?s2), STR(kwgr:s2)))\n}\nGROUP BY ?loc \nORDER BY ?loc\nLIMIT 10"
+ },
+ "sockg/harvest_fraction": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1490,
+    "requestsWithValues": 16,
+    "statuses": {
+     "200": 1489
+    },
+    "seconds": 59.759,
+    "engineMs": 246,
+    "rssMb": 2198
+   },
+   "void": {
+    "ok": false,
+    "error": "oom"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1569,
+    "requestsWithValues": 16,
+    "statuses": {
+     "200": 1569
+    },
+    "seconds": 58.284,
+    "engineMs": 1825,
+    "rssMb": 2261.2
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?date ?crop ?plantFraction ?growthStage ?label ?Value ?Unit WHERE {\n    ?b a sockg:HarvestFraction ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n    \tsockg:hasPlantFraction ?pf ;\n    \tsockg:hasGrowthStage ?gs ;\n    \tsockg:hasCrop ?c ;\n\t\tsockg:usesTreatment ?t ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?pf rdfs:label ?plantFraction .\n    ?gs rdfs:label ?growthStage .\n    ?c rdfs:label ?crop .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n}\nORDER BY ?expUnit ?date ?label"
+ },
+ "sockg/soc_stock": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "all": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "block256": {
+    "ok": false,
+    "error": "crash:esult.js:112:37)\n    at async MediatorNumber.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-number/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "crash:esult.js:112:37)\n    at async MediatorNumber.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-number/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nSELECT ?expUnitId ?treatmentId ?date (xsd:integer(?upperDepth) AS ?UpperDepth) (xsd:integer(?lowerDepth) AS ?LowerDepth) (xsd:decimal(?soc) AS ?SOC) (xsd:decimal(?bulkDensity) AS ?BulkDensity) (xsd:decimal(?deltaDepth) AS ?DeltaDepth) ?SOCstock     \nWHERE {     \n    BIND(\"1998-04-20\"^^xsd:date AS ?date)  \n    BIND(\"GAJPCSR1_F1H2\" AS ?treatmentId)  \n\n\n    ?expUnit a sockg:ExperimentalUnit ;\n        dcterms:identifier ?expUnitId ;\n        kwg-ont:sfWithin ?spatial_data .\n\n\n    # Make sure it is a field, not site ID\n    FILTER(STRSTARTS(STR(?spatial_data), STR(ind:Location))) \n    ?spatial_data dcterms:identifier ?fieldId .        \n\n\n\n\n    # Gather CHEM samples\n    ?soilChem a sockg:SoilChemicalSample ;\n        sockg:usesTreatment ?treatment ;\n        sockg:lowerDepth ?LDepth ;\n        sockg:upperDepth ?UDepth ;\n        sockg:hasMeasurement ?meas ;\n        sockg:fromUnit ?expUnit ;\n        dcterms:date ?date .\n    ?treatment dcterms:identifier ?treatmentId .\n\n\n    ?LDepth qudt:numericValue ?lowerDepth .\n    ?UDepth qudt:numericValue ?upperDepth ;\n        qudt:hasUnit ?depthUnit .\n    ?meas sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n        qudt:quantityValue ?result .\n    ?result qudt:numericValue ?soc ;\n        qudt:hasUnit ?socUnit .\n    FILTER (?soc != 0)\n\n\n\n\n    # ===================\n    # Gather PHYS samples\n    ?physSample a sockg:SoilPhysicalSample ;\n        sockg:fromUnit ?expUnit ;\n        sockg:usesTreatment ?treatment ;\n        sockg:lowerDepth ?physLDepth ;\n        sockg:hasMeasurement ?physMeasurement ;\n        dcterms:date ?date .\n    # To keep it simple, assume phys and chem samples have same layer depths\n    ?physLDepth qudt:numericValue ?physLowerDepth .\n    FILTER (?physLowerDepth = ?lowerDepth)\n    ?physMeasurement sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n        qudt:quantityValue ?physResult .\n    ?physResult qudt:numericValue ?bulkDensity ;\n        qudt:hasUnit ?bulkDensityUnit .\n\n\n\n\n    BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCstock) \n    BIND((?lowerDepth - ?upperDepth) AS ?deltaDepth)\n\n\n}\nORDER BY ?LowerDepth"
+ },
+ "sockg/sock_stock_for_treatmnent_id": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "all": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "block256": {
+    "ok": false,
+    "error": "crash:estResult.js:112:37)\n    at async MediatorRace.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-race/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "crash:esult.js:112:37)\n    at async MediatorNumber.mediate (/Users/jim/Documents/Source/kgf-sparql/node_modules/@comunica/mediator-number/node_modules/@comunica/core/lib/Mediator.js:92:26)\n\nNode.js v25.9.0\n"
+   }
+  },
+  "sparql": "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  \nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX qudt: <http://qudt.org/schema/qudt/>\nSELECT ?expUnitId ?treatmentId ?date (xsd:integer(?upperDepth) AS ?UpperDepth) (xsd:integer(?lowerDepth) AS ?LowerDepth) (xsd:decimal(?soc) AS ?SOC) (xsd:decimal(?bulkDensity) AS ?BulkDensity) (xsd:decimal(?deltaDepth) AS ?DeltaDepth) ?SOCstock     \nWHERE {     \n    BIND(\"1998-04-20\"^^xsd:date AS ?date)  \n    BIND(\"GAJPCSR1_F1H2\" AS ?treatmentId)  \n\n\n    ?expUnit a sockg:ExperimentalUnit ;\n             dcterms:identifier ?expUnitId ;\n             kwg-ont:sfWithin ?spatial_data .\n\n\n    # Make sure it is a field, not site ID\n    FILTER(STRSTARTS(STR(?spatial_data), STR(ind:Location))) \n    ?spatial_data dcterms:identifier ?fieldId .        \n\n\n\n\n    # Gather CHEM samples\n    ?soilChem a sockg:SoilChemicalSample ;\n              sockg:usesTreatment ?treatment ;\n              sockg:lowerDepth ?LDepth ;\n              sockg:upperDepth ?UDepth ;\n              sockg:hasMeasurement ?meas ;\n              sockg:fromUnit ?expUnit ;\n              dcterms:date ?date .\n    ?treatment dcterms:identifier ?treatmentId .\n\n\n    ?LDepth qudt:numericValue ?lowerDepth .\n    ?UDepth qudt:numericValue ?upperDepth ;\n            qudt:hasUnit ?depthUnit .\n    ?meas sockg:of ind:Parameter.MeasSoilChem.17 ; # IRI of osc_gc_kg\n          qudt:quantityValue ?result .\n    ?result qudt:numericValue ?soc ;\n            qudt:hasUnit ?socUnit .\n    FILTER (?soc != 0)\n\n\n\n\n    # ===================\n    # Gather PHYS samples\n    ?physSample a sockg:SoilPhysicalSample ;\n                sockg:fromUnit ?expUnit ;\n                sockg:usesTreatment ?treatment ;\n                sockg:lowerDepth ?physLDepth ;\n                sockg:hasMeasurement ?physMeasurement ;\n                dcterms:date ?date .\n    # To keep it simple, assume phys and chem samples have same layer depths\n    ?physLDepth qudt:numericValue ?physLowerDepth .\n    FILTER (?physLowerDepth = ?lowerDepth)\n    ?physMeasurement sockg:of ind:Parameter.MeasSoilPhys.12 ; # IRI of bulk_density_g_cm3\n                     qudt:quantityValue ?physResult .\n    ?physResult qudt:numericValue ?bulkDensity ;\n                qudt:hasUnit ?bulkDensityUnit .\n\n\n\n\n    BIND(?soc * ?bulkDensity * (?lowerDepth - ?upperDepth) * 100 AS ?SOCstock) \n    BIND((?lowerDepth - ?upperDepth) AS ?deltaDepth)\n\n\n}\nORDER BY ?LowerDepth"
+ },
+ "sockg/soilBiologicalSample": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 28038,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 28022
+    },
+    "seconds": 59.769,
+    "engineMs": 230,
+    "rssMb": 2557.4
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 26498,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 26466
+    },
+    "seconds": 59.754,
+    "engineMs": 247,
+    "rssMb": 2603.8
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 28455,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 28435
+    },
+    "seconds": 59.838,
+    "engineMs": 231,
+    "rssMb": 2586.9
+   },
+   "page10k": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 25655,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 25631
+    },
+    "seconds": 59.766,
+    "engineMs": 238,
+    "rssMb": 2597.3
+   },
+   "ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 27817,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 27793
+    },
+    "seconds": 59.747,
+    "engineMs": 253,
+    "rssMb": 2470.2
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 27909,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 27885
+    },
+    "seconds": 59.766,
+    "engineMs": 235,
+    "rssMb": 2651.4
+   },
+   "all": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 24519,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 24515
+    },
+    "seconds": 57.755,
+    "engineMs": 2162,
+    "rssMb": 2545
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 28235,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 28203
+    },
+    "seconds": 57.729,
+    "engineMs": 2271,
+    "rssMb": 2558.6
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 26715,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 26692
+    },
+    "seconds": 58.173,
+    "engineMs": 1899,
+    "rssMb": 2622.6
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?date ?upperDepth ?lowerDepth ?label WHERE {\n    ?b a sockg:SoilBiologicalSample ;\n        sockg:fromUnit ?e ;\n        sockg:lowerDepth ?ld ;\n        sockg:upperDepth ?ud ;\n        dcterms:date ?date .\n\n    ?e dcterms:identifier ?expUnit .\n    ?ld qudt:numericValue ?lowerDepth .\n    ?ud qudt:numericValue ?upperDepth .\n}\nORDER BY ?expUnit ?date ?label\nLIMIT 5"
+ },
+ "sockg/soil_samples": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void": {
+    "ok": false,
+    "error": "oom"
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "all": {
+    "ok": false,
+    "error": "oom"
+   },
+   "block256": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "oom"
+   }
+  },
+  "sparql": "PREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX ind: <https://idir.uta.edu/sockg-ontology/individuals/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\n\nPREFIX ns1: <http://qudt.org/schema/qudt/>\nSELECT DISTINCT ?treatmentId ?date ?crop ?plantFraction ?carbon_concentration ?Unit \nWHERE {\n    ?b a sockg:BiomassMineral ;\n        dcterms:date ?date ;\n        sockg:usesTreatment ?t ;\n        sockg:hasMeasurement ?meas ;\n        sockg:hasPlantFraction ?pf ;\n        sockg:hasCrop ?c .\n    \n    # get human readable labels\n    ?t dcterms:identifier ?treatmentId .\n        ?pf rdfs:label ?plantFraction .\n    ?c rdfs:label ?crop .\n    \n    # get carbon concentration vals and unit\n    ?meas sockg:of ind:Parameter.MeasBiomassMinAn.9 ;\n        ns1:quantityValue ?vals .\n    ?vals ns1:numericValue ?carbon_concentration ;\n        ns1:hasUnit ?Unit\n    \n    FILTER(?carbon_concentration >= 475.0)\n       \n}\nORDER BY ?date"
+ },
+ "sockg/water_sample": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 924,
+    "hash": "3b8728204bd53c86:dc99c1f4bac5fa88",
+    "requests": 4627,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 4627
+    },
+    "seconds": 10.791,
+    "engineMs": 240,
+    "rssMb": 1039.6
+   },
+   "brtpf": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 4085,
+    "requestsWithValues": 636,
+    "statuses": {
+     "200": 4083
+    },
+    "seconds": 59.777,
+    "engineMs": 225,
+    "rssMb": 1882.9
+   },
+   "void": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1547,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 1546
+    },
+    "seconds": 59.764,
+    "engineMs": 236,
+    "rssMb": 1060.5
+   },
+   "page10k": {
+    "ok": false,
+    "error": "oom"
+   },
+   "ramp": {
+    "ok": false,
+    "error": "oom"
+   },
+   "void+ramp": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 83,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 83
+    },
+    "seconds": 61.995,
+    "engineMs": 244,
+    "rssMb": 2163
+   },
+   "all": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 82,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 82
+    },
+    "seconds": 58.6,
+    "engineMs": 1763,
+    "rssMb": 2184.8
+   },
+   "block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 4229,
+    "requestsWithValues": 629,
+    "statuses": {
+     "200": 4227
+    },
+    "seconds": 58.206,
+    "engineMs": 1794,
+    "rssMb": 1860.5
+   },
+   "void+block256": {
+    "ok": false,
+    "error": "timeout",
+    "requests": 1801,
+    "requestsWithValues": 12,
+    "statuses": {
+     "200": 1801
+    },
+    "seconds": 58.193,
+    "engineMs": 1806,
+    "rssMb": 1238.1
+   }
+  },
+  "sparql": "PREFIX qudt: <http://qudt.org/schema/qudt/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX sockg: <https://idir.uta.edu/sockg-ontology#>\n\nSELECT DISTINCT ?expUnit ?treatment ?date ?SurfOrLeach ?LossOrDep ?label ?Value ?Unit WHERE {\n    ?b a sockg:WaterQualityArea ;\n    \tsockg:hasMeasurement ?m ;\n\t    sockg:fromUnit ?e ;\n\t\tsockg:usesTreatment ?t ;\n    \tsockg:hasSurfaceOrLeaching ?sl ;\n\t\tsockg:hasLossesOrDeposition ?ld ;\n    \tdcterms:date ?date .\n    \n    ?e dcterms:identifier ?expUnit .\n    ?sl rdfs:label ?SurfOrLeach .\n    ?ld rdfs:label ?LossOrDep .\n    ?t dcterms:identifier ?treatment .\n\n    \n    ?m sockg:of ?param ;\n        qudt:quantityValue ?v .\n    ?param a sockg:Parameter ;\n            rdfs:label ?label .\n    ?v qudt:numericValue ?Value ;\n        qudt:hasUnit ?Unit .\n}\nORDER BY ?expUnit ?date ?label"
+ },
+ "sockg/who_works_agcros": {
+  "kg": "sockg",
+  "endpoint": "https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 549,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 549
+    },
+    "seconds": 2.41,
+    "engineMs": 797,
+    "rssMb": 349
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.71,
+    "engineMs": 235,
+    "rssMb": 218.5
+   },
+   "void": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.629,
+    "engineMs": 254,
+    "rssMb": 217.7
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 1.483,
+    "engineMs": 233,
+    "rssMb": 313.4
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 0.651,
+    "engineMs": 229,
+    "rssMb": 217
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 19,
+    "requestsWithValues": 11,
+    "statuses": {
+     "200": 19
+    },
+    "seconds": 1.09,
+    "engineMs": 271,
+    "rssMb": 217
+   },
+   "all": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 14,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.674,
+    "engineMs": 1968,
+    "rssMb": 492.3
+   },
+   "block256": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 14,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.753,
+    "engineMs": 2034,
+    "rssMb": 467.1
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 66,
+    "hash": "8155c73f6a9e801c:7ec585351fd8ba6a",
+    "requests": 14,
+    "requestsWithValues": 6,
+    "statuses": {
+     "200": 14
+    },
+    "seconds": 0.561,
+    "engineMs": 1869,
+    "rssMb": 468.6
+   }
+  },
+  "sparql": "PREFIX schema: <https://schema.org/>\nPREFIX dcterms: <http://purl.org/dc/terms/>\n\n\nSELECT DISTINCT ?name ?role (GROUP_CONCAT(?ename; SEPARATOR=\", \") AS ?fieldName)\nWHERE {\n    ?e a schema:Person ;\n       schema:givenName ?fname ;\n       schema:additionalName ?mname ;\n       schema:familyName ?lname ;\n       schema:workLocation ?l ;\n       schema:role ?role .\n\n\n    ?l dcterms:identifier ?ename .\n    \n    BIND(IF(CONTAINS(STR(?mname), \".\"),\n            CONCAT(STR(?fname), \" \", STR(?mname), \" \", STR(?lname)), \n            CONCAT(STR(?fname), \" \", STR(?mname), \". \", STR(?lname)) \n        ) AS ?name)\n}\nGROUP BY ?name ?role\nORDER BY ?name"
+ },
+ "spatialkg/sawgraph-spatial-02": {
+  "kg": "spatialkg",
+  "endpoint": "https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 40,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 40
+    },
+    "seconds": 0.6,
+    "engineMs": 241,
+    "rssMb": 206.7
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.49,
+    "engineMs": 247,
+    "rssMb": 205.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.487,
+    "engineMs": 241,
+    "rssMb": 207.6
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 4.373,
+    "engineMs": 233,
+    "rssMb": 437.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.455,
+    "engineMs": 244,
+    "rssMb": 206.3
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.497,
+    "engineMs": 241,
+    "rssMb": 207.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.496,
+    "engineMs": 1872,
+    "rssMb": 458.5
+   },
+   "block256": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.398,
+    "engineMs": 1918,
+    "rssMb": 458.1
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 18,
+    "hash": "0cf17e8464248983:513c400038fadadf",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.396,
+    "engineMs": 1874,
+    "rssMb": 457.1
+   }
+  },
+  "sparql": "PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT ?cousub_label ?cousub WHERE {\n    # Select county subdivisions and their names\n    #    from Clare County, MI (FIPS = 26035)\n    ?cousub rdf:type kwg-ont:AdministrativeRegion_3 ;\n            kwg-ont:administrativePartOf kwgr:administrativeRegion.USA.26035 ;\n            rdfs:label ?cousub_label .\n} ORDER BY ?cousub_label"
+ },
+ "spatialkg/sawgraph-spatial-04": {
+  "kg": "spatialkg",
+  "endpoint": "https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 136,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 136
+    },
+    "seconds": 1.14,
+    "engineMs": 239,
+    "rssMb": 267.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.429,
+    "engineMs": 323,
+    "rssMb": 207.9
+   },
+   "void": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.512,
+    "engineMs": 229,
+    "rssMb": 207.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 4.72,
+    "engineMs": 235,
+    "rssMb": 424.8
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.493,
+    "engineMs": 263,
+    "rssMb": 205.8
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 8,
+    "requestsWithValues": 4,
+    "statuses": {
+     "200": 8
+    },
+    "seconds": 0.488,
+    "engineMs": 273,
+    "rssMb": 207.2
+   },
+   "all": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.394,
+    "engineMs": 1810,
+    "rssMb": 455
+   },
+   "block256": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.486,
+    "engineMs": 1842,
+    "rssMb": 462.4
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 33,
+    "hash": "2dcc483c63d4834e:bb3aefdeec8318ca",
+    "requests": 6,
+    "requestsWithValues": 2,
+    "statuses": {
+     "200": 6
+    },
+    "seconds": 0.937,
+    "engineMs": 1852,
+    "rssMb": 462.2
+   }
+  },
+  "sparql": "PREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>\nPREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\nSELECT DISTINCT * WHERE {\n  ?s rdf:type kwg-ont:AdministrativeRegion_2 ;\n     rdfs:label ?name ;\n     kwg-ont:administrativePartOf kwgr:administrativeRegion.USA.35 .\n  FILTER(regex(str(?s), \"datacommons\"))\n} ORDER BY ?name"
+ },
+ "ubergraph/abdominal-cell-types": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 3162,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 3162
+    },
+    "seconds": 14.669,
+    "engineMs": 241,
+    "rssMb": 614.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 2593,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 2593
+    },
+    "seconds": 11.717,
+    "engineMs": 238,
+    "rssMb": 536.7
+   },
+   "void": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 321,
+    "requestsWithValues": 69,
+    "statuses": {
+     "200": 321
+    },
+    "seconds": 2.824,
+    "engineMs": 235,
+    "rssMb": 313.1
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 2575,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 2575
+    },
+    "seconds": 10.703,
+    "engineMs": 226,
+    "rssMb": 620
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 2578,
+    "requestsWithValues": 55,
+    "statuses": {
+     "200": 2578
+    },
+    "seconds": 9.676,
+    "engineMs": 239,
+    "rssMb": 525
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 306,
+    "requestsWithValues": 69,
+    "statuses": {
+     "200": 306
+    },
+    "seconds": 2.277,
+    "engineMs": 239,
+    "rssMb": 325.6
+   },
+   "all": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 279,
+    "requestsWithValues": 42,
+    "statuses": {
+     "200": 279
+    },
+    "seconds": 2.523,
+    "engineMs": 1777,
+    "rssMb": 497.8
+   },
+   "block256": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 2579,
+    "requestsWithValues": 39,
+    "statuses": {
+     "200": 2579
+    },
+    "seconds": 9.393,
+    "engineMs": 1836,
+    "rssMb": 565.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 398,
+    "hash": "e137da08cfa6611e:2329d238c15edbd6",
+    "requests": 298,
+    "requestsWithValues": 46,
+    "statuses": {
+     "200": 298
+    },
+    "seconds": 2.696,
+    "engineMs": 1846,
+    "rssMb": 504.5
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX cell: <http://purl.obolibrary.org/obo/CL_0000000>\nPREFIX organ: <http://purl.obolibrary.org/obo/UBERON_0000062>\nPREFIX abdomen: <http://purl.obolibrary.org/obo/UBERON_0000916>\nPREFIX part_of: <http://purl.obolibrary.org/obo/BFO_0000050>\nSELECT DISTINCT ?cell ?cell_label ?organ ?organ_label\nWHERE {\n  ?cell rdfs:subClassOf cell: .\n  ?cell part_of: ?organ .\n  ?organ rdfs:subClassOf organ: .\n  ?organ part_of: abdomen: .\n  ?cell rdfs:label ?cell_label .\n  ?organ rdfs:label ?organ_label .\n}"
+ },
+ "ubergraph/adrenal-gland": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 41,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 41
+    },
+    "seconds": 0.864,
+    "engineMs": 242,
+    "rssMb": 208.5
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.248,
+    "engineMs": 240,
+    "rssMb": 190.2
+   },
+   "void": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.414,
+    "engineMs": 260,
+    "rssMb": 191.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 1.375,
+    "engineMs": 220,
+    "rssMb": 322
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.358,
+    "engineMs": 221,
+    "rssMb": 189.2
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.377,
+    "engineMs": 225,
+    "rssMb": 190.3
+   },
+   "all": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.319,
+    "engineMs": 1785,
+    "rssMb": 454.2
+   },
+   "block256": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.231,
+    "engineMs": 1877,
+    "rssMb": 451.3
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 35,
+    "hash": "919f2b7bf1b0a22c:72194238eea9aa36",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.317,
+    "engineMs": 1816,
+    "rssMb": 452
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX adrenal_gland: <http://purl.obolibrary.org/obo/UBERON_0002369>\nPREFIX part_of: <http://purl.obolibrary.org/obo/BFO_0000050>\nSELECT DISTINCT ?x ?x_label\nWHERE {\n  adrenal_gland: part_of: ?x .\n  ?x rdfs:label ?x_label .\n}"
+ },
+ "ubergraph/processes-that-output-glucose": {
+  "kg": "ubergraph",
+  "endpoint": "https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
+  "arms": {
+   "qpf": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 5,
+    "requestsWithValues": 0,
+    "statuses": {
+     "200": 5
+    },
+    "seconds": 0.476,
+    "engineMs": 234,
+    "rssMb": 188
+   },
+   "brtpf": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.352,
+    "engineMs": 236,
+    "rssMb": 188.8
+   },
+   "void": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.321,
+    "engineMs": 221,
+    "rssMb": 188.8
+   },
+   "page10k": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 1.322,
+    "engineMs": 226,
+    "rssMb": 321.3
+   },
+   "ramp": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.298,
+    "engineMs": 232,
+    "rssMb": 188.1
+   },
+   "void+ramp": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.335,
+    "engineMs": 233,
+    "rssMb": 188.1
+   },
+   "all": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.338,
+    "engineMs": 1773,
+    "rssMb": 443.9
+   },
+   "block256": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.229,
+    "engineMs": 1832,
+    "rssMb": 449.2
+   },
+   "void+block256": {
+    "ok": true,
+    "rows": 2,
+    "hash": "2c4baac7c1c15ae5:833250a7bdb91519",
+    "requests": 4,
+    "requestsWithValues": 1,
+    "statuses": {
+     "200": 4
+    },
+    "seconds": 0.298,
+    "engineMs": 1821,
+    "rssMb": 451
+   }
+  },
+  "sparql": "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>\nPREFIX has_output: <http://purl.obolibrary.org/obo/RO_0002234>\nSELECT ?process ?label\nWHERE {\n  ?process has_output: CHEBI:17234 .\n  ?process rdfs:label ?label .\n}"
+ }
+}

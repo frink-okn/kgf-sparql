@@ -1,0 +1,30 @@
+# Rewrite of federation/fio-spatial-facilities-in-state. The registry query's
+# transitive property path currently produces a malformed KGF fragment request;
+# this version states the known town -> county -> state hierarchy explicitly.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fio: <http://w3id.org/fio/v1/fio#>
+PREFIX naics: <http://w3id.org/fio/v1/naics#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>
+PREFIX kwgr: <http://stko-kwg.geog.ucsb.edu/lod/resource/>
+PREFIX spatial: <http://purl.org/spatialai/spatial/spatial-full#>
+
+SELECT ?fac ?code ?town ?facWKT ?facilityName ?townLabel ?industryLabel
+WHERE {
+  VALUES ?code { naics:NAICS-562212 }
+
+  ?fac rdf:type fio:Facility ;
+       fio:ofIndustry ?code ;
+       spatial:connectedTo ?town ;
+       geo:hasGeometry ?geometry ;
+       rdfs:label ?facilityName .
+  ?geometry geo:asWKT ?facWKT .
+
+  ?town rdf:type kwg-ont:AdministrativeRegion_3 ;
+        kwg-ont:administrativePartOf ?county ;
+        rdfs:label ?townLabel .
+  ?county kwg-ont:administrativePartOf kwgr:administrativeRegion.USA.13 .
+
+  OPTIONAL { ?code rdfs:label ?industryLabel }
+}

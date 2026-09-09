@@ -13,7 +13,8 @@ const query = await new Promise((resolve) => {
 const ctx = {
   sources: [{ type: 'brtpf', value: ep }],
   '@comunica/bus-http:http-retry-count': 8,
-  '@comunica/bus-http:http-retry-status-codes': [ 429, 502, 503, 504 ],
+  // Leave 429, 503, and 504 to Comunica's native Retry-After-aware paths.
+  '@comunica/bus-http:http-retry-status-codes': [ 502 ],
   '@comunica/bus-http:http-retry-delay-fallback': 250,
 };
 if (statsPath && statsPath !== 'none') {

@@ -1,0 +1,31 @@
+# Rewrite of registry oard-kg/rank-diseases-given-phenotypes: keep label
+# enrichment out of the inner statistical aggregation and expand the property path.
+PREFIX biolink: <https://w3id.org/biolink/vocab/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX hp: <http://purl.obolibrary.org/obo/HP_>
+
+SELECT ?disease ?disease_label
+       (SUM(?best_pair_score) AS ?total_score)
+       (GROUP_CONCAT(DISTINCT STR(?phenotype); SEPARATOR=", ") AS ?matched_pheno_ids)
+       (GROUP_CONCAT(DISTINCT ?pheno_label; SEPARATOR="|") AS ?matched_pheno_labels)
+WHERE {
+  {
+    SELECT ?disease ?phenotype (MAX(?log_odds) AS ?best_pair_score)
+    WHERE {
+      VALUES ?phenotype { hp:0012771 hp:0001166 hp:0001657 }
+      ?assoc biolink:object ?phenotype ;
+             biolink:subject ?disease ;
+             biolink:has_supporting_studies ?study .
+      ?disease biolink:category biolink:Disease .
+      ?study biolink:has_study_results ?stats .
+      ?stats biolink:category biolink:LogOddsAnalysisResult ;
+             biolink:log_odds_ratio ?log_odds .
+    }
+    GROUP BY ?disease ?phenotype
+  }
+  OPTIONAL { ?phenotype rdfs:label ?pheno_label }
+  OPTIONAL { ?disease rdfs:label ?disease_label }
+}
+GROUP BY ?disease ?disease_label
+ORDER BY DESC(?total_score)
+LIMIT 100
