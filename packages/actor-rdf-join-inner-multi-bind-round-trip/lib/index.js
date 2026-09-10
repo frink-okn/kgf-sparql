@@ -15,4 +15,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./ActorRdfJoinMultiBindRoundTrip"), exports);
+__exportStar(require("./ActorRdfJoinOptionalBindRoundTrip"), exports);
 //# sourceMappingURL=index.js.map

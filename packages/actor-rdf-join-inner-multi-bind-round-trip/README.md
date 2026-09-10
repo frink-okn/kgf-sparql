@@ -1,7 +1,7 @@
 # @kgf/actor-rdf-join-inner-multi-bind-round-trip
 
-[Comunica](https://comunica.dev/)'s bind join, with each bound probe against a paged
-source charged one request.
+[Comunica](https://comunica.dev/)'s inner and `OPTIONAL` bind joins, with each bound probe
+against a paged source charged one request.
 
 The stock `ActorRdfJoinMultiBind` prices a probe against a remaining join entry as that
 entry's initial request cost plus a per-item cost. Comunica takes a paged source's initial
@@ -17,7 +17,9 @@ remaining entry that reports a `pageSize`, one `requestTime` per probe. A non-pa
 is already charged that way by the stock formula and is left alone. Every other
 coefficient, default, and refusal is the stock actor's; the class overrides one method.
 
-It replaces the stock actor in place through a Components.js `Override` in the engine's
-config, keeping the actor's identifier so the other join actors' ordering still refers to
-it. Nothing here is specific to KGF; any paged source with honest `requestTime` metadata
+`ActorRdfJoinOptionalBindRoundTrip` does the same for `ActorRdfJoinOptionalBind`, whose
+formula has the same shape and the same zero: on one registry query its two `OPTIONAL`
+patterns cost 19,537 per-row probes, a count and a page each. Both replace the stock actors
+in place through Components.js `Override`s in the engine's config, keeping the actors'
+identifiers so the other join actors' ordering still refers to them. Nothing here is specific to KGF; any paged source with honest `requestTime` metadata
 benefits.

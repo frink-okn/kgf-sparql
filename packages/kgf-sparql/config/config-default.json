@@ -74,6 +74,25 @@
           }
         ]
       }
+    },
+    {
+      "@id": "urn:kgf:override/rdf-join/actors#optional-bind",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:rdf-join/actors#optional-bind"
+      },
+      "overrideParameters": {
+        "@type": "ActorRdfJoinOptionalBindRoundTrip",
+        "mediatorJoinSelectivity": {
+          "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
+        },
+        "mediatorQueryOperation": {
+          "@id": "urn:comunica:default:query-operation/mediators#main"
+        },
+        "mediatorMergeBindingsContext": {
+          "@id": "urn:comunica:default:merge-bindings-context/mediators#main"
+        }
+      }
     }
   ]
 }

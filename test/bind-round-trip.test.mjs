@@ -6,7 +6,8 @@ import { AlgebraFactory } from '@comunica/utils-algebra';
 import { MetadataValidationState } from '@comunica/utils-metadata';
 import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
-import { ActorRdfJoinMultiBindRoundTrip } from '@kgf/actor-rdf-join-inner-multi-bind-round-trip';
+import { ActorRdfJoinOptionalBind } from '@comunica/actor-rdf-join-optional-bind';
+import { ActorRdfJoinMultiBindRoundTrip, ActorRdfJoinOptionalBindRoundTrip } from '@kgf/actor-rdf-join-inner-multi-bind-round-trip';
 
 const df = new DataFactory();
 const af = new AlgebraFactory(df);
@@ -73,4 +74,22 @@ test('the stock refusals still apply', async() => {
   const result = await roundTrip.getJoinCoefficients({ type: 'inner', entries, context: new ActionContext() }, { metadatas });
   assert.ok(result.isFailed());
   assert.match(result.getFailMessage(), /smallest stream is much smaller/u);
+});
+
+test('an OPTIONAL probe against a paged source is charged one request too', async() => {
+  const optionalDefaults = { bindOrder: 'depth-first', selectivityModifier: 0.000001 };
+  const stock = new ActorRdfJoinOptionalBind({ name: 'stock', bus: new Bus({ name: 'stock' }), ...mediators, ...optionalDefaults });
+  const roundTrip = new ActorRdfJoinOptionalBindRoundTrip({ name: 'round-trip', bus: new Bus({ name: 'round-trip' }), ...mediators, ...optionalDefaults });
+  const entries = [ entry('provider', 7_053, { pageSize: 10_000, requestTime: 60 }), entry('telephone', 9_000, { pageSize: 10_000, requestTime: 60 }) ];
+  const metadatas = await Promise.all(entries.map(e => e.output.metadata()));
+  const run = async actor => (await actor.getJoinCoefficients({ type: 'optional', entries, context: new ActionContext() }, { metadatas })).get();
+  const before = await run(stock);
+  const after = await run(roundTrip);
+  assert.equal(after.iterations, before.iterations);
+  assert.ok(before.requestTime < 10 * 60, `the stock formula prices 7,053 probes at ${before.requestTime} ms`);
+  assert.equal(after.requestTime, before.requestTime + 7_053 * 60);
+  const endpoint = [ entry('a', 10, { requestTime: 40 }), entry('b', 1_000, { requestTime: 200 }) ];
+  const endpointMetadatas = await Promise.all(endpoint.map(e => e.output.metadata()));
+  const runEndpoint = async actor => (await actor.getJoinCoefficients({ type: 'optional', entries: endpoint, context: new ActionContext() }, { metadatas: endpointMetadatas })).get();
+  assert.deepEqual(await runEndpoint(roundTrip), await runEndpoint(stock));
 });

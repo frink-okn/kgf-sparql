@@ -598,11 +598,24 @@ August run supplied. So they are expensive but finite, and a budget that admits 
 about 20,000 requests and 60 seconds. Through the native source only
 `nde/nde-resources-by-count` completes (8 rows, 8,275 requests, 124 MB); the other seven
 exhaust 20,000 requests or the clock, at a third to a tenth of brTPF's bytes. Their
-receipts say why: the probes are the `OPTIONAL` patterns, bound per row.
-`ruralkg/telehealth_treatment_providers` spends 10,004 `telephone` probes and 9,533
-`serviceLocation` probes, each a count and a page; brTPF spends 7,053 of each at one
-request apiece. Comunica's `OPTIONAL` join has its own bind actor, with the same unpriced
-probe the inner one had, and the fix above does not reach it.
+receipts say where the requests go: per-row probes, each a count and a page. For the two
+`ruralkg` queries the probes are `OPTIONAL` patterns
+(`telehealth_treatment_providers`: 10,004 `telephone` and 9,533 `serviceLocation`
+probes, where brTPF spends 7,053 of each at one request apiece): Comunica's `OPTIONAL`
+join has its own bind actor with the same unpriced probe the inner one had, and the fix
+above does not reach it. For the other five the probes are inner joins where per-row
+binding still wins its honest price, because the filter-bindings alternative is priced
+with the multiplicative blow-up described below
+(`spoke-okn/compounds-downregulating-alzheimers-genes`: 17,959 `rdfs:label` probes).
+
+**`OPTIONAL` joins, fixed the same way.** `ActorRdfJoinOptionalBindRoundTrip`, in the same
+package and installed by the same kind of override, adds the missing request per probe to
+Comunica's `OPTIONAL` bind join. Both `ruralkg` queries then complete at the standard
+budget, `list-providers` with 343 requests and `telehealth_treatment_providers` with 482,
+where August's brTPF run with its VoID registry needed 590 and 470. Over the fourteen corpus
+queries with an `OPTIONAL`, no outcome worsens, the six complete in both runs need 6,832
+requests against 9,337 (`nestkg/enriched-systems` 841 to 53), and two aborts become
+completions.
 
 **What the honest bind cost exposes next.** `ubergraph/abdominal-cell-types` completes,
 but at 4,535 requests where brTPF needed 323: its six-entry join still binds per row,
