@@ -490,21 +490,34 @@ Eleven August results are gone, all but two aborted at 5,000 requests, and eleve
 the eight added queries, three `nestkg` queries whose graph was unavailable locally, and
 the two rescued timeouts.
 
-**The native source spends more requests than brTPF on the same plans.** Over the 41
-queries complete in both runs the median is 1.9 times the August request count, and the
-tail is long: `hydrologykg/sawgraph-hydrology-02` went from 22 requests to 1,791 for the
-same 296 rows, `spatialkg/sawgraph-spatial-04` from 8 to 273, `ubergraph/adrenal-gland`
-from 4 to 79. The receipts show where they go. Comunica's default bind join rebinds each
-input row into the pattern and asks the source for that fully bound pattern; count-first
-planning answers each with a `GET /count` and then a `GET /fragment`, so every probe costs
-two requests and carries no bindings body (`sawgraph-hydrology-02`: 896 counts, 889
-pages, 0 bindings requests). Where the bindings-pushing join is chosen instead, every
-batch is counted before it is read (`biobricks-ice/names-of-chemical-entities`: 4,522
-requests, half of them counts, for 200 rows). This is the reason the eleven August
-results were lost: `sockg/fields_on_sites` needed 111 requests on brTPF and exceeded
-5,000 here. The cost is in the source, not the command line: a fragment page already
-carries the pattern's cardinality, so a count is redundant whenever the page will be read
-anyway, and a fully bound pattern from a per-row bind join never needs one.
+**The native source spends more requests than brTPF on the same queries because Comunica
+plans them differently.** Over the 41 queries complete in both runs the median is 1.9 times
+the August request count, and the tail is long: `hydrologykg/sawgraph-hydrology-02` went
+from 22 requests to 1,791 for the same 296 rows, `spatialkg/sawgraph-spatial-04` from 8 to
+273, `ubergraph/adrenal-gland` from 4 to 79. The physical plans of the hydrology query over
+both source types ([`test/explain-query.mjs`](../test/explain-query.mjs)) share their
+top-level shape and differ in the inner join. Over brTPF Comunica chose
+`multi-smallest-filter-bindings`, which fetched the 296 named flowlines once and pushed
+them into the other three patterns in blocks: 15 of its 22 requests carried `values=`.
+Over the native source it chose the per-row `bind` join, which asks the source for each of
+the 296 × 3 bound patterns separately, and count-first planning answers every one with a
+`GET /count` and a `GET /fragment`: 896 counts, 889 pages, no bindings request at all.
+
+The choice is the cost model's, not the data's. Comunica's bind join charges a paged
+source nothing per request: when a source reports a `pageSize`, its per-request cost is
+taken as zero and each item costs `requestTime / pageSize`; the expected rows are then
+multiplied by a 0.0001 selectivity modifier. With the native source's exact cardinalities
+and VoID selectivities, 888 round trips are priced at 0.1 iterations and a few
+milliseconds, while the filter-bindings actor is charged for materialising 296 rows, so
+per-row bind wins by two orders of magnitude. Page size (100, 1,000, or 10,000) and VoID
+on or off do not change the choice. The same model fed brTPF's coarser estimates happens
+to land on the better plan. This is the round-trip-aware cost model for paged sources
+that the client-stack plan already lists as an upstream item: until a bound probe is
+charged a request, the native source's exactness works against it. Count-first then
+doubles every probe, and where bindings pushdown is chosen each batch is still counted
+before it is read (`biobricks-ice/names-of-chemical-entities`: 4,522 requests, half of
+them counts, for 200 rows). This is why the eleven August results were lost:
+`sockg/fields_on_sites` needed 111 requests on brTPF and exceeded 5,000 here.
 
 Against the client-stack plan's phase A criterion (the same 45 non-empty results, every
 former timeout a budget abort with a receipt), the receipt half holds and the result half
