@@ -17,7 +17,7 @@ env:   KGF_ROOT (default https://apps.okn.us/kgf)
        REGISTRY_QUERY_TIMEOUT (seconds, default 30)
        REGISTRY_MAX_REQUESTS (default 5000), REGISTRY_MAX_BYTES (default 256M)
        REGISTRY_RUN_DIR (results and receipts, default scratch/registry-cli)
-       REGISTRY_ONLY (substring filter on query ids)
+       REGISTRY_ONLY (comma-separated substrings; a query runs when its id contains any of them)
        REGISTRY_COMPARE (earlier results file; default test/registry-query-results-20260827.json)
        REGISTRY_SOURCE_KIND (kgf, the default, uses each dataset's fragment link as a native
        source; brtpf uses its tpf link as a stock Comunica brTPF source)
@@ -230,7 +230,8 @@ def main() -> None:
     available = sorted(datasets)
     files = sorted(QUERY_ROOT.rglob("*.rq"))
     if ONLY:
-        files = [path for path in files if ONLY in str(path.relative_to(QUERY_ROOT))]
+        wanted = [part.strip() for part in ONLY.split(",") if part.strip()]
+        files = [path for path in files if any(part in str(path.relative_to(QUERY_ROOT)) for part in wanted)]
     results: dict[str, dict] = {}
     budget = {"maxRequests": int(MAX_REQUESTS), "maxBytes": MAX_BYTES, "timeoutSeconds": TIMEOUT}
     print(f"{len(files)} registry queries via {BIN.name} as {SOURCE_KIND} sources; budget {budget}; results -> {OUT}", flush=True)

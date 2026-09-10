@@ -1,0 +1,292 @@
+{
+  "generatedAt": "2026-09-10T08:31:03-0400",
+  "kgfRoot": "https://apps.okn.us/kgf",
+  "sourceKind": "kgf",
+  "budget": {
+    "maxRequests": 20000,
+    "maxBytes": "512M",
+    "timeoutSeconds": 120.0
+  },
+  "results": {
+    "federation/sawgraph-hydrology-spatial-04": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/sawgraph-hydrology-spatial-04.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "hydrologykg",
+        "spatialkg"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
+        "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/federation/sawgraph-hydrology-spatial-04.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 0,
+        "schemaRequests": 4,
+        "responseBytes": 7860303,
+        "statuses": {
+          "200": 19922
+        },
+        "seconds": 11.67,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "nde/nde-resources-by-count": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nde/nde-resources-by-count.rq",
+      "tags": [
+        "nde"
+      ],
+      "targets": [
+        "nde"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/nde/nde-resources-by-count.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 8,
+        "requests": 8275,
+        "bindingsRequests": 8012,
+        "schemaRequests": 2,
+        "responseBytes": 123608006,
+        "statuses": {
+          "200": 8275
+        },
+        "seconds": 15.119,
+        "exitCode": 0,
+        "multisetHash": "6eb82c66724cfcbf:5fbe251c8bb51481",
+        "samples": [
+          "catalog=<https://okn.wobd.org/catalog/ncbi_geo>\u0001datasetCount=\"246504\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "catalog=<https://okn.wobd.org/catalog/vivli>\u0001datasetCount=\"7676\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "catalog=<https://okn.wobd.org/catalog/immport>\u0001datasetCount=\"1320\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+        ],
+        "attempts": 1
+      }
+    },
+    "oard-kg/diseases-associated-with-phenotype": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/diseases-associated-with-phenotype.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/oard-kg/diseases-associated-with-phenotype.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 0,
+        "schemaRequests": 10,
+        "responseBytes": 6003619,
+        "statuses": {
+          "200": 19966
+        },
+        "seconds": 34.112,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "oard-kg/phenotypes-associated-with-disease": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/phenotypes-associated-with-disease.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/oard-kg/phenotypes-associated-with-disease.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 0,
+        "schemaRequests": 10,
+        "responseBytes": 6170606,
+        "statuses": {
+          "200": 19978
+        },
+        "seconds": 27.817,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "prokn/protein_disease": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_disease.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://apps.okn.us/oard-kg/sparql"
+      ],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/prokn/protein_disease.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2983,
+        "bindingsRequests": 2722,
+        "schemaRequests": 4,
+        "responseBytes": 29570479,
+        "statuses": {
+          "200": 2981
+        },
+        "seconds": 120.012,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "ruralkg/list-providers": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/list-providers.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/ruralkg/list-providers.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 284,
+        "schemaRequests": 2,
+        "responseBytes": 11137885,
+        "statuses": {
+          "200": 19985
+        },
+        "seconds": 28.406,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "ruralkg/telehealth_treatment_providers": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/telehealth_treatment_providers.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/ruralkg/telehealth_treatment_providers.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 444,
+        "schemaRequests": 2,
+        "responseBytes": 11997657,
+        "statuses": {
+          "200": 19994
+        },
+        "seconds": 50.901,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "spoke-okn/compounds-downregulating-alzheimers-genes": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-okn/compounds-downregulating-alzheimers-genes.rq",
+      "tags": [
+        "spoke-okn"
+      ],
+      "targets": [
+        "spoke-okn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "kgf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/fragment"
+      ],
+      "receipt": "scratch/registry-cli-larger/spoke-okn/compounds-downregulating-alzheimers-genes.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 20000,
+        "bindingsRequests": 735,
+        "schemaRequests": 4,
+        "responseBytes": 12691251,
+        "statuses": {
+          "200": 19995
+        },
+        "seconds": 44.898,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    }
+  }
+}

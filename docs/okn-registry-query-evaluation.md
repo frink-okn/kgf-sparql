@@ -588,6 +588,22 @@ so the event loop drained with the run's promise pending and Node exited success
 The command now writes the receipt when the loop drains during a run and exits 1, or 3 if
 a budget had already ended it.
 
+**The eight lost August results under a larger budget** (20,000 requests, 120 s, 512 MB;
+[`test/registry-query-results-cli-20260910-larger-budget.json`](../test/registry-query-results-cli-20260910-larger-budget.json)
+and its `-brtpf` twin). Through brTPF, six of the eight complete at exactly their August
+request counts, between 3,655 and 17,386, in 8 to 57 seconds, receiving 30 to 269 MB; the
+two that do not are `nde/nde-resources-by-count`, which exceeds 512 MB, and
+`ruralkg/list-providers`, which exceeds 20,000 requests without the VoID registry the
+August run supplied. So they are expensive but finite, and a budget that admits them is
+about 20,000 requests and 60 seconds. Through the native source only
+`nde/nde-resources-by-count` completes (8 rows, 8,275 requests, 124 MB); the other seven
+exhaust 20,000 requests or the clock, at a third to a tenth of brTPF's bytes. Their
+receipts say why: the probes are the `OPTIONAL` patterns, bound per row.
+`ruralkg/telehealth_treatment_providers` spends 10,004 `telephone` probes and 9,533
+`serviceLocation` probes, each a count and a page; brTPF spends 7,053 of each at one
+request apiece. Comunica's `OPTIONAL` join has its own bind actor, with the same unpriced
+probe the inner one had, and the fix above does not reach it.
+
 **What the honest bind cost exposes next.** `ubergraph/abdominal-cell-types` completes,
 but at 4,535 requests where brTPF needed 323: its six-entry join still binds per row,
 because the alternative, the filter-bindings actor, prices a multi-entry join by
