@@ -541,27 +541,29 @@ the earlier native run is kept as
 [`test/registry-query-results-cli-20260909-stock-bind.json`](../test/registry-query-results-cli-20260909-stock-bind.json)
 and [`test/compare-runs.py`](../test/compare-runs.py) compares the two.
 
-**No query that completed before fails now, and three that aborted complete.**
-`federation/nde-diseases-mondo-parents` (200 rows, 1,918 requests), `sockg/fields_on_sites`
-(49 rows, 119 requests, against a 5,000-request abort), and `ubergraph/abdominal-cell-types`
-(398 rows, 4,535 requests). Over the 52 queries complete in both runs, requests fell from
-26,090 to 21,080; the median ratio is 1.00, because the change only touches plans where
-per-row binding was chosen, and there it is decisive: `hydrologykg/sawgraph-hydrology-02`
-1,791 to 45, `sockg/location` 422 to 25, `nestkg/subsystems` 209 to 13,
-`spatialkg/sawgraph-spatial-04` 273 to 17, `ubergraph/adrenal-gland` 79 to 9. Four queries
-need up to half again as many requests as before, all with a bare `LIMIT`, where the number
-of blocks fetched before the limit is reached is the plan's. Row counts agree on every
-query complete in both runs. Outcomes are 55 complete, 33 budget aborts (23 at requests, 7
-at the clock, 3 at bytes), and 6 errors, all of them external `SERVICE` endpoints or the
-Ontotext function; the network errors of the previous run do not recur under the
-connection cap. Three aborts moved from the request or byte budget to the clock: the new
-plans push bindings in blocks, and a block request takes longer than a page.
+**No query that completed before fails now, and six that aborted complete.** The numbers
+here are from the final run, with both bind joins fixed and the connection cap, same
+budgets. The six: `federation/nde-diseases-mondo-parents` (200 rows, 1,916 requests),
+`nasa-gesdisc-kg/frequent-sciencekeywords` (25 rows, 1,236 requests, at 28.6 s of a 30 s
+clock), `ruralkg/list-providers` (100 rows, 343), `ruralkg/telehealth_treatment_providers`
+(100 rows, 482), `sockg/fields_on_sites` (49 rows, 119, against a 5,000-request abort), and
+`ubergraph/abdominal-cell-types` (398 rows, 4,535). Over the 52 queries complete in both
+runs, requests fell from 26,090 to 20,252; the median ratio is 1.00, because the change
+only touches plans where per-row binding was chosen, and there it is decisive:
+`hydrologykg/sawgraph-hydrology-02` 1,791 to 45, `sockg/location` 422 to 25,
+`nestkg/subsystems` 209 to 13, `spatialkg/sawgraph-spatial-04` 273 to 17,
+`ubergraph/adrenal-gland` 79 to 9. Four queries need up to a third more requests than
+before, all with a bare `LIMIT`, where the number of blocks fetched before the limit is
+reached is the plan's. Row counts agree on every query complete in both runs. Outcomes are
+58 complete, 30 budget aborts (20 at requests, 5 at the clock, 5 at bytes), and 6 errors,
+all of them external `SERVICE` endpoints or the Ontotext function; the network errors of
+the first run do not recur under the connection cap.
 
-Against August: 48 non-empty results to 45, 37 of them the same queries, and 22 of the
-27 that denote one bag identical. Eight August results remain lost, every one of which
-needed between 470 and 17,386 brTPF requests and now stops at 5,000 requests or 30
-seconds. All twenty August timeouts and heap deaths are now two completions and eighteen
-budget aborts with receipts.
+Against August: 51 non-empty results to 45, 39 of them the same queries, and 24 of the
+29 that denote one bag identical. Six August results remain lost, every one of which
+needed between 3,655 and 17,386 brTPF requests and now stops at 5,000 requests or 30
+seconds. All twenty August timeouts and heap deaths are now completions or budget aborts
+with receipts.
 
 **Controls run the same day.** A repeat of the native run under the same engine changed
 no outcome between complete and not; four aborts moved between budgets, and the bare-`LIMIT`
@@ -574,7 +576,7 @@ sources through the same command and budgets
 against August's brTPF run the median request ratio is 1.00 over 42 queries complete in
 both, and on the three queries whose counts differ most, this engine and stock Comunica
 (`node test/explain-query.mjs --stock`) choose the same plan with the same request count,
-so the swapped bind actor leaves the brTPF path as Comunica shipped it. Same day, same
+so the swapped bind actors leave the brTPF path as Comunica shipped it. Same day, same
 command, same budgets, over the 49 queries complete on both source types: brTPF 10,770
 requests, native 18,354; brTPF 702 MB received, native 153 MB; brTPF 109 s, native 87 s;
 brTPF completes 50 queries, native 55. The remaining request gap is count-first planning,
@@ -590,32 +592,31 @@ a budget had already ended it.
 
 **The eight lost August results under a larger budget** (20,000 requests, 120 s, 512 MB;
 [`test/registry-query-results-cli-20260910-larger-budget.json`](../test/registry-query-results-cli-20260910-larger-budget.json)
-and its `-brtpf` twin). Through brTPF, six of the eight complete at exactly their August
-request counts, between 3,655 and 17,386, in 8 to 57 seconds, receiving 30 to 269 MB; the
-two that do not are `nde/nde-resources-by-count`, which exceeds 512 MB, and
-`ruralkg/list-providers`, which exceeds 20,000 requests without the VoID registry the
-August run supplied. So they are expensive but finite, and a budget that admits them is
-about 20,000 requests and 60 seconds. Through the native source only
-`nde/nde-resources-by-count` completes (8 rows, 8,275 requests, 124 MB); the other seven
-exhaust 20,000 requests or the clock, at a third to a tenth of brTPF's bytes. Their
+and its `-brtpf` twin, run before the `OPTIONAL` fix below). Through brTPF, six of the
+eight complete at exactly their August request counts, between 3,655 and 17,386, in 8 to
+57 seconds, receiving 30 to 269 MB; the two that do not are `nde/nde-resources-by-count`,
+which exceeds 512 MB, and `ruralkg/list-providers`, which exceeds 20,000 requests without
+the VoID registry the August run supplied. So they are expensive but finite, and a budget
+that admits them is about 20,000 requests and 60 seconds. Through the native source only
+`nde/nde-resources-by-count` completed (8 rows, 8,275 requests, 124 MB); the other seven
+exhausted 20,000 requests or the clock, at a third to a tenth of brTPF's bytes. Their
 receipts say where the requests go: per-row probes, each a count and a page. For the two
-`ruralkg` queries the probes are `OPTIONAL` patterns
+`ruralkg` queries the probes were `OPTIONAL` patterns
 (`telehealth_treatment_providers`: 10,004 `telephone` and 9,533 `serviceLocation`
 probes, where brTPF spends 7,053 of each at one request apiece): Comunica's `OPTIONAL`
-join has its own bind actor with the same unpriced probe the inner one had, and the fix
-above does not reach it. For the other five the probes are inner joins where per-row
-binding still wins its honest price, because the filter-bindings alternative is priced
-with the multiplicative blow-up described below
-(`spoke-okn/compounds-downregulating-alzheimers-genes`: 17,959 `rdfs:label` probes).
+join has its own bind actor with the same unpriced probe the inner one had. For the other
+five the probes are inner joins where per-row binding still wins its honest price,
+because the filter-bindings alternative is priced with the multiplicative blow-up
+described below (`spoke-okn/compounds-downregulating-alzheimers-genes`: 17,959
+`rdfs:label` probes).
 
 **`OPTIONAL` joins, fixed the same way.** `ActorRdfJoinOptionalBindRoundTrip`, in the same
 package and installed by the same kind of override, adds the missing request per probe to
 Comunica's `OPTIONAL` bind join. Both `ruralkg` queries then complete at the standard
 budget, `list-providers` with 343 requests and `telehealth_treatment_providers` with 482,
 where August's brTPF run with its VoID registry needed 590 and 470. Over the fourteen corpus
-queries with an `OPTIONAL`, no outcome worsens, the six complete in both runs need 6,832
-requests against 9,337 (`nestkg/enriched-systems` 841 to 53), and two aborts become
-completions.
+queries with an `OPTIONAL`, no outcome worsens and the six complete in both runs need 6,832
+requests against 9,337 (`nestkg/enriched-systems` 841 to 53).
 
 **What the honest bind cost exposes next.** `ubergraph/abdominal-cell-types` completes,
 but at 4,535 requests where brTPF needed 323: its six-entry join still binds per row,
