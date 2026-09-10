@@ -119,7 +119,7 @@ export class RunAccount {
       request_id: null,
       bytes: 0,
       elapsed_ms: 0,
-      bindings: carriesBindings(init.body),
+      bindings: carriesBindings(init.body) || /[?&]values=/u.test(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url),
       complete: null,
       truncation_reason: null,
     };
@@ -178,7 +178,10 @@ export class RunAccount {
   };
 }
 
-/** True when a request body pushes bindings, which is how KGF `QUERY` carries a join's input rows. */
+/**
+ * True when a request body pushes bindings, which is how KGF `QUERY` carries a join's input
+ * rows. brTPF carries them in the URL instead, as `values=`, which the caller checks.
+ */
 function carriesBindings(body: RequestInit['body']): boolean {
   if (typeof body !== 'string' || !body.includes('"bindings"')) {
     return false;

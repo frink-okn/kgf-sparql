@@ -17,7 +17,7 @@ export interface IReceiptRequest {
   bytes_wire?: number;
   /** From the request's start to the end of its body, or to the failure. */
   elapsed_ms: number;
-  /** Whether the request pushed bindings, i.e. carried a join's input rows in its body. */
+  /** Whether the request pushed bindings: a join's input rows in a KGF `QUERY` body, or brTPF's `values=`. */
   bindings: boolean;
   /** The server's `KGF-Complete` header, when present. */
   complete: boolean | null;

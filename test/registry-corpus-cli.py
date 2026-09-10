@@ -19,6 +19,8 @@ env:   KGF_ROOT (default https://apps.okn.us/kgf)
        REGISTRY_RUN_DIR (results and receipts, default scratch/registry-cli)
        REGISTRY_ONLY (substring filter on query ids)
        REGISTRY_COMPARE (earlier results file; default test/registry-query-results-20260827.json)
+       REGISTRY_SOURCE_KIND (kgf, the default, uses each dataset's fragment link as a native
+       source; brtpf uses its tpf link as a stock Comunica brTPF source)
 """
 
 from __future__ import annotations
@@ -44,6 +46,8 @@ MAX_REQUESTS = os.environ.get("REGISTRY_MAX_REQUESTS", "5000")
 MAX_BYTES = os.environ.get("REGISTRY_MAX_BYTES", "256M")
 RUN_DIR = Path(os.environ.get("REGISTRY_RUN_DIR", REPO / "scratch" / "registry-cli"))
 ONLY = os.environ.get("REGISTRY_ONLY")
+SOURCE_KIND = os.environ.get("REGISTRY_SOURCE_KIND", "kgf")
+SOURCE_LINK = {"kgf": "fragment", "brtpf": "tpf"}[SOURCE_KIND]
 COMPARE = Path(os.environ.get("REGISTRY_COMPARE", HERE / "registry-query-results-20260827.json"))
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "registry-query-results-cli.json"
 BIN = REPO / "packages" / "kgf-sparql" / "bin" / "kgf-sparql.js"
@@ -223,7 +227,7 @@ def main() -> None:
         files = [path for path in files if ONLY in str(path.relative_to(QUERY_ROOT))]
     results: dict[str, dict] = {}
     budget = {"maxRequests": int(MAX_REQUESTS), "maxBytes": MAX_BYTES, "timeoutSeconds": TIMEOUT}
-    print(f"{len(files)} registry queries via {BIN.name}; budget {budget}; results -> {OUT}", flush=True)
+    print(f"{len(files)} registry queries via {BIN.name} as {SOURCE_KIND} sources; budget {budget}; results -> {OUT}", flush=True)
 
     for index, path in enumerate(files, 1):
         query_id = str(path.relative_to(QUERY_ROOT).with_suffix(""))
@@ -237,7 +241,7 @@ def main() -> None:
         if skipped:
             record["result"] = skipped
         else:
-            sources = [f"kgf@{urllib.parse.urljoin(origin, datasets[target]['links']['fragment'])}" for target in targets]
+            sources = [f"{SOURCE_KIND}@{urllib.parse.urljoin(origin, datasets[target]['links'][SOURCE_LINK])}" for target in targets]
             record["sources"] = sources
             stem = RUN_DIR / query_id
             record["receipt"] = str(stem.with_suffix(".receipt.json"))
@@ -246,6 +250,7 @@ def main() -> None:
         OUT.write_text(json.dumps({
             "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "kgfRoot": ROOT,
+            "sourceKind": SOURCE_KIND,
             "budget": budget,
             "results": results,
         }, indent=2) + "\n", encoding="utf-8")

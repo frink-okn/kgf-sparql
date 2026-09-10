@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { Parser } from 'n3';
-import { createPooledFetch, runCli } from 'kgf-sparql';
+import { RunAccount, createPooledFetch, runCli } from 'kgf-sparql';
 import { server, triples, EP } from './helpers/mock-kgf.mjs';
 
 const BIN = new URL('../packages/kgf-sparql/bin/kgf-sparql.js', import.meta.url).pathname;
@@ -282,6 +282,13 @@ test('the executable flushes results, writes the receipt, and reports the exit s
   const usage = await spawnCli([]);
   assert.equal(usage.code, 2);
   assert.match(usage.stderr, /Usage:/u);
+});
+
+test("a brTPF request carrying bindings in its URL counts as a bindings request", async() => {
+  const account = new RunAccount({}, async() => new Response('{}', { headers: { 'content-type': 'application/json' } }));
+  await account.fetch('https://kgf.test/graph/tpf?s=%3Curn%3Aa%3E&values=%7B%7D');
+  await account.fetch('https://kgf.test/graph/tpf?p=%3Curn%3Ap%3E');
+  assert.deepEqual(account.requests.map(request => request.bindings), [ true, false ]);
 });
 
 test('the pooled fetch caps concurrent connections per origin and reuses them', async t => {
