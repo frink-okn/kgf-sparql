@@ -10,6 +10,9 @@
     },
     {
       "path": "../actor-rdf-join-selectivity-void"
+    },
+    {
+      "path": "../actor-rdf-join-inner-multi-bind-round-trip"
     }
   ]
 }

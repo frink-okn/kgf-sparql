@@ -222,6 +222,22 @@ reasoning, dataset totals, and pattern cardinality. The actor's `safetyFactor`
 (default 1) can raise estimates to compensate for skew; its `accuracy` (0.8)
 outbids Comunica's syntactic heuristic (0.5) when statistics are available.
 
+## Join planning and request cost
+
+Comunica's bind join prices a bound probe against a paged source at a fraction of a
+request: it takes the source's per-request cost as already paid, which is true of the
+entry being planned and false of the probes the join will send. With the native source's
+exact cardinalities, 888 probes on one registry query were priced at a few milliseconds,
+and per-row binding beat pushing the bindings in blocks by two orders of magnitude, at
+1,791 requests instead of 22. The engine config replaces the stock bind join in place,
+through a Components.js `Override`, with
+[`@kgf/actor-rdf-join-inner-multi-bind-round-trip`](packages/actor-rdf-join-inner-multi-bind-round-trip/),
+which adds one request per probe per paged entry to the stock formula and changes
+nothing else. On the registry corpus that query drops to 45 requests, `ubergraph/adrenal-gland`
+from 79 to 9, and `sockg/fields_on_sites` from a 5,000-request abort to 119 and complete.
+Comunica's own defaults, weights, and refusals are untouched; the override keeps the
+actor's identifier so the join actors' ordering still refers to it.
+
 ## Development
 
 ```bash
@@ -245,9 +261,10 @@ run in `test/registry-query-results-20260827.json`. `test/registry-corpus.py` is
 earlier runner.
 
 ```text
-packages/actor-query-source-identify-kgf/  Native JSON source and HTTP transport
-packages/actor-rdf-join-selectivity-void/  Generic VoID join-selectivity actor
-packages/kgf-sparql/                      Engine configuration, library, and CLI
+packages/actor-query-source-identify-kgf/          Native JSON source and HTTP transport
+packages/actor-rdf-join-selectivity-void/          Generic VoID join-selectivity actor
+packages/actor-rdf-join-inner-multi-bind-round-trip/  Bind join charging a request per probe
+packages/kgf-sparql/                              Engine configuration, library, and CLI
 ```
 
 ## Earlier brTPF benchmarks

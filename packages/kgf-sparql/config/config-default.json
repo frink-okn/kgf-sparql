@@ -3,25 +3,77 @@
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/runner/^5.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/config-query-sparql/^5.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-void/^0.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-query-source-identify-kgf/^0.0.0/components/context.jsonld"
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-query-source-identify-kgf/^0.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-round-trip/^0.0.0/components/context.jsonld"
   ],
-  "import": [
-    "ccqs:config/config-default.json"
-  ],
-  "@id": "urn:comunica:default:Runner",
-  "@type": "Runner",
-  "actors": [
+  "@graph": [
     {
-      "@id": "urn:kgf:query-source-identify/actors#kgf",
-      "@type": "ActorQuerySourceIdentifyKgf",
-      "beforeActors": [{ "@id": "urn:comunica:default:query-source-identify/actors#hypermedia" }],
-      "mediatorHttp": { "@id": "urn:comunica:default:http/mediators#main" },
-      "mediatorMergeBindingsContext": { "@id": "urn:comunica:default:merge-bindings-context/mediators#main" }
+      "import": [
+        "ccqs:config/config-default.json"
+      ],
+      "@id": "urn:comunica:default:Runner",
+      "@type": "Runner",
+      "actors": [
+        {
+          "@id": "urn:kgf:query-source-identify/actors#kgf",
+          "@type": "ActorQuerySourceIdentifyKgf",
+          "beforeActors": [
+            {
+              "@id": "urn:comunica:default:query-source-identify/actors#hypermedia"
+            }
+          ],
+          "mediatorHttp": {
+            "@id": "urn:comunica:default:http/mediators#main"
+          },
+          "mediatorMergeBindingsContext": {
+            "@id": "urn:comunica:default:merge-bindings-context/mediators#main"
+          }
+        },
+        {
+          "@id": "urn:kgf:rdf-join-selectivity/actors#void",
+          "@type": "ActorRdfJoinSelectivityVoid",
+          "accuracy": 0.8
+        }
+      ]
     },
     {
-      "@id": "urn:kgf:rdf-join-selectivity/actors#void",
-      "@type": "ActorRdfJoinSelectivityVoid",
-      "accuracy": 0.8
+      "@id": "urn:kgf:override/rdf-join/actors#inner-multi-bind",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:rdf-join/actors#inner-multi-bind"
+      },
+      "overrideParameters": {
+        "@type": "ActorRdfJoinMultiBindRoundTrip",
+        "mediatorJoinSelectivity": {
+          "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
+        },
+        "mediatorJoinEntriesSort": {
+          "@id": "urn:comunica:default:rdf-join-entries-sort/mediators#main"
+        },
+        "mediatorQueryOperation": {
+          "@id": "urn:comunica:default:query-operation/mediators#main"
+        },
+        "mediatorMergeBindingsContext": {
+          "@id": "urn:comunica:default:merge-bindings-context/mediators#main"
+        },
+        "beforeActors": [
+          {
+            "@id": "urn:comunica:default:rdf-join/actors#inner-multi-smallest"
+          },
+          {
+            "@id": "urn:comunica:default:rdf-join/actors#inner-hash-def"
+          },
+          {
+            "@id": "urn:comunica:default:rdf-join/actors#inner-hash-undef"
+          },
+          {
+            "@id": "urn:comunica:default:rdf-join/actors#inner-symmetric-hash"
+          },
+          {
+            "@id": "urn:comunica:default:rdf-join/actors#inner-nested-loop"
+          }
+        ]
+      }
     }
   ]
 }

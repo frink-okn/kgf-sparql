@@ -5,8 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @kgf/actor-rdf-join-selectivity-void && npm run build -w @kgf/actor-query-source-identify-kgf && npm run build -w kgf-sparql",
-    "test": "npm run build && node --test test/native-kgf.test.mjs test/cli.test.mjs",
+    "build": "npm run build -w @kgf/actor-rdf-join-selectivity-void && npm run build -w @kgf/actor-query-source-identify-kgf && npm run build -w @kgf/actor-rdf-join-inner-multi-bind-round-trip && npm run build -w kgf-sparql",
+    "test": "npm run build && node --test test/native-kgf.test.mjs test/cli.test.mjs test/bind-round-trip.test.mjs",
     "test:live": "node test/native-kgf-live.mjs && node test/cli-live.mjs",
     "clean": "rm -rf packages/*/lib/*.js packages/*/lib/*.d.ts packages/*/lib/*.map packages/*/components packages/*/*.tsbuildinfo packages/kgf-sparql/engine-default.js"
   },
