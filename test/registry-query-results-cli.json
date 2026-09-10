@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-09T19:10:56-0400",
+  "generatedAt": "2026-09-10T05:04:21-0400",
   "kgfRoot": "https://apps.okn.us/kgf",
   "budget": {
     "maxRequests": 5000,
@@ -21,26 +21,26 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/biobricks-ice/assays-from-invitrodb.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/biobricks-ice/assays-from-invitrodb.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 100,
-        "requests": 29,
-        "bindingsRequests": 21,
+        "requests": 18,
+        "bindingsRequests": 11,
         "schemaRequests": 2,
-        "responseBytes": 264586,
+        "responseBytes": 269840,
         "statuses": {
           "200": 15
         },
-        "seconds": 0.626,
+        "seconds": 1.166,
         "exitCode": 0,
-        "multisetHash": "985daa4d475ce660:fd7e49a7ef2f5092",
+        "multisetHash": "f27e77c756afedeb:89d4b0fe3de9d7f5",
         "samples": [
-          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/APR_HepG2_OxidativeStress_1h_dn>",
-          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/APR_HepG2_OxidativeStress_1h_up>",
-          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/APR_HepG2_OxidativeStress_24h_dn>"
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_agonist_80hr>",
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_agonist_AUC_viability>",
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_antagonist_80hr>"
         ]
       }
     },
@@ -58,27 +58,28 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/biobricks-ice/names-of-chemical-entities.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/biobricks-ice/names-of-chemical-entities.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 200,
-        "requests": 4522,
-        "bindingsRequests": 1937,
+        "requests": 2884,
+        "bindingsRequests": 1610,
         "schemaRequests": 3,
-        "responseBytes": 38151710,
+        "responseBytes": 17033087,
         "statuses": {
-          "200": 4498
+          "200": 2877
         },
-        "seconds": 7.01,
+        "seconds": 8.401,
         "exitCode": 0,
-        "multisetHash": "6587e09c9c6e4b04:d022c2b8eeacac40",
+        "multisetHash": "00352fa5aa17b9e7:084cf58674ab0e9b",
         "samples": [
           "cas=<http://identifiers.org/cas/17902-23-7>\u0001dsstox=<https://comptox.epa.gov/dashboard/chemical/details/DTXSID001009966>\u0001name=\"Tegafur\"^^<http://www.w3.org/2001/XMLSchema#string>",
           "cas=<http://identifiers.org/cas/123122-54-3>\u0001dsstox=<https://comptox.epa.gov/dashboard/chemical/details/DTXSID001014436>\u0001name=\"Candoxatrilat\"^^<http://www.w3.org/2001/XMLSchema#string>",
           "cas=<http://identifiers.org/cas/3239-44-9>\u0001dsstox=<https://comptox.epa.gov/dashboard/chemical/details/DTXSID001025754>\u0001name=\"Dexfenfluramine\"^^<http://www.w3.org/2001/XMLSchema#string>"
-        ]
+        ],
+        "attempts": 1
       }
     },
     "dreamkg/services-available-weekend": {
@@ -95,7 +96,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/dreamkg/services-available-weekend.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/dreamkg/services-available-weekend.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -108,7 +109,7 @@
         "statuses": {
           "200": 4
         },
-        "seconds": 0.45,
+        "seconds": 0.365,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -128,7 +129,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/dreamkg/services-in-more-than-one-language.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/dreamkg/services-in-more-than-one-language.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -141,7 +142,7 @@
         "statuses": {
           "200": 5
         },
-        "seconds": 0.432,
+        "seconds": 0.39,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -161,7 +162,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/accessions-associated-with-group.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/accessions-associated-with-group.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -174,7 +175,7 @@
         "statuses": {
           "200": 4
         },
-        "seconds": 0.573,
+        "seconds": 0.384,
         "exitCode": 0,
         "multisetHash": "6b12d1a394edd7ef:9e091d069a78238d",
         "samples": [
@@ -198,7 +199,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/connections-to-group.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/connections-to-group.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -211,7 +212,7 @@
         "statuses": {
           "200": 9
         },
-        "seconds": 0.521,
+        "seconds": 0.457,
         "exitCode": 0,
         "multisetHash": "46fd1d72e9f48fa5:aec2bbbc284c006b",
         "samples": [
@@ -235,7 +236,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/group-associated-with-gene.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/group-associated-with-gene.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -248,7 +249,7 @@
         "statuses": {
           "200": 22
         },
-        "seconds": 1.047,
+        "seconds": 0.981,
         "exitCode": 0,
         "multisetHash": "842892a7b4dff5fe:842892a7b4dff5fe",
         "samples": [
@@ -270,20 +271,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/group-containing-specific-accession.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/group-containing-specific-accession.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 1,
         "requests": 9,
-        "bindingsRequests": 0,
+        "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 53476,
+        "responseBytes": 53609,
         "statuses": {
           "200": 9
         },
-        "seconds": 0.529,
+        "seconds": 0.43,
         "exitCode": 0,
         "multisetHash": "9df88440aafb2224:9df88440aafb2224",
         "samples": [
@@ -305,23 +306,23 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/group-with-most-connections.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/group-with-most-connections.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 5000,
-        "bindingsRequests": 0,
+        "requests": 1298,
+        "bindingsRequests": 1273,
         "schemaRequests": 2,
-        "responseBytes": 59894375,
+        "responseBytes": 268448632,
         "statuses": {
-          "200": 4998
+          "200": 1297
         },
-        "seconds": 29.143,
+        "seconds": 19.734,
         "exitCode": 3,
-        "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "error": "aborted:max_bytes",
+        "budget": "max_bytes"
       }
     },
     "evoweb/protein-group-associated-organisms": {
@@ -343,21 +344,21 @@
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment",
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/protein-group-associated-organisms.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/protein-group-associated-organisms.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 81,
+        "requests": 66,
         "bindingsRequests": 0,
         "schemaRequests": 0,
-        "responseBytes": 15938488,
+        "responseBytes": 12512979,
         "statuses": {
-          "200": 76,
+          "200": 61,
           "403": 5
         },
-        "seconds": 3.135,
+        "seconds": 5.836,
         "exitCode": 1,
         "error": "Request failed: https://sparql.uniprot.org/sparql"
       }
@@ -376,20 +377,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/evoweb/second-level-connections-to-group.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/evoweb/second-level-connections-to-group.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 5,
-        "requests": 42,
-        "bindingsRequests": 6,
+        "requests": 40,
+        "bindingsRequests": 10,
         "schemaRequests": 0,
-        "responseBytes": 68601,
+        "responseBytes": 68475,
         "statuses": {
-          "200": 42
+          "200": 40
         },
-        "seconds": 0.725,
+        "seconds": 1.096,
         "exitCode": 0,
         "multisetHash": "a6b24501e64c478b:95b7d5c89fcd8785",
         "samples": [
@@ -431,7 +432,7 @@
         "kgf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment",
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/fio-spatial-facilities-in-state.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/fio-spatial-facilities-in-state.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -440,11 +441,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 0,
-        "responseBytes": 1961273,
+        "responseBytes": 1966744,
         "statuses": {
-          "200": 4992
+          "200": 4908
         },
-        "seconds": 5.219,
+        "seconds": 5.928,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -544,7 +545,7 @@
         "kgf@https://apps.okn.us/kgf/ufokn/v/v0.0.3/fragment",
         "kgf@https://apps.okn.us/kgf/wildlifekn/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/list-things-and-their-labels.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/list-things-and-their-labels.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -553,13 +554,13 @@
         "requests": 256,
         "bindingsRequests": 0,
         "schemaRequests": 0,
-        "responseBytes": 4674034,
+        "responseBytes": 5089369,
         "statuses": {
-          "200": 237
+          "200": 256
         },
-        "seconds": 1.795,
+        "seconds": 1.827,
         "exitCode": 0,
-        "multisetHash": "133562c83405c84a:f8845c88067fd12a",
+        "multisetHash": "81af4594e949faf5:35402d0464353369",
         "samples": [
           "label=\"Medical Subject Headings (MeSH) RDF Dataset Description\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subject=<http://id.nlm.nih.gov/mesh/void>",
           "label=\"Medical Subject Headings (MeSH) RDF\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subject=<http://id.nlm.nih.gov/mesh/void#MeSHRDF>",
@@ -583,23 +584,28 @@
         "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment",
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/nde-diseases-mondo-parents.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/nde-diseases-mondo-parents.receipt.json",
       "result": {
-        "ok": false,
-        "contract": "aborted",
+        "ok": true,
+        "contract": "complete",
         "resultType": "bindings",
-        "rows": 0,
-        "requests": 5000,
-        "bindingsRequests": 856,
+        "rows": 200,
+        "requests": 1918,
+        "bindingsRequests": 1257,
         "schemaRequests": 3,
-        "responseBytes": 31934825,
+        "responseBytes": 31784480,
         "statuses": {
-          "200": 4995
+          "200": 1918
         },
-        "seconds": 9.212,
-        "exitCode": 3,
-        "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "seconds": 14.664,
+        "exitCode": 0,
+        "multisetHash": "df30b30a5bd0d23a:f2c4bfabac01b9d8",
+        "samples": [
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000088 | MONDO:0002259 | MONDO:0005039 | MONDO:0005151 | MONDO:0021147 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000088>",
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000409 | MONDO:0002263 | MONDO:0002654 | MONDO:0005039 | MONDO:0005113 | MONDO:0005550 | MONDO:0005917 | MONDO:0021166 | MONDO:0024575 | MONDO:0045013 | MONDO:0700003 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000409>",
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000705 | MONDO:0002269 | MONDO:0003409 | MONDO:0003847 | MONDO:0004335 | MONDO:0005020 | MONDO:0005046 | MONDO:0005113 | MONDO:0005265 | MONDO:0005292 | MONDO:0005550 | MONDO:0006039 | MONDO:0021166 | MONDO:0024634 | MONDO:0043424 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000705>"
+        ],
+        "attempts": 1
       }
     },
     "federation/nde-study-mondo-xrefs": {
@@ -619,20 +625,20 @@
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment",
         "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/nde-study-mondo-xrefs.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/nde-study-mondo-xrefs.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 1,
-        "requests": 38,
+        "requests": 41,
         "bindingsRequests": 0,
         "schemaRequests": 2,
-        "responseBytes": 224975,
+        "responseBytes": 226759,
         "statuses": {
-          "200": 37
+          "200": 41
         },
-        "seconds": 0.678,
+        "seconds": 0.8,
         "exitCode": 0,
         "multisetHash": "1ee7f7ddaae4fd33:1ee7f7ddaae4fd33",
         "samples": [
@@ -734,7 +740,7 @@
         "kgf@https://apps.okn.us/kgf/ufokn/v/v0.0.3/fragment",
         "kgf@https://apps.okn.us/kgf/wildlifekn/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/one-hundred-triples.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/one-hundred-triples.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -743,11 +749,11 @@
         "requests": 205,
         "bindingsRequests": 0,
         "schemaRequests": 0,
-        "responseBytes": 6631222,
+        "responseBytes": 3721374,
         "statuses": {
-          "200": 185
+          "200": 172
         },
-        "seconds": 2.016,
+        "seconds": 1.372,
         "exitCode": 0
       }
     },
@@ -767,22 +773,23 @@
         "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/sawgraph-hydrology-spatial-04.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/sawgraph-hydrology-spatial-04.receipt.json",
       "result": {
         "ok": false,
-        "contract": "error",
+        "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 64,
+        "requests": 5000,
         "bindingsRequests": 0,
-        "schemaRequests": 0,
-        "responseBytes": 110111,
+        "schemaRequests": 4,
+        "responseBytes": 1986682,
         "statuses": {
-          "200": 36
+          "200": 4811
         },
-        "seconds": 0.545,
-        "exitCode": 1,
-        "error": "fetch failed"
+        "seconds": 2.365,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests"
       }
     },
     "federation/sawgraph-hydrology-spatial_03": {
@@ -801,7 +808,7 @@
         "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/sawgraph-hydrology-spatial_03.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/sawgraph-hydrology-spatial_03.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -810,11 +817,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 5,
-        "responseBytes": 1833201,
+        "responseBytes": 1829506,
         "statuses": {
-          "200": 4964
+          "200": 4951
         },
-        "seconds": 3.618,
+        "seconds": 5.301,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -836,20 +843,20 @@
         "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment",
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/federation/sawgraph-spatial-hydrology-01.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/federation/sawgraph-spatial-hydrology-01.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 0,
+        "bindingsRequests": 430,
         "schemaRequests": 0,
-        "responseBytes": 2676172,
+        "responseBytes": 4212551,
         "statuses": {
-          "200": 4977
+          "200": 4997
         },
-        "seconds": 4.658,
+        "seconds": 11.491,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -869,20 +876,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/fiokg/fio-NAICS-classification-for-facility.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/fiokg/fio-NAICS-classification-for-facility.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 5,
-        "requests": 17,
-        "bindingsRequests": 0,
+        "requests": 9,
+        "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 57110,
+        "responseBytes": 55691,
         "statuses": {
-          "200": 17
+          "200": 9
         },
-        "seconds": 0.563,
+        "seconds": 1.829,
         "exitCode": 0,
         "multisetHash": "91577aa4e49cd932:e8df1b5c005c58cc",
         "samples": [
@@ -906,23 +913,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/fiokg/fio-facilities-by-NAICS-Subsector.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/fiokg/fio-facilities-by-NAICS-Subsector.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 2826,
-        "bindingsRequests": 2,
+        "requests": 1118,
+        "bindingsRequests": 91,
         "schemaRequests": 3,
-        "responseBytes": 268451113,
+        "responseBytes": 230858942,
         "statuses": {
-          "200": 2825
+          "200": 1116
         },
-        "seconds": 19.451,
+        "seconds": 30.013,
         "exitCode": 3,
-        "error": "aborted:max_bytes",
-        "budget": "max_bytes"
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
       }
     },
     "hydrologykg/sawgraph-hydrology-02": {
@@ -939,20 +947,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/hydrologykg/sawgraph-hydrology-02.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/hydrologykg/sawgraph-hydrology-02.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 296,
-        "requests": 1791,
-        "bindingsRequests": 0,
+        "requests": 45,
+        "bindingsRequests": 30,
         "schemaRequests": 4,
-        "responseBytes": 758703,
+        "responseBytes": 364415,
         "statuses": {
-          "200": 1791
+          "200": 45
         },
-        "seconds": 6.42,
+        "seconds": 0.712,
         "exitCode": 0,
         "multisetHash": "750ad76a7bf124a9:312d20ab4aa38603",
         "samples": [
@@ -976,24 +984,23 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/hydrologykg/sawgraph-hydrology-04.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/hydrologykg/sawgraph-hydrology-04.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 2979,
-        "bindingsRequests": 2454,
+        "requests": 5000,
+        "bindingsRequests": 4475,
         "schemaRequests": 5,
-        "responseBytes": 128648022,
+        "responseBytes": 154608125,
         "statuses": {
-          "200": 2885,
-          "429": 94
+          "200": 4940
         },
-        "seconds": 30.03,
+        "seconds": 27.56,
         "exitCode": 3,
-        "error": "aborted:timeout",
-        "budget": "timeout"
+        "error": "aborted:max_requests",
+        "budget": "max_requests"
       }
     },
     "nasa-gesdisc-kg/count-publications-use-each-dataset": {
@@ -1010,7 +1017,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nasa-gesdisc-kg/count-publications-use-each-dataset.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nasa-gesdisc-kg/count-publications-use-each-dataset.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1023,7 +1030,7 @@
         "statuses": {
           "200": 59
         },
-        "seconds": 2.494,
+        "seconds": 3.44,
         "exitCode": 0,
         "multisetHash": "a4c89acad552a6f6:3f9d30e87259c188",
         "samples": [
@@ -1047,20 +1054,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nasa-gesdisc-kg/datasets-science-keywords.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nasa-gesdisc-kg/datasets-science-keywords.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 25,
-        "requests": 25,
+        "requests": 24,
         "bindingsRequests": 2,
         "schemaRequests": 2,
         "responseBytes": 4049958,
         "statuses": {
           "200": 24
         },
-        "seconds": 1.251,
+        "seconds": 1.61,
         "exitCode": 0,
         "multisetHash": "0f59966f87d721ef:3924ead57e56ee3b",
         "samples": [
@@ -1099,23 +1106,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nasa-gesdisc-kg/frequent-sciencekeywords.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nasa-gesdisc-kg/frequent-sciencekeywords.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 1105,
+        "requests": 606,
         "bindingsRequests": 250,
         "schemaRequests": 2,
-        "responseBytes": 199710497,
+        "responseBytes": 91917815,
         "statuses": {
-          "200": 1105
+          "200": 606
         },
-        "seconds": 30.004,
+        "seconds": 30.01,
         "exitCode": 3,
         "error": "aborted:timeout",
-        "budget": "timeout"
+        "budget": "timeout",
+        "attempts": 1
       }
     },
     "nasa-gesdisc-kg/publications-datasets-used": {
@@ -1132,7 +1140,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nasa-gesdisc-kg/publications-datasets-used.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nasa-gesdisc-kg/publications-datasets-used.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1145,7 +1153,7 @@
         "statuses": {
           "200": 4
         },
-        "seconds": 0.441,
+        "seconds": 0.444,
         "exitCode": 0,
         "multisetHash": "f70782d8a3668677:3ad4eb3d818117f7",
         "samples": [
@@ -1184,26 +1192,26 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nasa-gesdisc-kg/pubs-by-year-title.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nasa-gesdisc-kg/pubs-by-year-title.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 100,
-        "requests": 59,
-        "bindingsRequests": 50,
+        "requests": 88,
+        "bindingsRequests": 78,
         "schemaRequests": 2,
-        "responseBytes": 979198,
+        "responseBytes": 1064720,
         "statuses": {
-          "200": 45
+          "200": 59
         },
-        "seconds": 0.69,
+        "seconds": 0.766,
         "exitCode": 0,
-        "multisetHash": "25d439eb07520552:d2b2f245d5934f44",
+        "multisetHash": "1712fcf2230c9e91:9539d7956a7458a7",
         "samples": [
-          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/702295>\u0001title=\"&lt;div&gt; Optimal Investment Portfolio and Carbon Emissions Under Climate Risk Ambiguity Aversion&lt;/div&gt;\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2024\"^^<http://www.w3.org/2001/XMLSchema#int>",
-          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/630478>\u0001title=\"&lt;div&gt; The New World Order and National Security Dynamics of African States: Case Study Cameroon and Mali&lt;/div&gt;\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2025\"^^<http://www.w3.org/2001/XMLSchema#int>",
-          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/701436>\u0001title=\"&lt;div&gt; Why Do Governments Make Promises They&amp;nbsp;&lt;span&gt;Cannot Keep? Evidence from India\u2019s National&amp;nbsp;&lt;/span&gt;&lt;span&gt;Clean Air Programme&lt;/span&gt;&lt;/div&gt;\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2024\"^^<http://www.w3.org/2001/XMLSchema#int>"
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/36640>\u0001title=\"       ,   \"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2025\"^^<http://www.w3.org/2001/XMLSchema#int>",
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/36192>\u0001title=\"      :           \"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2021\"^^<http://www.w3.org/2001/XMLSchema#int>",
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/526278>\u0001title=\"\\\" Solar energy radiation predication based in regional satellite images and data\\\"\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2024\"^^<http://www.w3.org/2001/XMLSchema#int>"
         ]
       }
     },
@@ -1221,7 +1229,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ncipidkg/list-all-hdac1-neighbors.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ncipidkg/list-all-hdac1-neighbors.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1234,7 +1242,7 @@
         "statuses": {
           "200": 6
         },
-        "seconds": 0.514,
+        "seconds": 0.38,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -1254,7 +1262,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ncipidkg/list-all-labeled-interactions.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ncipidkg/list-all-labeled-interactions.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1263,11 +1271,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 2,
-        "responseBytes": 2478534,
+        "responseBytes": 2479607,
         "statuses": {
-          "200": 4995
+          "200": 4998
         },
-        "seconds": 13.397,
+        "seconds": 13.873,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1287,7 +1295,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ncipidkg/list-all-labeled-proteins.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ncipidkg/list-all-labeled-proteins.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1300,7 +1308,7 @@
         "statuses": {
           "200": 89
         },
-        "seconds": 0.899,
+        "seconds": 1.445,
         "exitCode": 0,
         "multisetHash": "9129666b723b3299:6c9ff2b5a62c2a7d",
         "samples": [
@@ -1324,7 +1332,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nde/dataset-count-by-agent.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nde/dataset-count-by-agent.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1333,13 +1341,13 @@
         "requests": 1861,
         "bindingsRequests": 1818,
         "schemaRequests": 2,
-        "responseBytes": 25793744,
+        "responseBytes": 25793728,
         "statuses": {
           "200": 1861
         },
-        "seconds": 5.571,
+        "seconds": 11.759,
         "exitCode": 0,
-        "multisetHash": "6924ad68f498c2a5:99ea461e0363a9ff",
+        "multisetHash": "86fd3719e0bc37a2:5417f211840179b4",
         "samples": [
           "agent=<https://www.uniprot.org/taxonomy/4932>\u0001agentName=\"Saccharomyces cerevisiae\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001catalogs=\"ncbi_geo\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001datasetCount=\"4932\"^^<http://www.w3.org/2001/XMLSchema#integer>",
           "agent=<https://www.uniprot.org/taxonomy/6239>\u0001agentName=\"Caenorhabditis elegans\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001catalogs=\"ncbi_geo\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001datasetCount=\"3781\"^^<http://www.w3.org/2001/XMLSchema#integer>",
@@ -1361,7 +1369,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nde/nde-influenza-studies.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nde/nde-influenza-studies.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1370,11 +1378,11 @@
         "requests": 955,
         "bindingsRequests": 926,
         "schemaRequests": 2,
-        "responseBytes": 16734500,
+        "responseBytes": 16734442,
         "statuses": {
           "200": 955
         },
-        "seconds": 3.32,
+        "seconds": 5.243,
         "exitCode": 0,
         "multisetHash": "c729cbf54140c901:ffbb3d2828dfb65b",
         "samples": [
@@ -1398,7 +1406,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nde/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nde/nde-resources-by-count.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nde/nde-resources-by-count.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1407,14 +1415,15 @@
         "requests": 5000,
         "bindingsRequests": 4737,
         "schemaRequests": 2,
-        "responseBytes": 72547644,
+        "responseBytes": 85959832,
         "statuses": {
-          "200": 3937
+          "200": 4995
         },
-        "seconds": 15.099,
+        "seconds": 24.493,
         "exitCode": 3,
         "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "budget": "max_requests",
+        "attempts": 1
       }
     },
     "nestkg/enriched-systems": {
@@ -1431,7 +1440,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nestkg/enriched-systems.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nestkg/enriched-systems.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1444,7 +1453,7 @@
         "statuses": {
           "200": 841
         },
-        "seconds": 6.225,
+        "seconds": 6.228,
         "exitCode": 0,
         "multisetHash": "9794518a81b4fd2a:c6c3ae3fbf22ce86",
         "samples": [
@@ -1468,20 +1477,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nestkg/subsystems.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nestkg/subsystems.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 50,
-        "requests": 209,
-        "bindingsRequests": 0,
+        "requests": 13,
+        "bindingsRequests": 4,
         "schemaRequests": 3,
-        "responseBytes": 135199,
+        "responseBytes": 97347,
         "statuses": {
-          "200": 209
+          "200": 13
         },
-        "seconds": 1.336,
+        "seconds": 0.538,
         "exitCode": 0,
         "multisetHash": "ccc46ebf8274f9eb:3d3c9ed8a9433e81",
         "samples": [
@@ -1505,20 +1514,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/nestkg/systems-for-protein.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/nestkg/systems-for-protein.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 17,
-        "requests": 77,
-        "bindingsRequests": 0,
+        "requests": 13,
+        "bindingsRequests": 4,
         "schemaRequests": 3,
-        "responseBytes": 82150,
+        "responseBytes": 69528,
         "statuses": {
-          "200": 77
+          "200": 13
         },
-        "seconds": 0.769,
+        "seconds": 0.594,
         "exitCode": 0,
         "multisetHash": "485b81f886c1e6af:8ebad00bdf05047d",
         "samples": [
@@ -1542,7 +1551,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/oard-kg/diseases-associated-with-phenotype.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/oard-kg/diseases-associated-with-phenotype.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1551,11 +1560,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 10,
-        "responseBytes": 1612070,
+        "responseBytes": 1614891,
         "statuses": {
-          "200": 4982
+          "200": 4992
         },
-        "seconds": 8.373,
+        "seconds": 10.298,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1575,7 +1584,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/oard-kg/oard-ubergraph-concordance.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/oard-kg/oard-ubergraph-concordance.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1588,7 +1597,7 @@
         "statuses": {
           "200": 47
         },
-        "seconds": 0.525,
+        "seconds": 1.102,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -1608,7 +1617,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/oard-kg/phenotypes-associated-with-disease.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/oard-kg/phenotypes-associated-with-disease.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1617,11 +1626,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 10,
-        "responseBytes": 1600067,
+        "responseBytes": 1600362,
         "statuses": {
           "200": 4992
         },
-        "seconds": 6.384,
+        "seconds": 12.824,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1641,20 +1650,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/oard-kg/rank-diseases-given-phenotypes.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/oard-kg/rank-diseases-given-phenotypes.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 2145,
+        "bindingsRequests": 1818,
         "schemaRequests": 4,
-        "responseBytes": 54148984,
+        "responseBytes": 47478428,
         "statuses": {
-          "200": 4993
+          "200": 4990
         },
-        "seconds": 7.961,
+        "seconds": 10.253,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1677,27 +1686,28 @@
         "kgf@https://apps.okn.us/kgf/pankgraph/v/v0.0.1/fragment",
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/pankgraph/non-acinar-cell-adhesion-regulation.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/pankgraph/non-acinar-cell-adhesion-regulation.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 80,
-        "requests": 2468,
-        "bindingsRequests": 744,
+        "requests": 2072,
+        "bindingsRequests": 760,
         "schemaRequests": 4,
-        "responseBytes": 6775717,
+        "responseBytes": 6681153,
         "statuses": {
-          "200": 2468
+          "200": 2072
         },
-        "seconds": 3.844,
+        "seconds": 6.548,
         "exitCode": 0,
         "multisetHash": "eb5010ae87067d71:910fe8e3f044dab9",
         "samples": [
           "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000213853>",
           "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000204580>",
           "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000169856>"
-        ]
+        ],
+        "attempts": 1
       }
     },
     "prokn/alzheimers_associated_genes": {
@@ -1714,7 +1724,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/alzheimers_associated_genes.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/alzheimers_associated_genes.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1723,11 +1733,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 4,
-        "responseBytes": 1859402,
+        "responseBytes": 1861067,
         "statuses": {
-          "200": 4982
+          "200": 4987
         },
-        "seconds": 16.959,
+        "seconds": 19.223,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1747,7 +1757,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/gene_properties_relationships.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/gene_properties_relationships.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1760,7 +1770,7 @@
         "statuses": {
           "200": 13
         },
-        "seconds": 0.673,
+        "seconds": 1.468,
         "exitCode": 0,
         "multisetHash": "f9fb33dbfbe5c7e9:156cff3d3124a513",
         "samples": [
@@ -1784,20 +1794,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/kinase_inhibition_phosphosites.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/kinase_inhibition_phosphosites.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 0,
+        "bindingsRequests": 448,
         "schemaRequests": 9,
-        "responseBytes": 2114613,
+        "responseBytes": 2110502,
         "statuses": {
-          "200": 4832
+          "200": 4744
         },
-        "seconds": 3.8,
+        "seconds": 6.14,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1817,20 +1827,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/lincs_kinase_perturbations.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/lincs_kinase_perturbations.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 0,
+        "bindingsRequests": 816,
         "schemaRequests": 5,
-        "responseBytes": 3773468,
+        "responseBytes": 12346693,
         "statuses": {
-          "200": 4984
+          "200": 4988
         },
-        "seconds": 4.804,
+        "seconds": 11.992,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -1850,23 +1860,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/list_diseases.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/list_diseases.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 900,
+        "requests": 714,
         "bindingsRequests": 0,
         "schemaRequests": 2,
-        "responseBytes": 226230653,
+        "responseBytes": 174116639,
         "statuses": {
-          "200": 899
+          "200": 713
         },
-        "seconds": 30.02,
+        "seconds": 30.016,
         "exitCode": 3,
         "error": "aborted:timeout",
-        "budget": "timeout"
+        "budget": "timeout",
+        "attempts": 1
       }
     },
     "prokn/protein_disease": {
@@ -1885,7 +1896,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_disease.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_disease.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -1894,11 +1905,11 @@
         "requests": 18,
         "bindingsRequests": 0,
         "schemaRequests": 2,
-        "responseBytes": 681599,
+        "responseBytes": 911884,
         "statuses": {
           "200": 17
         },
-        "seconds": 30.007,
+        "seconds": 29.994,
         "exitCode": 3,
         "error": "aborted:timeout",
         "budget": "timeout"
@@ -1918,7 +1929,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_kinases.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_kinases.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -1927,17 +1938,17 @@
         "requests": 1719,
         "bindingsRequests": 1692,
         "schemaRequests": 2,
-        "responseBytes": 18212120,
+        "responseBytes": 18212118,
         "statuses": {
           "200": 1719
         },
-        "seconds": 3.773,
+        "seconds": 7.592,
         "exitCode": 0,
         "multisetHash": "c990c0a4e230dc67:294ad68cc8d33ec9",
         "samples": [
           "accession=\"Q3UGW8\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"1.2.1.41;2.7.2.11\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/Q3UGW8>",
-          "accession=\"D3Z5N5\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.7.1.150;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/D3Z5N5>",
-          "accession=\"B7ZNR9\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/B7ZNR9>"
+          "accession=\"P21675-22\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.3.1.48;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/P21675-22>",
+          "accession=\"P21675-25\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.3.1.48;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/P21675-25>"
         ]
       }
     },
@@ -1957,21 +1968,21 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_opioid_abuse.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_opioid_abuse.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 531,
-        "bindingsRequests": 0,
+        "requests": 843,
+        "bindingsRequests": 779,
         "schemaRequests": 6,
-        "responseBytes": 325409,
+        "responseBytes": 7974336,
         "statuses": {
-          "200": 505,
+          "200": 771,
           "503": 18
         },
-        "seconds": 5.545,
+        "seconds": 5.208,
         "exitCode": 1,
         "error": "Request failed: https://frink.apps.renci.org/biohealth/sparql"
       }
@@ -1990,20 +2001,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_properties_relationships.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_properties_relationships.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 2983,
-        "requests": 55,
-        "bindingsRequests": 0,
+        "requests": 15,
+        "bindingsRequests": 6,
         "schemaRequests": 3,
-        "responseBytes": 779262,
+        "responseBytes": 1137754,
         "statuses": {
-          "200": 55
+          "200": 15
         },
-        "seconds": 0.963,
+        "seconds": 0.62,
         "exitCode": 0,
         "multisetHash": "dec880a1c12d9728:6cabb9f09a0231b6",
         "samples": [
@@ -2029,23 +2040,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_variant_disease.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_variant_disease.receipt.json",
       "result": {
         "ok": false,
-        "contract": "error",
+        "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 1237,
-        "bindingsRequests": 1138,
+        "requests": 12,
+        "bindingsRequests": 0,
         "schemaRequests": 2,
-        "responseBytes": 14343459,
+        "responseBytes": 292027,
         "statuses": {
-          "200": 490,
-          "404": 1
+          "200": 10
         },
-        "seconds": 5.157,
-        "exitCode": 1,
-        "error": "fetch failed"
+        "seconds": 30.02,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
       }
     },
     "prokn/protein_variant_sdoh": {
@@ -2064,7 +2076,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/prokn/v/v0.0.5/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/prokn/protein_variant_sdoh.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/prokn/protein_variant_sdoh.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
@@ -2078,7 +2090,7 @@
           "200": 10,
           "503": 18
         },
-        "seconds": 5.747,
+        "seconds": 5.047,
         "exitCode": 1,
         "error": "Request failed: https://frink.apps.renci.org/spoke-okn/sparql"
       }
@@ -2097,7 +2109,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/find_nibrs_justice_topics_to_variables.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/find_nibrs_justice_topics_to_variables.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2110,7 +2122,7 @@
         "statuses": {
           "200": 1863
         },
-        "seconds": 3.952,
+        "seconds": 4.784,
         "exitCode": 0,
         "multisetHash": "dc96488da1af8d39:7f91a3a45e7efaff",
         "samples": [
@@ -2134,7 +2146,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/find_nsduh_variables_that_mention_substances.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/find_nsduh_variables_that_mention_substances.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2147,7 +2159,7 @@
         "statuses": {
           "200": 121
         },
-        "seconds": 0.899,
+        "seconds": 2.665,
         "exitCode": 0,
         "multisetHash": "ef0d760b7e5973a5:5d5cea07bbc056b7",
         "samples": [
@@ -2171,7 +2183,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/list-providers.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/list-providers.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -2180,11 +2192,11 @@
         "requests": 5000,
         "bindingsRequests": 284,
         "schemaRequests": 2,
-        "responseBytes": 5904464,
+        "responseBytes": 5903631,
         "statuses": {
-          "200": 4989
+          "200": 4986
         },
-        "seconds": 7.472,
+        "seconds": 16.741,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2204,20 +2216,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/list-substances.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/list-substances.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 23,
-        "requests": 53,
-        "bindingsRequests": 0,
+        "requests": 9,
+        "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 74097,
+        "responseBytes": 65374,
         "statuses": {
-          "200": 53
+          "200": 9
         },
-        "seconds": 0.764,
+        "seconds": 1.047,
         "exitCode": 0,
         "multisetHash": "940cec03fd93bd13:1be6b8e9a388de75",
         "samples": [
@@ -2241,20 +2253,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/mental_health_service_categories.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/mental_health_service_categories.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 21,
-        "requests": 137,
-        "bindingsRequests": 0,
+        "requests": 17,
+        "bindingsRequests": 6,
         "schemaRequests": 4,
-        "responseBytes": 121867,
+        "responseBytes": 119138,
         "statuses": {
-          "200": 137
+          "200": 17
         },
-        "seconds": 1.093,
+        "seconds": 1.4,
         "exitCode": 0,
         "multisetHash": "411dd9f541f98ace:6644d6b54973208c",
         "samples": [
@@ -2278,7 +2290,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/rural_counties_rucc_7_9.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/rural_counties_rucc_7_9.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2291,7 +2303,7 @@
         "statuses": {
           "200": 424
         },
-        "seconds": 1.44,
+        "seconds": 4.136,
         "exitCode": 0,
         "multisetHash": "1e041f6c026b3bc6:7b476584696e1ccc",
         "samples": [
@@ -2315,23 +2327,23 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ruralkg/telehealth_treatment_providers.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ruralkg/telehealth_treatment_providers.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 5000,
+        "requests": 1455,
         "bindingsRequests": 444,
         "schemaRequests": 2,
-        "responseBytes": 6720244,
+        "responseBytes": 5474647,
         "statuses": {
-          "200": 4993
+          "200": 1449
         },
-        "seconds": 12.02,
+        "seconds": 31.54,
         "exitCode": 3,
-        "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "error": "aborted:timeout",
+        "budget": "timeout"
       }
     },
     "scales/distinct-judges": {
@@ -2348,7 +2360,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/scales/v/v0.0.25/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/scales/distinct-judges.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/scales/distinct-judges.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2361,7 +2373,7 @@
         "statuses": {
           "200": 4
         },
-        "seconds": 0.414,
+        "seconds": 0.407,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -2381,23 +2393,23 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/scales/v/v0.0.25/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/scales/scales-ontology-event-labels.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/scales/scales-ontology-event-labels.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 2,
-        "requests": 890,
+        "requests": 687,
         "bindingsRequests": 0,
         "schemaRequests": 0,
-        "responseBytes": 268442519,
+        "responseBytes": 207189110,
         "statuses": {
-          "200": 890
+          "200": 687
         },
-        "seconds": 28.192,
+        "seconds": 30.006,
         "exitCode": 3,
-        "error": "aborted:max_bytes",
-        "budget": "max_bytes"
+        "error": "aborted:timeout",
+        "budget": "timeout"
       }
     },
     "securechainkg/ffmpeg-dependencies": {
@@ -2414,7 +2426,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/securechainkg/ffmpeg-dependencies.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/securechainkg/ffmpeg-dependencies.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2423,11 +2435,11 @@
         "requests": 27,
         "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 84239,
+        "responseBytes": 87190,
         "statuses": {
           "200": 26
         },
-        "seconds": 0.72,
+        "seconds": 1.049,
         "exitCode": 0,
         "multisetHash": "1f8a4449721dec9e:f12bf9f202606b94",
         "samples": [
@@ -2451,7 +2463,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/securechainkg/ffmpeg-vulnerabilities.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/securechainkg/ffmpeg-vulnerabilities.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2464,7 +2476,7 @@
         "statuses": {
           "200": 12
         },
-        "seconds": 0.589,
+        "seconds": 1.401,
         "exitCode": 0,
         "multisetHash": "91c46b9ea1f4ea7f:30e6479486f5800f",
         "samples": [
@@ -2488,20 +2500,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/average_change_soc_stock.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/average_change_soc_stock.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
         "resultType": null,
         "rows": 0,
-        "requests": 106,
+        "requests": 107,
         "bindingsRequests": 0,
         "schemaRequests": 11,
-        "responseBytes": 80100,
+        "responseBytes": 80933,
         "statuses": {
-          "200": 100
+          "200": 105
         },
-        "seconds": 0.777,
+        "seconds": 1.509,
         "exitCode": 1,
         "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions"
       }
@@ -2520,7 +2532,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/average_soc_stock_0_30cm.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/average_soc_stock_0_30cm.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
@@ -2533,7 +2545,7 @@
         "statuses": {
           "200": 36
         },
-        "seconds": 0.542,
+        "seconds": 1.56,
         "exitCode": 1,
         "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions"
       }
@@ -2552,20 +2564,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/avg_soc_stock_by_state.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/avg_soc_stock_by_state.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 393,
+        "bindingsRequests": 391,
         "schemaRequests": 11,
-        "responseBytes": 10587050,
+        "responseBytes": 10593339,
         "statuses": {
-          "200": 4939
+          "200": 4908
         },
-        "seconds": 4.0,
+        "seconds": 13.176,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2585,20 +2597,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/avg_temp_increase.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/avg_temp_increase.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 521,
+        "bindingsRequests": 400,
         "schemaRequests": 7,
-        "responseBytes": 13923946,
+        "responseBytes": 11546465,
         "statuses": {
-          "200": 4904
+          "200": 4926
         },
-        "seconds": 2.961,
+        "seconds": 5.75,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2618,7 +2630,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/biomassCarbohydrate.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/biomassCarbohydrate.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -2627,11 +2639,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 9,
-        "responseBytes": 2421977,
+        "responseBytes": 2422511,
         "statuses": {
-          "200": 4922
+          "200": 4912
         },
-        "seconds": 2.595,
+        "seconds": 7.897,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2651,20 +2663,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/field_location.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/field_location.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 18,
-        "requests": 37,
-        "bindingsRequests": 9,
+        "requests": 49,
+        "bindingsRequests": 33,
         "schemaRequests": 4,
-        "responseBytes": 155881,
+        "responseBytes": 621533,
         "statuses": {
-          "200": 37
+          "200": 49
         },
-        "seconds": 0.798,
+        "seconds": 2.987,
         "exitCode": 0,
         "multisetHash": "bec69bd6a279828d:52e5668c1190ba5b",
         "samples": [
@@ -2688,7 +2700,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/fields_in_texas.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/fields_in_texas.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -2701,7 +2713,7 @@
         "statuses": {
           "200": 30
         },
-        "seconds": 0.741,
+        "seconds": 2.667,
         "exitCode": 0,
         "multisetHash": "ef58fa7101d3c08a:cf50fa0efdc3bc68",
         "samples": [
@@ -2724,23 +2736,27 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/fields_on_sites.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/fields_on_sites.receipt.json",
       "result": {
-        "ok": false,
-        "contract": "aborted",
+        "ok": true,
+        "contract": "complete",
         "resultType": "bindings",
-        "rows": 29,
-        "requests": 5000,
-        "bindingsRequests": 0,
-        "schemaRequests": 4,
-        "responseBytes": 2008248,
+        "rows": 49,
+        "requests": 119,
+        "bindingsRequests": 107,
+        "schemaRequests": 3,
+        "responseBytes": 1748318,
         "statuses": {
-          "200": 4957
+          "200": 119
         },
-        "seconds": 5.645,
-        "exitCode": 3,
-        "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "seconds": 2.795,
+        "exitCode": 0,
+        "multisetHash": "939e95c1c9718a50:c535967f81a3a0a6",
+        "samples": [
+          "PostalCode=\"36075\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAUEVS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAUEVS\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "PostalCode=\"36345\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAURye\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAURye\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "PostalCode=\"36075\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAUSDR\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAuburn\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ]
       }
     },
     "sockg/greatest_soc_increase": {
@@ -2757,20 +2773,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/greatest_soc_increase.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/greatest_soc_increase.receipt.json",
       "result": {
         "ok": false,
         "contract": "error",
         "resultType": null,
         "rows": 0,
-        "requests": 106,
+        "requests": 107,
         "bindingsRequests": 0,
         "schemaRequests": 11,
-        "responseBytes": 614995,
+        "responseBytes": 80933,
         "statuses": {
-          "200": 104
+          "200": 100
         },
-        "seconds": 0.791,
+        "seconds": 1.238,
         "exitCode": 1,
         "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions"
       }
@@ -2789,23 +2805,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/harvest_fraction.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/harvest_fraction.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 2641,
-        "bindingsRequests": 0,
+        "requests": 2656,
+        "bindingsRequests": 16,
         "schemaRequests": 11,
-        "responseBytes": 268438383,
+        "responseBytes": 268446073,
         "statuses": {
-          "200": 2640
+          "200": 2656
         },
-        "seconds": 7.293,
+        "seconds": 9.429,
         "exitCode": 3,
         "error": "aborted:max_bytes",
-        "budget": "max_bytes"
+        "budget": "max_bytes",
+        "attempts": 1
       }
     },
     "sockg/location": {
@@ -2822,20 +2839,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/location.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/location.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 10,
-        "requests": 422,
-        "bindingsRequests": 0,
+        "requests": 25,
+        "bindingsRequests": 12,
         "schemaRequests": 5,
-        "responseBytes": 857226,
+        "responseBytes": 1390477,
         "statuses": {
-          "200": 422
+          "200": 25
         },
-        "seconds": 3.815,
+        "seconds": 2.308,
         "exitCode": 0,
         "multisetHash": "208d70f333d2978d:c5ec0a960513422f",
         "samples": [
@@ -2859,7 +2876,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/soc_stock.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/soc_stock.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -2868,11 +2885,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 8,
-        "responseBytes": 1566075,
+        "responseBytes": 1560570,
         "statuses": {
-          "200": 4920
+          "200": 4902
         },
-        "seconds": 3.058,
+        "seconds": 3.59,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2892,7 +2909,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/sock_stock_for_treatmnent_id.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/sock_stock_for_treatmnent_id.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -2901,11 +2918,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 8,
-        "responseBytes": 1572943,
+        "responseBytes": 1558252,
         "statuses": {
-          "200": 4945
+          "200": 4892
         },
-        "seconds": 2.863,
+        "seconds": 4.281,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2925,7 +2942,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/soilBiologicalSample.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/soilBiologicalSample.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
@@ -2934,11 +2951,11 @@
         "requests": 5000,
         "bindingsRequests": 0,
         "schemaRequests": 6,
-        "responseBytes": 1797752,
+        "responseBytes": 1799614,
         "statuses": {
-          "200": 4963
+          "200": 4969
         },
-        "seconds": 4.456,
+        "seconds": 6.935,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2958,20 +2975,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/soil_samples.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/soil_samples.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 0,
+        "bindingsRequests": 8,
         "schemaRequests": 11,
-        "responseBytes": 7293535,
+        "responseBytes": 10347393,
         "statuses": {
-          "200": 4916
+          "200": 4898
         },
-        "seconds": 4.061,
+        "seconds": 12.321,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -2991,23 +3008,24 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/water_sample.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/water_sample.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
-        "requests": 1213,
-        "bindingsRequests": 16,
+        "requests": 1171,
+        "bindingsRequests": 24,
         "schemaRequests": 12,
-        "responseBytes": 268443706,
+        "responseBytes": 268439717,
         "statuses": {
-          "200": 1210
+          "200": 1171
         },
-        "seconds": 8.306,
+        "seconds": 25.248,
         "exitCode": 3,
         "error": "aborted:max_bytes",
-        "budget": "max_bytes"
+        "budget": "max_bytes",
+        "attempts": 1
       }
     },
     "sockg/who_works_agcros": {
@@ -3024,7 +3042,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/sockg/v/v0.0.10/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/sockg/who_works_agcros.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/sockg/who_works_agcros.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -3037,7 +3055,7 @@
         "statuses": {
           "200": 34
         },
-        "seconds": 0.797,
+        "seconds": 0.953,
         "exitCode": 0,
         "multisetHash": "0b2a6c653b32ee7a:bcbb95bf3383c67a",
         "samples": [
@@ -3061,20 +3079,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spatialkg/sawgraph-spatial-01.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spatialkg/sawgraph-spatial-01.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 0,
+        "bindingsRequests": 3997,
         "schemaRequests": 4,
-        "responseBytes": 2787147,
+        "responseBytes": 54631342,
         "statuses": {
-          "200": 4997
+          "200": 4967
         },
-        "seconds": 13.086,
+        "seconds": 27.212,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -3094,20 +3112,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spatialkg/sawgraph-spatial-02.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spatialkg/sawgraph-spatial-02.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 18,
-        "requests": 81,
-        "bindingsRequests": 0,
+        "requests": 13,
+        "bindingsRequests": 4,
         "schemaRequests": 3,
-        "responseBytes": 84021,
+        "responseBytes": 68534,
         "statuses": {
-          "200": 81
+          "200": 13
         },
-        "seconds": 0.914,
+        "seconds": 1.405,
         "exitCode": 0,
         "multisetHash": "b569058b7933c3b8:1688c6ace9cc45b8",
         "samples": [
@@ -3131,20 +3149,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spatialkg/sawgraph-spatial-03.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spatialkg/sawgraph-spatial-03.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 1,
         "requests": 24,
-        "bindingsRequests": 0,
+        "bindingsRequests": 2,
         "schemaRequests": 4,
-        "responseBytes": 71529,
+        "responseBytes": 71615,
         "statuses": {
           "200": 24
         },
-        "seconds": 0.682,
+        "seconds": 1.181,
         "exitCode": 0,
         "multisetHash": "ef70e6931dd8c77d:ef70e6931dd8c77d",
         "samples": [
@@ -3166,20 +3184,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spatialkg/sawgraph-spatial-04.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spatialkg/sawgraph-spatial-04.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 33,
-        "requests": 273,
-        "bindingsRequests": 0,
+        "requests": 17,
+        "bindingsRequests": 8,
         "schemaRequests": 3,
-        "responseBytes": 165722,
+        "responseBytes": 105636,
         "statuses": {
-          "200": 273
+          "200": 17
         },
-        "seconds": 1.565,
+        "seconds": 1.08,
         "exitCode": 0,
         "multisetHash": "68d0e9f196ee7fd8:4d9e3d86c2bad59e",
         "samples": [
@@ -3203,7 +3221,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-genelab/genes-expression-and-methylation-spaceflight-osd48.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-genelab/genes-expression-and-methylation-spaceflight-osd48.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -3216,7 +3234,7 @@
         "statuses": {
           "200": 1
         },
-        "seconds": 0.334,
+        "seconds": 0.699,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -3236,27 +3254,29 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-genelab/human-ortholog-of-model-gene.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-genelab/human-ortholog-of-model-gene.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 3,
-        "requests": 4426,
-        "bindingsRequests": 4388,
+        "requests": 4739,
+        "bindingsRequests": 4701,
         "schemaRequests": 2,
-        "responseBytes": 71782597,
+        "responseBytes": 71782593,
         "statuses": {
-          "200": 4426
+          "200": 4426,
+          "429": 313
         },
-        "seconds": 8.064,
+        "seconds": 23.614,
         "exitCode": 0,
         "multisetHash": "9bab69fcd39e86e8:e7109503ec629a96",
         "samples": [
           "human=<http://www.ncbi.nlm.nih.gov/gene/124>\u0001humanSymbol=\"ADH1A\"^^<http://www.w3.org/2001/XMLSchema#string>",
           "human=<http://www.ncbi.nlm.nih.gov/gene/125>\u0001humanSymbol=\"ADH1B\"^^<http://www.w3.org/2001/XMLSchema#string>",
           "human=<http://www.ncbi.nlm.nih.gov/gene/126>\u0001humanSymbol=\"ADH1C\"^^<http://www.w3.org/2001/XMLSchema#string>"
-        ]
+        ],
+        "attempts": 1
       }
     },
     "spoke-genelab/spaceflight-vs-ground-control-60day-deg": {
@@ -3273,7 +3293,7 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-genelab/spaceflight-vs-ground-control-60day-deg.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-genelab/spaceflight-vs-ground-control-60day-deg.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
@@ -3286,7 +3306,7 @@
         "statuses": {
           "200": 1
         },
-        "seconds": 0.33,
+        "seconds": 0.321,
         "exitCode": 0,
         "multisetHash": "0000000000000000:0000000000000000",
         "samples": []
@@ -3306,20 +3326,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-okn/compounds-downregulating-alzheimers-genes.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-okn/compounds-downregulating-alzheimers-genes.receipt.json",
       "result": {
         "ok": false,
         "contract": "aborted",
         "resultType": "bindings",
         "rows": 0,
         "requests": 5000,
-        "bindingsRequests": 186,
+        "bindingsRequests": 190,
         "schemaRequests": 4,
-        "responseBytes": 3177787,
+        "responseBytes": 3183748,
         "statuses": {
-          "200": 4990
+          "200": 4996
         },
-        "seconds": 13.366,
+        "seconds": 14.563,
         "exitCode": 3,
         "error": "aborted:max_requests",
         "budget": "max_requests"
@@ -3339,20 +3359,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-okn/compounds-treating-rheumatoid-arthritis.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-okn/compounds-treating-rheumatoid-arthritis.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 4,
-        "requests": 988,
-        "bindingsRequests": 0,
+        "requests": 666,
+        "bindingsRequests": 4,
         "schemaRequests": 3,
-        "responseBytes": 453485,
+        "responseBytes": 355711,
         "statuses": {
-          "200": 988
+          "200": 666
         },
-        "seconds": 4.122,
+        "seconds": 3.366,
         "exitCode": 0,
         "multisetHash": "227a297c88c89a13:00805f77f97f87af",
         "samples": [
@@ -3376,20 +3396,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/spoke-okn/drugs-for-sdoh-associated-diseases.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/spoke-okn/drugs-for-sdoh-associated-diseases.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 10,
-        "requests": 1602,
-        "bindingsRequests": 80,
+        "requests": 1616,
+        "bindingsRequests": 142,
         "schemaRequests": 7,
-        "responseBytes": 590273,
+        "responseBytes": 614679,
         "statuses": {
-          "200": 1602
+          "200": 1616
         },
-        "seconds": 6.989,
+        "seconds": 11.308,
         "exitCode": 0,
         "multisetHash": "705d5e3aca6ca39f:3428894d42b354af",
         "samples": [
@@ -3413,23 +3433,27 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ubergraph/abdominal-cell-types.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ubergraph/abdominal-cell-types.receipt.json",
       "result": {
-        "ok": false,
-        "contract": "aborted",
+        "ok": true,
+        "contract": "complete",
         "resultType": "bindings",
-        "rows": 371,
-        "requests": 5000,
-        "bindingsRequests": 0,
+        "rows": 398,
+        "requests": 4535,
+        "bindingsRequests": 83,
         "schemaRequests": 3,
-        "responseBytes": 1913129,
+        "responseBytes": 2005827,
         "statuses": {
-          "200": 4994
+          "200": 4535
         },
-        "seconds": 10.601,
-        "exitCode": 3,
-        "error": "aborted:max_requests",
-        "budget": "max_requests"
+        "seconds": 8.193,
+        "exitCode": 0,
+        "multisetHash": "704e968bbb950ec7:b24c5f716f0575d9",
+        "samples": [
+          "cell=<http://purl.obolibrary.org/obo/CL_0002523>\u0001cell_label=\"mesonephric podocyte\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cell=<http://purl.obolibrary.org/obo/CL_1000022>\u0001cell_label=\"mesonephric nephron tubule epithelial cell\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cell=<http://purl.obolibrary.org/obo/CL_4030066>\u0001cell_label=\"ureteric bud cell\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ]
       }
     },
     "ubergraph/adrenal-gland": {
@@ -3446,20 +3470,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ubergraph/adrenal-gland.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ubergraph/adrenal-gland.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 35,
-        "requests": 79,
-        "bindingsRequests": 0,
+        "requests": 9,
+        "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 83559,
+        "responseBytes": 69973,
         "statuses": {
-          "200": 79
+          "200": 9
         },
-        "seconds": 0.958,
+        "seconds": 0.709,
         "exitCode": 0,
         "multisetHash": "e8b836fd4c1c4e33:8f032a7041077aa1",
         "samples": [
@@ -3483,20 +3507,20 @@
       "sources": [
         "kgf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/fragment"
       ],
-      "receipt": "/Users/jim/Documents/Source/kgf-sparql/scratch/registry-cli/ubergraph/processes-that-output-glucose.receipt.json",
+      "receipt": "scratch/registry-cli-roundtrip/ubergraph/processes-that-output-glucose.receipt.json",
       "result": {
         "ok": true,
         "contract": "complete",
         "resultType": "bindings",
         "rows": 2,
-        "requests": 11,
-        "bindingsRequests": 0,
+        "requests": 9,
+        "bindingsRequests": 2,
         "schemaRequests": 2,
-        "responseBytes": 54454,
+        "responseBytes": 54198,
         "statuses": {
-          "200": 11
+          "200": 9
         },
-        "seconds": 0.524,
+        "seconds": 0.797,
         "exitCode": 0,
         "multisetHash": "d6f6ff214acbe3b1:16e8fed930cb030d",
         "samples": [

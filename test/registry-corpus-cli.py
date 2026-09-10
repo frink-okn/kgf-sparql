@@ -7,6 +7,12 @@ rows, an order-independent result hash computed the same way, and the receipt's 
 contract, and budget. When an earlier results file is given, a comparison is printed.
 
 usage: python3 test/registry-corpus-cli.py [results.json]
+       python3 test/registry-corpus-cli.py --rerun-interrupted results.json
+       python3 test/registry-corpus-cli.py --compare-only results.json
+       A query whose run outlives its budget by more than a minute was interrupted (a
+       sleeping machine stops the timers that would have ended it); such a run is retried,
+       and ``--rerun-interrupted`` retries only those entries of an existing file. On macOS
+       run under ``caffeinate -i`` at least, which stops idle sleep but not a closed lid.
 env:   KGF_ROOT (default https://apps.okn.us/kgf)
        REGISTRY_QUERY_TIMEOUT (seconds, default 30)
        REGISTRY_MAX_REQUESTS (default 5000), REGISTRY_MAX_BYTES (default 256M)
@@ -41,6 +47,8 @@ ONLY = os.environ.get("REGISTRY_ONLY")
 COMPARE = Path(os.environ.get("REGISTRY_COMPARE", HERE / "registry-query-results-20260827.json"))
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "registry-query-results-cli.json"
 BIN = REPO / "packages" / "kgf-sparql" / "bin" / "kgf-sparql.js"
+STALL_MARGIN = 60.0  # seconds a run or request may outlive the budget before it counts as interrupted
+ATTEMPTS = 3
 XSD_STRING = "http://www.w3.org/2001/XMLSchema#string"
 MASK_64 = (1 << 64) - 1
 
@@ -73,10 +81,19 @@ def multiset_hash(bindings: list[dict]) -> tuple[str, list[str]]:
     return f"{total:016x}:{xor:016x}", samples
 
 
+def interrupted(receipt: dict) -> bool:
+    """Whether the machine slept (or the process was frozen) during the run: nothing else lets it outlive its budget."""
+    limit = (TIMEOUT + STALL_MARGIN) * 1000
+    return receipt["totals"]["elapsed_ms"] > limit or any(r["elapsed_ms"] > limit for r in receipt["requests"])
+
+
 def summarize(receipt_path: Path, out_path: Path, exit_code: int | None, stderr: str) -> dict:
     if not receipt_path.exists():
         return {"ok": False, "error": (stderr.strip() or f"exit:{exit_code}")[-500:], "exitCode": exit_code}
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    if interrupted(receipt):
+        return {"ok": False, "error": "interrupted", "interrupted": True, "exitCode": exit_code,
+                "seconds": round(receipt["totals"]["elapsed_ms"] / 1000, 3)}
     outcome = receipt["outcome"]
     totals = receipt["totals"]
     result = {
@@ -104,6 +121,17 @@ def summarize(receipt_path: Path, out_path: Path, exit_code: int | None, stderr:
 
 
 def run_query(path: Path, sources: list[str], stem: Path) -> dict:
+    result = {}
+    for attempt in range(1, ATTEMPTS + 1):
+        result = run_query_once(path, sources, stem)
+        if not result.get("interrupted") and result.get("error") != "harness-timeout":
+            break
+        print(f"      attempt {attempt} interrupted ({result.get('seconds', '?')} s); retrying", flush=True)
+    result["attempts"] = attempt
+    return result
+
+
+def run_query_once(path: Path, sources: list[str], stem: Path) -> dict:
     stem.parent.mkdir(parents=True, exist_ok=True)
     out_path = stem.with_suffix(".srj")
     receipt_path = stem.with_suffix(".receipt.json")
@@ -157,9 +185,34 @@ def compare(results: dict[str, dict], earlier_path: Path) -> None:
         print(f"    {k}: {label(ran.get(k, {'error': 'not run'}))}")
 
 
+def rerun_interrupted(results_path: Path) -> None:
+    """Re-run the entries of an existing results file whose runs were interrupted, in place."""
+    document = json.loads(results_path.read_text(encoding="utf-8"))
+    results = document["results"]
+    stale = []
+    for query_id, record in results.items():
+        result = record["result"]
+        if result.get("skipped"):
+            continue
+        receipt = Path(record["receipt"]) if record.get("receipt") else None
+        if result.get("interrupted") or result.get("error") == "harness-timeout" or \
+                (receipt and receipt.exists() and interrupted(json.loads(receipt.read_text(encoding="utf-8")))):
+            stale.append(query_id)
+    print(f"{len(stale)} interrupted runs to repeat in {results_path}", flush=True)
+    for index, query_id in enumerate(stale, 1):
+        record = results[query_id]
+        record["result"] = run_query(Path(record["path"]), record["sources"], Path(record["receipt"]).with_suffix("").with_suffix(""))
+        document["generatedAt"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        results_path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+        print(f"[{index:>2}/{len(stale)}] {label(record['result']):>35}  {query_id}", flush=True)
+
+
 def main() -> None:
     if len(sys.argv) > 2 and sys.argv[1] == "--compare-only":
         compare(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))["results"], COMPARE)
+        return
+    if len(sys.argv) > 2 and sys.argv[1] == "--rerun-interrupted":
+        rerun_interrupted(Path(sys.argv[2]))
         return
     descriptor = json.load(urllib.request.urlopen(f"{ROOT}/"))
     origin = "{0.scheme}://{0.netloc}".format(urllib.parse.urlparse(ROOT))

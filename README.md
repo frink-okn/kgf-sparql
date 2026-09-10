@@ -234,7 +234,8 @@ through a Components.js `Override`, with
 [`@kgf/actor-rdf-join-inner-multi-bind-round-trip`](packages/actor-rdf-join-inner-multi-bind-round-trip/),
 which adds one request per probe per paged entry to the stock formula and changes
 nothing else. On the registry corpus that query drops to 45 requests, `ubergraph/adrenal-gland`
-from 79 to 9, and `sockg/fields_on_sites` from a 5,000-request abort to 119 and complete.
+from 79 to 9, and `sockg/fields_on_sites` from a 5,000-request abort to 119 and complete;
+over the corpus, requests fell by a fifth and no query that completed before fails.
 Comunica's own defaults, weights, and refusals are untouched; the override keeps the
 actor's identifier so the join actors' ordering still refers to it.
 

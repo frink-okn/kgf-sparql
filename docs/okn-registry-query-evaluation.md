@@ -529,6 +529,49 @@ Against the client-stack plan's phase A criterion (the same 45 non-empty results
 former timeout a budget abort with a receipt), the receipt half holds and the result half
 does not, for the reason above.
 
+### Charging a request per probe (2026-09-10)
+
+The engine now replaces Comunica's bind join in place with
+[`@kgf/actor-rdf-join-inner-multi-bind-round-trip`](../packages/actor-rdf-join-inner-multi-bind-round-trip/),
+which adds to the stock cost formula the one term it lacked: one request per bound probe
+per paged entry. Nothing else in the planner changed, and the command line gained a
+connection cap (`--max-connections`, default 32). The corpus was rerun with both, same
+budgets, results in [`test/registry-query-results-cli.json`](../test/registry-query-results-cli.json);
+the earlier native run is kept as
+[`test/registry-query-results-cli-20260909-stock-bind.json`](../test/registry-query-results-cli-20260909-stock-bind.json)
+and [`test/compare-runs.py`](../test/compare-runs.py) compares the two.
+
+**No query that completed before fails now, and three that aborted complete.**
+`federation/nde-diseases-mondo-parents` (200 rows, 1,918 requests), `sockg/fields_on_sites`
+(49 rows, 119 requests, against a 5,000-request abort), and `ubergraph/abdominal-cell-types`
+(398 rows, 4,535 requests). Over the 52 queries complete in both runs, requests fell from
+26,090 to 21,080; the median ratio is 1.00, because the change only touches plans where
+per-row binding was chosen, and there it is decisive: `hydrologykg/sawgraph-hydrology-02`
+1,791 to 45, `sockg/location` 422 to 25, `nestkg/subsystems` 209 to 13,
+`spatialkg/sawgraph-spatial-04` 273 to 17, `ubergraph/adrenal-gland` 79 to 9. Four queries
+need up to half again as many requests as before, all with a bare `LIMIT`, where the number
+of blocks fetched before the limit is reached is the plan's. Row counts agree on every
+query complete in both runs. Outcomes are 55 complete, 33 budget aborts (23 at requests, 7
+at the clock, 3 at bytes), and 6 errors, all of them external `SERVICE` endpoints or the
+Ontotext function; the network errors of the previous run do not recur under the
+connection cap. Three aborts moved from the request or byte budget to the clock: the new
+plans push bindings in blocks, and a block request takes longer than a page.
+
+Against August: 48 non-empty results to 45, 37 of them the same queries, and 22 of the
+27 that denote one bag identical. Eight August results remain lost, every one of which
+needed between 470 and 17,386 brTPF requests and now stops at 5,000 requests or 30
+seconds. All twenty August timeouts and heap deaths are now two completions and eighteen
+budget aborts with receipts.
+
+**What the honest bind cost exposes next.** `ubergraph/abdominal-cell-types` completes,
+but at 4,535 requests where brTPF needed 323: its six-entry join still binds per row,
+because the alternative, the filter-bindings actor, prices a multi-entry join by
+multiplying every remaining cardinality and reaches a CPU term of a hundred million
+iterations. And `biobricks-ice/names-of-chemical-entities` still spends 2,884 requests on
+200 rows: its `LIMIT 200` sits behind a join that pushes 413,000 bindings, the
+limit-after-a-full-input shape the client-suite report warns about. Both are the planner's
+next inaccuracies, not this one.
+
 ## Reproducing the run
 
 With the KGF server running at `127.0.0.1:8080`:
@@ -556,7 +599,10 @@ python3 test/registry-corpus-cli.py test/registry-query-results-cli.json
 ```
 
 Budgets, the server, and the output directory are environment variables documented at
-the top of the script; `--compare-only <results.json>` reprints the comparison. One query
+the top of the script; `--compare-only <results.json>` reprints the comparison, and
+`--rerun-interrupted <results.json>` repeats the entries whose runs a sleeping machine
+interrupted. On a laptop, run it under `caffeinate -i` and with the lid open: the
+timeouts in the runner and in the command use clocks that stop during sleep. One query
 directly:
 
 ```sh
