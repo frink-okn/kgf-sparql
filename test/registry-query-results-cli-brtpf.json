@@ -1,0 +1,3601 @@
+{
+  "generatedAt": "2026-09-10T08:15:36-0400",
+  "kgfRoot": "https://apps.okn.us/kgf",
+  "sourceKind": "brtpf",
+  "budget": {
+    "maxRequests": 5000,
+    "maxBytes": "256M",
+    "timeoutSeconds": 30.0
+  },
+  "results": {
+    "biobricks-ice/assays-from-invitrodb": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/biobricks-ice/assays-from-invitrodb.rq",
+      "tags": [
+        "biobricks-ice"
+      ],
+      "targets": [
+        "biobricks-ice"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/biobricks-ice/assays-from-invitrodb.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 8,
+        "bindingsRequests": 3,
+        "schemaRequests": 0,
+        "responseBytes": 677673,
+        "statuses": {
+          "200": 8
+        },
+        "seconds": 0.435,
+        "exitCode": 0,
+        "multisetHash": "49a3569f9c728ae9:54cc453b7e908e2b",
+        "samples": [
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_agonist_80hr>",
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_agonist_AUC_viability>",
+          "assay=<https://comptox.epa.gov/dashboard/assay-endpoints/ACEA_AR_antagonist_80hr>"
+        ],
+        "attempts": 1
+      }
+    },
+    "biobricks-ice/names-of-chemical-entities": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/biobricks-ice/names-of-chemical-entities.rq",
+      "tags": [
+        "biobricks-ice"
+      ],
+      "targets": [
+        "biobricks-ice"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/biobricks-ice/names-of-chemical-entities.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2855,
+        "bindingsRequests": 1687,
+        "schemaRequests": 0,
+        "responseBytes": 268436505,
+        "statuses": {
+          "200": 2851
+        },
+        "seconds": 20.426,
+        "exitCode": 3,
+        "error": "aborted:max_bytes",
+        "budget": "max_bytes",
+        "attempts": 1
+      }
+    },
+    "dreamkg/services-available-weekend": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/dreamkg/services-available-weekend.rq",
+      "tags": [
+        "dreamkg"
+      ],
+      "targets": [
+        "dreamkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/dreamkg/services-available-weekend.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 3,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 29499,
+        "statuses": {
+          "200": 3
+        },
+        "seconds": 0.598,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "dreamkg/services-in-more-than-one-language": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/dreamkg/services-in-more-than-one-language.rq",
+      "tags": [
+        "dreamkg"
+      ],
+      "targets": [
+        "dreamkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/dreamkg/services-in-more-than-one-language.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 4,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 66958,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.369,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "evoweb/accessions-associated-with-group": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/accessions-associated-with-group.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/accessions-associated-with-group.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 2,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 42870,
+        "statuses": {
+          "200": 2
+        },
+        "seconds": 0.488,
+        "exitCode": 0,
+        "multisetHash": "6b12d1a394edd7ef:9e091d069a78238d",
+        "samples": [
+          "member=<https://www.ncbi.nlm.nih.gov/protein/WP_000059111.1>",
+          "member=<https://www.ncbi.nlm.nih.gov/protein/WP_000428019.1>",
+          "member=<https://www.ncbi.nlm.nih.gov/protein/WP_000428021.1>"
+        ],
+        "attempts": 1
+      }
+    },
+    "evoweb/connections-to-group": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/connections-to-group.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/connections-to-group.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 2,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 18923,
+        "statuses": {
+          "200": 1,
+          "400": 1
+        },
+        "seconds": 30.005,
+        "exitCode": 1,
+        "error": "The engine stopped without ending the run: Request failed: https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf?subject=%3Fs&predicate=https%3A%2F%2Fpurl.org%2Fokn%2Ffrink%2Fkg%2Fevoweb%2Fschema%2FconnectedTo&object=%3F%3Fo",
+        "attempts": 1
+      }
+    },
+    "evoweb/group-associated-with-gene": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/group-associated-with-gene.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/group-associated-with-gene.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 1,
+        "requests": 184,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 4018289,
+        "statuses": {
+          "200": 184
+        },
+        "seconds": 5.721,
+        "exitCode": 0,
+        "multisetHash": "842892a7b4dff5fe:842892a7b4dff5fe",
+        "samples": [
+          "group=<https://purl.org/okn/frink/kg/evoweb/schema/Node1>\u0001groupLabel=\"chromosomal replication initiator protein DnaA\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "evoweb/group-containing-specific-accession": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/group-containing-specific-accession.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/group-containing-specific-accession.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 1,
+        "requests": 4,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 58398,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.391,
+        "exitCode": 0,
+        "multisetHash": "9df88440aafb2224:9df88440aafb2224",
+        "samples": [
+          "group=<https://purl.org/okn/frink/kg/evoweb/schema/Node16578>\u0001groupLabel=\"maltose ABC transporter permease MalF\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "evoweb/group-with-most-connections": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/group-with-most-connections.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/group-with-most-connections.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1222,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 28646175,
+        "statuses": {
+          "200": 1221
+        },
+        "seconds": 30.013,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "evoweb/protein-group-associated-organisms": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/protein-group-associated-organisms.rq",
+      "tags": [
+        "evoweb",
+        "ubergraph"
+      ],
+      "targets": [
+        "evoweb",
+        "ubergraph"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://sparql.uniprot.org/sparql"
+      ],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/protein-group-associated-organisms.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 226,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 5094871,
+        "statuses": {
+          "200": 218,
+          "403": 5
+        },
+        "seconds": 3.452,
+        "exitCode": 1,
+        "error": "Request failed: https://sparql.uniprot.org/sparql",
+        "attempts": 1
+      }
+    },
+    "evoweb/second-level-connections-to-group": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/evoweb/second-level-connections-to-group.rq",
+      "tags": [
+        "evoweb"
+      ],
+      "targets": [
+        "evoweb"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/evoweb/second-level-connections-to-group.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 2,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 18923,
+        "statuses": {
+          "200": 1,
+          "400": 1
+        },
+        "seconds": 30.005,
+        "exitCode": 1,
+        "error": "The engine stopped without ending the run: Request failed: https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf?subject=%3Fs&predicate=https%3A%2F%2Fpurl.org%2Fokn%2Ffrink%2Fkg%2Fevoweb%2Fschema%2FconnectedTo&object=%3F%3Fo",
+        "attempts": 1
+      }
+    },
+    "federation/articles-about-abdominal-cell-types": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/articles-about-abdominal-cell-types.rq",
+      "tags": [
+        "ubergraph",
+        "wikidata"
+      ],
+      "targets": [],
+      "targetNote": "wikidata",
+      "serviceIris": [],
+      "determinate": false,
+      "result": {
+        "ok": false,
+        "skipped": true,
+        "error": "wikidata"
+      }
+    },
+    "federation/fio-spatial-facilities-in-state": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/fio-spatial-facilities-in-state.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "fiokg",
+        "spatialkg"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/fio-spatial-facilities-in-state.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 10,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 132358,
+        "statuses": {
+          "200": 2,
+          "400": 1
+        },
+        "seconds": 0.406,
+        "exitCode": 1,
+        "error": "Request failed: https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf?subject=%3Fs&predicate=http%3A%2F%2Fstko-kwg.geog.ucsb.edu%2Flod%2Fontology%2FadministrativePartOf&object=%3F%3Fo",
+        "attempts": 1
+      }
+    },
+    "federation/list-things-and-their-labels": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/list-things-and-their-labels.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "babel",
+        "biobricks-aopwiki",
+        "biobricks-ice",
+        "biobricks-mesh",
+        "biobricks-pubchem-annotations",
+        "biobricks-tox21",
+        "biobricks-toxcast",
+        "biohealth",
+        "biomarkerkg",
+        "climatemodelskg",
+        "digcfdekg",
+        "dreamkg",
+        "evoweb",
+        "fiokg",
+        "gene-expression-atlas-okn",
+        "geoconnex",
+        "hydrologykg",
+        "identifier-mappings",
+        "medical-device-kg",
+        "nasa-gesdisc-kg",
+        "ncipidkg",
+        "nde",
+        "nestkg",
+        "nikg",
+        "oard-kg",
+        "pankgraph",
+        "phaseskg",
+        "prokn",
+        "rdkg",
+        "ruralkg",
+        "sawgraph",
+        "scales",
+        "securechainkg",
+        "sockg",
+        "spatialkg",
+        "spoke-genelab",
+        "spoke-okn",
+        "sudokn",
+        "ubergraph",
+        "ufokn",
+        "wildlifekn"
+      ],
+      "targetNote": "all-local-datasets",
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/babel/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-aopwiki/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-mesh/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-pubchem-annotations/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-tox21/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-toxcast/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biohealth/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biomarkerkg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/climatemodelskg/v/v0.0.16/tpf",
+        "brtpf@https://apps.okn.us/kgf/digcfdekg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/tpf",
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf",
+        "brtpf@https://apps.okn.us/kgf/gene-expression-atlas-okn/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/geoconnex/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf",
+        "brtpf@https://apps.okn.us/kgf/identifier-mappings/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/medical-device-kg/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf",
+        "brtpf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/nikg/v/v0.0.7/tpf",
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/pankgraph/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/phaseskg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf",
+        "brtpf@https://apps.okn.us/kgf/rdkg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/sawgraph/v/v0.0.16/tpf",
+        "brtpf@https://apps.okn.us/kgf/scales/v/v0.0.25/tpf",
+        "brtpf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/tpf",
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf",
+        "brtpf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/tpf",
+        "brtpf@https://apps.okn.us/kgf/sudokn/v/v0.0.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/ufokn/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/wildlifekn/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/list-things-and-their-labels.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 160,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 2175887,
+        "statuses": {
+          "200": 123
+        },
+        "seconds": 0.658,
+        "exitCode": 0,
+        "multisetHash": "98315fb1e815a40f:d569dfe2e3215d3d",
+        "samples": [
+          "label=\"Medical Subject Headings (MeSH) RDF Dataset Description\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subject=<http://id.nlm.nih.gov/mesh/void>",
+          "label=\"   Ideas about the surface runoff features on Mars.\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subject=<http://www.ncbi.nlm.nih.gov/pubmed/11184197>",
+          "label=\"ClimatePub4KG Ontology\"@en\u0001subject=<https://climatepub4kg.github.io/ontology>"
+        ],
+        "attempts": 1
+      }
+    },
+    "federation/nde-diseases-mondo-parents": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/nde-diseases-mondo-parents.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "nde",
+        "ubergraph"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/nde-diseases-mondo-parents.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 200,
+        "requests": 929,
+        "bindingsRequests": 558,
+        "schemaRequests": 0,
+        "responseBytes": 69283503,
+        "statuses": {
+          "200": 929
+        },
+        "seconds": 4.06,
+        "exitCode": 0,
+        "multisetHash": "82ac124e3c232034:854acd75d4b63d9c",
+        "samples": [
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000409 | MONDO:0002263 | MONDO:0002654 | MONDO:0005039 | MONDO:0005113 | MONDO:0005550 | MONDO:0005917 | MONDO:0021166 | MONDO:0024575 | MONDO:0045013 | MONDO:0700003 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000409>",
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000088 | MONDO:0002259 | MONDO:0005039 | MONDO:0005151 | MONDO:0021147 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000088>",
+          "directMondoParents=\"MONDO:0000001 | MONDO:0000705 | MONDO:0002269 | MONDO:0003409 | MONDO:0003847 | MONDO:0004335 | MONDO:0005020 | MONDO:0005046 | MONDO:0005113 | MONDO:0005265 | MONDO:0005292 | MONDO:0005550 | MONDO:0006039 | MONDO:0021166 | MONDO:0024634 | MONDO:0043424 | MONDO:0700096\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001disease=<http://purl.obolibrary.org/obo/MONDO_0000705>"
+        ],
+        "attempts": 1
+      }
+    },
+    "federation/nde-study-mondo-xrefs": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/nde-study-mondo-xrefs.rq",
+      "tags": [
+        "ubergraph",
+        "nde"
+      ],
+      "targets": [
+        "ubergraph",
+        "nde"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/nde-study-mondo-xrefs.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 1,
+        "requests": 22,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 208904,
+        "statuses": {
+          "200": 19
+        },
+        "seconds": 0.436,
+        "exitCode": 0,
+        "multisetHash": "1ee7f7ddaae4fd33:1ee7f7ddaae4fd33",
+        "samples": [
+          "dataset=<https://okn.wobd.org/dataset/immport/sdy1086>\u0001datasetName=\"Responses to Inactivated Influenza Vaccine (IIV) in adults with or without antibiotics\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001xrefList=\"DOID:8469 | EFO:0007328 | ICD9:487 | ICD9:487.8 | MEDGEN:9466 | MESH:D007251 | MESH:D009976 | NCIT:C53482 | SCTID:61700007 | UMLS:C0021400 | icd11.foundation:145723401\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "federation/one-hundred-triples": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/one-hundred-triples.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "babel",
+        "biobricks-aopwiki",
+        "biobricks-ice",
+        "biobricks-mesh",
+        "biobricks-pubchem-annotations",
+        "biobricks-tox21",
+        "biobricks-toxcast",
+        "biohealth",
+        "biomarkerkg",
+        "climatemodelskg",
+        "digcfdekg",
+        "dreamkg",
+        "evoweb",
+        "fiokg",
+        "gene-expression-atlas-okn",
+        "geoconnex",
+        "hydrologykg",
+        "identifier-mappings",
+        "medical-device-kg",
+        "nasa-gesdisc-kg",
+        "ncipidkg",
+        "nde",
+        "nestkg",
+        "nikg",
+        "oard-kg",
+        "pankgraph",
+        "phaseskg",
+        "prokn",
+        "rdkg",
+        "ruralkg",
+        "sawgraph",
+        "scales",
+        "securechainkg",
+        "sockg",
+        "spatialkg",
+        "spoke-genelab",
+        "spoke-okn",
+        "sudokn",
+        "ubergraph",
+        "ufokn",
+        "wildlifekn"
+      ],
+      "targetNote": "all-local-datasets",
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/babel/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-aopwiki/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-ice/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-mesh/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-pubchem-annotations/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-tox21/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biobricks-toxcast/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/biohealth/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/biomarkerkg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/climatemodelskg/v/v0.0.16/tpf",
+        "brtpf@https://apps.okn.us/kgf/digcfdekg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/dreamkg/v/v0.0.5/tpf",
+        "brtpf@https://apps.okn.us/kgf/evoweb/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf",
+        "brtpf@https://apps.okn.us/kgf/gene-expression-atlas-okn/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/geoconnex/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf",
+        "brtpf@https://apps.okn.us/kgf/identifier-mappings/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/medical-device-kg/v/v0.0.4/tpf",
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf",
+        "brtpf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/nikg/v/v0.0.7/tpf",
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/pankgraph/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/phaseskg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf",
+        "brtpf@https://apps.okn.us/kgf/rdkg/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/sawgraph/v/v0.0.16/tpf",
+        "brtpf@https://apps.okn.us/kgf/scales/v/v0.0.25/tpf",
+        "brtpf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/tpf",
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf",
+        "brtpf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/tpf",
+        "brtpf@https://apps.okn.us/kgf/sudokn/v/v0.0.10/tpf",
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf",
+        "brtpf@https://apps.okn.us/kgf/ufokn/v/v0.0.3/tpf",
+        "brtpf@https://apps.okn.us/kgf/wildlifekn/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/one-hundred-triples.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "quads",
+        "rows": 100,
+        "requests": 41,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 1102673,
+        "statuses": {
+          "200": 41
+        },
+        "seconds": 0.561,
+        "exitCode": 0,
+        "attempts": 1
+      }
+    },
+    "federation/sawgraph-hydrology-spatial-04": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/sawgraph-hydrology-spatial-04.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "hydrologykg",
+        "spatialkg"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/sawgraph-hydrology-spatial-04.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 47612417,
+        "statuses": {
+          "200": 4954
+        },
+        "seconds": 6.295,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "federation/sawgraph-hydrology-spatial_03": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/sawgraph-hydrology-spatial_03.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "hydrologykg",
+        "spatialkg"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/sawgraph-hydrology-spatial_03.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 47577423,
+        "statuses": {
+          "200": 4987
+        },
+        "seconds": 13.945,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "federation/sawgraph-spatial-hydrology-01": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/federation/sawgraph-spatial-hydrology-01.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [
+        "hydrologykg",
+        "spatialkg"
+      ],
+      "targetNote": "inferred-federation-targets",
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf",
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/federation/sawgraph-spatial-hydrology-01.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 8,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 246065,
+        "statuses": {
+          "200": 2,
+          "400": 1
+        },
+        "seconds": 0.589,
+        "exitCode": 1,
+        "error": "Request failed: https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf?subject=%3Fs&predicate=http%3A%2F%2Fstko-kwg.geog.ucsb.edu%2Flod%2Fontology%2FadministrativePartOf&object=%3F%3Fo",
+        "attempts": 1
+      }
+    },
+    "fiokg/fio-NAICS-classification-for-facility": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/fiokg/fio-NAICS-classification-for-facility.rq",
+      "tags": [
+        "fio-kg"
+      ],
+      "targets": [
+        "fiokg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/fiokg/fio-NAICS-classification-for-facility.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 5,
+        "requests": 4,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 74838,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.39,
+        "exitCode": 0,
+        "multisetHash": "91577aa4e49cd932:e8df1b5c005c58cc",
+        "samples": [
+          "label=\"Manufacturing\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001o=<http://w3id.org/fio/v1/naics#NAICS-33>",
+          "label=\"Computer and Electronic Product Manufacturing\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001o=<http://w3id.org/fio/v1/naics#NAICS-334>",
+          "label=\"Navigational, Measuring, Electromedical, and Control Instruments Manufacturing\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001o=<http://w3id.org/fio/v1/naics#NAICS-3345>"
+        ],
+        "attempts": 1
+      }
+    },
+    "fiokg/fio-facilities-by-NAICS-Subsector": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/fiokg/fio-facilities-by-NAICS-Subsector.rq",
+      "tags": [
+        "fiokg"
+      ],
+      "targets": [
+        "fiokg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/fiokg/v/v0.0.11/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/fiokg/fio-facilities-by-NAICS-Subsector.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1188,
+        "bindingsRequests": 62,
+        "schemaRequests": 0,
+        "responseBytes": 35138042,
+        "statuses": {
+          "200": 1187
+        },
+        "seconds": 30.005,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "hydrologykg/sawgraph-hydrology-02": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/hydrologykg/sawgraph-hydrology-02.rq",
+      "tags": [
+        "hydrologykg"
+      ],
+      "targets": [
+        "hydrologykg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/hydrologykg/sawgraph-hydrology-02.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 296,
+        "requests": 22,
+        "bindingsRequests": 15,
+        "schemaRequests": 0,
+        "responseBytes": 2221607,
+        "statuses": {
+          "200": 22
+        },
+        "seconds": 0.683,
+        "exitCode": 0,
+        "multisetHash": "750ad76a7bf124a9:312d20ab4aa38603",
+        "samples": [
+          "COMID=\"13606138\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001FTYPE=\"ArtificialPath\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001flowline=<https://geoconnex.us/nhdplusv2/comid/13606138>\u0001name=\"Illinois River\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "COMID=\"13606144\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001FTYPE=\"ArtificialPath\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001flowline=<https://geoconnex.us/nhdplusv2/comid/13606144>\u0001name=\"Illinois River\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "COMID=\"13606150\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001FTYPE=\"ArtificialPath\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001flowline=<https://geoconnex.us/nhdplusv2/comid/13606150>\u0001name=\"Illinois River\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "hydrologykg/sawgraph-hydrology-04": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/hydrologykg/sawgraph-hydrology-04.rq",
+      "tags": [
+        "hydrologykg"
+      ],
+      "targets": [
+        "hydrologykg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/hydrologykg/v/v0.0.9/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/hydrologykg/sawgraph-hydrology-04.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1047,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 22253577,
+        "statuses": {
+          "200": 1046
+        },
+        "seconds": 30.007,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "nasa-gesdisc-kg/count-publications-use-each-dataset": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/count-publications-use-each-dataset.rq",
+      "tags": [
+        "nasa-gesdisc-kg"
+      ],
+      "targets": [
+        "nasa-gesdisc-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nasa-gesdisc-kg/count-publications-use-each-dataset.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 25,
+        "requests": 555,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 15084700,
+        "statuses": {
+          "200": 555
+        },
+        "seconds": 17.311,
+        "exitCode": 0,
+        "multisetHash": "a4c89acad552a6f6:3f9d30e87259c188",
+        "samples": [
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12384>\u0001PublicationCount=\"1303\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12682>\u0001PublicationCount=\"1298\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12357>\u0001PublicationCount=\"1141\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nasa-gesdisc-kg/datasets-science-keywords": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/datasets-science-keywords.rq",
+      "tags": [
+        "nasa-gesdisc-kg"
+      ],
+      "targets": [
+        "nasa-gesdisc-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nasa-gesdisc-kg/datasets-science-keywords.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 25,
+        "requests": 119,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 2861509,
+        "statuses": {
+          "200": 117
+        },
+        "seconds": 2.147,
+        "exitCode": 0,
+        "multisetHash": "9114eb43dcb9e34a:793b95f63ba124aa",
+        "samples": [
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12308>\u0001KeywordLabel=\"AEROSOLS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ScienceKeyword=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/38806>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12453>\u0001KeywordLabel=\"AEROSOLS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ScienceKeyword=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/38806>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/12530>\u0001KeywordLabel=\"AEROSOLS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ScienceKeyword=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/38806>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nasa-gesdisc-kg/frequent-sciencekeywords-wikidata": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/frequent-sciencekeywords-wikidata.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [],
+      "targetNote": "wikidata",
+      "serviceIris": [],
+      "determinate": true,
+      "result": {
+        "ok": false,
+        "skipped": true,
+        "error": "wikidata"
+      }
+    },
+    "nasa-gesdisc-kg/frequent-sciencekeywords": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/frequent-sciencekeywords.rq",
+      "tags": [
+        "nasa-gesdisc-kg"
+      ],
+      "targets": [
+        "nasa-gesdisc-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nasa-gesdisc-kg/frequent-sciencekeywords.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1794,
+        "bindingsRequests": 605,
+        "schemaRequests": 0,
+        "responseBytes": 156406220,
+        "statuses": {
+          "200": 1793
+        },
+        "seconds": 30.007,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "nasa-gesdisc-kg/publications-datasets-used": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/publications-datasets-used.rq",
+      "tags": [
+        "nasa-gesdisc-kg"
+      ],
+      "targets": [
+        "nasa-gesdisc-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nasa-gesdisc-kg/publications-datasets-used.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 25,
+        "requests": 2,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 49467,
+        "statuses": {
+          "200": 2
+        },
+        "seconds": 0.603,
+        "exitCode": 0,
+        "multisetHash": "f70782d8a3668677:3ad4eb3d818117f7",
+        "samples": [
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/11948>\u0001Publication=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/21234>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/11948>\u0001Publication=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/28610>",
+          "Dataset=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/11948>\u0001Publication=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/8427>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nasa-gesdisc-kg/publications-using-dataset-wikidata": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/publications-using-dataset-wikidata.rq",
+      "tags": [
+        "federation"
+      ],
+      "targets": [],
+      "targetNote": "wikidata",
+      "serviceIris": [],
+      "determinate": false,
+      "result": {
+        "ok": false,
+        "skipped": true,
+        "error": "wikidata"
+      }
+    },
+    "nasa-gesdisc-kg/pubs-by-year-title": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nasa-gesdisc-kg/pubs-by-year-title.rq",
+      "tags": [
+        "nasa-gesdisc-kg"
+      ],
+      "targets": [
+        "nasa-gesdisc-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nasa-gesdisc-kg/v/v0.0.7/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nasa-gesdisc-kg/pubs-by-year-title.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 240,
+        "bindingsRequests": 96,
+        "schemaRequests": 0,
+        "responseBytes": 21496789,
+        "statuses": {
+          "200": 238
+        },
+        "seconds": 2.472,
+        "exitCode": 0,
+        "multisetHash": "91a38bc713131270:6a7a143f8d060aa4",
+        "samples": [
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/10101>\u0001title=\"A 1 km daily surface soil moisture dataset of enhanced coverage under all-weather conditions over China in 2003\u20132019\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2022\"^^<http://www.w3.org/2001/XMLSchema#int>",
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/102132>\u0001title=\"21st-century biogeochemical modeling: Challenges for Century-based models and where do we go from here?\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2020\"^^<http://www.w3.org/2001/XMLSchema#int>",
+          "pub=<https://purl.org/okn/frink/kg/nasa-gesdisc/node/102042>\u0001title=\"A 21st Century Warming Threshold for Sustained Greenland Ice Sheet Mass Loss\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2021\"^^<http://www.w3.org/2001/XMLSchema#int>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ncipidkg/list-all-hdac1-neighbors": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ncipidkg/list-all-hdac1-neighbors.rq",
+      "tags": [
+        "ncipidkg"
+      ],
+      "targets": [
+        "ncipidkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ncipidkg/list-all-hdac1-neighbors.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 3,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 40614,
+        "statuses": {
+          "200": 3
+        },
+        "seconds": 0.453,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "ncipidkg/list-all-labeled-interactions": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ncipidkg/list-all-labeled-interactions.rq",
+      "tags": [
+        "ncipidkg"
+      ],
+      "targets": [
+        "ncipidkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ncipidkg/list-all-labeled-interactions.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 5674,
+        "requests": 2960,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 23282340,
+        "statuses": {
+          "200": 2959
+        },
+        "seconds": 30.006,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "ncipidkg/list-all-labeled-proteins": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ncipidkg/list-all-labeled-proteins.rq",
+      "tags": [
+        "ncipidkg"
+      ],
+      "targets": [
+        "ncipidkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ncipidkg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ncipidkg/list-all-labeled-proteins.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 2536,
+        "requests": 68,
+        "bindingsRequests": 40,
+        "schemaRequests": 0,
+        "responseBytes": 5614653,
+        "statuses": {
+          "200": 68
+        },
+        "seconds": 1.631,
+        "exitCode": 0,
+        "multisetHash": "9129666b723b3299:6c9ff2b5a62c2a7d",
+        "samples": [
+          "label=\"A1BG\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001protein=<http://purl.uniprot.org/uniprot/A8K052>",
+          "label=\"A2M\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001protein=<http://purl.uniprot.org/uniprot/P01023>",
+          "label=\"AATF\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001protein=<http://purl.uniprot.org/uniprot/A6NCJ6>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nde/dataset-count-by-agent": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nde/dataset-count-by-agent.rq",
+      "tags": [
+        "nde"
+      ],
+      "targets": [
+        "nde"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nde/dataset-count-by-agent.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 2208,
+        "requests": 1254,
+        "bindingsRequests": 909,
+        "schemaRequests": 0,
+        "responseBytes": 154655999,
+        "statuses": {
+          "200": 1254
+        },
+        "seconds": 13.318,
+        "exitCode": 0,
+        "multisetHash": "9d4b424769c68b09:1ec0c9f9c7a62517",
+        "samples": [
+          "agent=<https://www.uniprot.org/taxonomy/4932>\u0001agentName=\"Saccharomyces cerevisiae\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001catalogs=\"ncbi_geo\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001datasetCount=\"4932\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "agent=<https://www.uniprot.org/taxonomy/6239>\u0001agentName=\"Caenorhabditis elegans\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001catalogs=\"ncbi_geo\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001datasetCount=\"3781\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "agent=<https://www.uniprot.org/taxonomy/562>\u0001agentName=\"Escherichia coli\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001catalogs=\"ncbi_geo, project_tycho, zenodo\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001datasetCount=\"1617\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nde/nde-influenza-studies": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nde/nde-influenza-studies.rq",
+      "tags": [
+        "nde"
+      ],
+      "targets": [
+        "nde"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nde/nde-influenza-studies.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 423,
+        "requests": 664,
+        "bindingsRequests": 464,
+        "schemaRequests": 0,
+        "responseBytes": 102268271,
+        "statuses": {
+          "200": 664
+        },
+        "seconds": 9.086,
+        "exitCode": 0,
+        "multisetHash": "c729cbf54140c901:ffbb3d2828dfb65b",
+        "samples": [
+          "dataset=<https://okn.wobd.org/dataset/immport/sdy644>\u0001datasetName=\"Effect of Influenza A (H5N1) Vaccine Prepandemic Priming on CD4+ T-Cell Responses\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001diseaseName=\"avian influenza\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001doi=<https://doi.org/10.21430/M3T5PSBA22>",
+          "dataset=<https://okn.wobd.org/dataset/immport/sdy42>\u0001datasetName=\"Replication and pathogenesis associated with H5N1 H5N2 and H5N3 low-pathogenic avian influenza virus infection in chickens and ducks\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001diseaseName=\"avian influenza\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001doi=<https://doi.org/10.21430/M3YBOSJZIJ>",
+          "dataset=<https://okn.wobd.org/dataset/immport/sdy167>\u0001datasetName=\"VRC304 - A Phase I Study of the Safety and Immunogenicity of a Recombinant DNA Plasmid Vaccine (VRC-AVIDNA036-00-VP) Encoding for the Influenza Virus H5 Hemagglutinin Protein in Healthy Adults\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001diseaseName=\"avian influenza\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001doi=<https://doi.org/10.21430/M3SGHW16WZ>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nde/nde-resources-by-count": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nde/nde-resources-by-count.rq",
+      "tags": [
+        "nde"
+      ],
+      "targets": [
+        "nde"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nde/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nde/nde-resources-by-count.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1071,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 23379406,
+        "statuses": {
+          "200": 1070
+        },
+        "seconds": 30.007,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "nestkg/enriched-systems": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nestkg/enriched-systems.rq",
+      "tags": [
+        "nestkg"
+      ],
+      "targets": [
+        "nestkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nestkg/enriched-systems.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 425,
+        "bindingsRequests": 21,
+        "schemaRequests": 0,
+        "responseBytes": 6088467,
+        "statuses": {
+          "200": 425
+        },
+        "seconds": 3.773,
+        "exitCode": 0,
+        "multisetHash": "9794518a81b4fd2a:c6c3ae3fbf22ce86",
+        "samples": [
+          "adjP=\"3.1794799627414197e-97\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"Actin cytoskeleton\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"99\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>\u0001system=<https://www.ndexbio.org/identifiers/NEST-48>\u0001weight=\"0.24\"^^<http://www.w3.org/2001/XMLSchema#double>",
+          "adjP=\"7.027458201185788e-84\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"BAF (SWI/SNF) complex\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"20\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>\u0001system=<https://www.ndexbio.org/identifiers/NEST-129>\u0001weight=\"0.37\"^^<http://www.w3.org/2001/XMLSchema#double>",
+          "adjP=\"1.1805298577848542e-74\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"Polybromo- and BAF containing complex\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"39\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>\u0001system=<https://www.ndexbio.org/identifiers/NEST-92>\u0001weight=\"0.27\"^^<http://www.w3.org/2001/XMLSchema#double>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nestkg/subsystems": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nestkg/subsystems.rq",
+      "tags": [
+        "nestkg"
+      ],
+      "targets": [
+        "nestkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nestkg/subsystems.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 50,
+        "requests": 6,
+        "bindingsRequests": 2,
+        "schemaRequests": 0,
+        "responseBytes": 298929,
+        "statuses": {
+          "200": 6
+        },
+        "seconds": 0.507,
+        "exitCode": 0,
+        "multisetHash": "ccc46ebf8274f9eb:3d3c9ed8a9433e81",
+        "samples": [
+          "child=<https://www.ndexbio.org/identifiers/NEST-12>\u0001childLabel=\"Membrane trafficking\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"861\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>",
+          "child=<https://www.ndexbio.org/identifiers/NEST-24>\u0001childLabel=\"Keratinization\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"267\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>",
+          "child=<https://www.ndexbio.org/identifiers/NEST-28>\u0001childLabel=\"Generic transcription pathway\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001members=\"246\"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>"
+        ],
+        "attempts": 1
+      }
+    },
+    "nestkg/systems-for-protein": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/nestkg/systems-for-protein.rq",
+      "tags": [
+        "nestkg"
+      ],
+      "targets": [
+        "nestkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/nestkg/v/v0.0.1/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/nestkg/systems-for-protein.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 17,
+        "requests": 6,
+        "bindingsRequests": 2,
+        "schemaRequests": 0,
+        "responseBytes": 153555,
+        "statuses": {
+          "200": 6
+        },
+        "seconds": 0.418,
+        "exitCode": 0,
+        "multisetHash": "485b81f886c1e6af:8ebad00bdf05047d",
+        "samples": [
+          "adjP=\"1.6770098635396698e-15\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"Transmembrane receptor tyrosine kinase signaling\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001mutationStatus=\"enriched\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001system=<https://www.ndexbio.org/identifiers/NEST-38>",
+          "adjP=\"9.258456948432895e-15\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"Adherens junction\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001mutationStatus=\"enriched\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001system=<https://www.ndexbio.org/identifiers/NEST-108>",
+          "adjP=\"3.019839796271699e-09\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001label=\"EGF/beta-catenin signaling\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001mutationStatus=\"enriched\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001system=<https://www.ndexbio.org/identifiers/NEST-142>"
+        ],
+        "attempts": 1
+      }
+    },
+    "oard-kg/diseases-associated-with-phenotype": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/diseases-associated-with-phenotype.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/oard-kg/diseases-associated-with-phenotype.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 40127304,
+        "statuses": {
+          "200": 4996
+        },
+        "seconds": 19.938,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "oard-kg/oard-ubergraph-concordance": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/oard-ubergraph-concordance.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/oard-kg/oard-ubergraph-concordance.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 16,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 314252,
+        "statuses": {
+          "200": 16
+        },
+        "seconds": 0.61,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "oard-kg/phenotypes-associated-with-disease": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/phenotypes-associated-with-disease.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/oard-kg/phenotypes-associated-with-disease.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 3655,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 30127585,
+        "statuses": {
+          "200": 3655
+        },
+        "seconds": 10.129,
+        "exitCode": 0,
+        "multisetHash": "e3700b5775aa0673:95df204803545c8f",
+        "samples": [
+          "data_set=<https://rare.cohd.io/dataset_2>\u0001log_odds=\"7.353644e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001lower_ci=\"6.494899e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001pair_count=\"11\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001phenotype=<http://purl.obolibrary.org/obo/HP_0012771>\u0001phenotype_label=\"Increased arm span\"@en\u0001upper_ci=\"8.21239e+00\"^^<http://www.w3.org/2001/XMLSchema#double>",
+          "data_set=<https://rare.cohd.io/dataset_2>\u0001log_odds=\"6.542675e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001lower_ci=\"6.151165e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001pair_count=\"38\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001phenotype=<http://purl.obolibrary.org/obo/HP_0001166>\u0001phenotype_label=\"Arachnodactyly\"@en\u0001upper_ci=\"6.934184e+00\"^^<http://www.w3.org/2001/XMLSchema#double>",
+          "data_set=<https://rare.cohd.io/dataset_2>\u0001log_odds=\"6.268432e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001lower_ci=\"6.13375e+00\"^^<http://www.w3.org/2001/XMLSchema#double>\u0001pair_count=\"423\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001phenotype=<http://purl.obolibrary.org/obo/HP_0001657>\u0001phenotype_label=\"Prolonged QT interval\"@en\u0001upper_ci=\"6.403114e+00\"^^<http://www.w3.org/2001/XMLSchema#double>"
+        ],
+        "attempts": 1
+      }
+    },
+    "oard-kg/rank-diseases-given-phenotypes": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/oard-kg/rank-diseases-given-phenotypes.rq",
+      "tags": [
+        "oard-kg"
+      ],
+      "targets": [
+        "oard-kg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/oard-kg/v/v0.0.3/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/oard-kg/rank-diseases-given-phenotypes.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 514,
+        "schemaRequests": 0,
+        "responseBytes": 122025415,
+        "statuses": {
+          "200": 4988
+        },
+        "seconds": 12.901,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "pankgraph/non-acinar-cell-adhesion-regulation": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/pankgraph/non-acinar-cell-adhesion-regulation.rq",
+      "tags": [
+        "pankgraph",
+        "ubergraph"
+      ],
+      "targets": [
+        "pankgraph",
+        "ubergraph"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/pankgraph/v/v0.0.1/tpf",
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/pankgraph/non-acinar-cell-adhesion-regulation.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 80,
+        "requests": 818,
+        "bindingsRequests": 381,
+        "schemaRequests": 0,
+        "responseBytes": 51000387,
+        "statuses": {
+          "200": 818
+        },
+        "seconds": 2.489,
+        "exitCode": 0,
+        "multisetHash": "eb5010ae87067d71:910fe8e3f044dab9",
+        "samples": [
+          "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000213853>",
+          "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000204580>",
+          "function=<http://purl.obolibrary.org/obo/GO_0001952>\u0001gene=<http://identifiers.org/ensembl/ENSG00000169856>"
+        ],
+        "attempts": 1
+      }
+    },
+    "prokn/alzheimers_associated_genes": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/alzheimers_associated_genes.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/alzheimers_associated_genes.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 3,
+        "schemaRequests": 0,
+        "responseBytes": 37677785,
+        "statuses": {
+          "200": 4994
+        },
+        "seconds": 14.261,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "prokn/gene_properties_relationships": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/gene_properties_relationships.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/gene_properties_relationships.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 461,
+        "requests": 9,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 162493,
+        "statuses": {
+          "200": 9
+        },
+        "seconds": 0.625,
+        "exitCode": 0,
+        "multisetHash": "f9fb33dbfbe5c7e9:156cff3d3124a513",
+        "samples": [
+          "ObjectValue=<http://purl.obolibrary.org/obo/UBERON_0000007>\u0001PredicateURI=<http://purl.obolibrary.org/obo/RO_0002206>\u0001SubjectURI=<https://www.ensembl.org/id/ENSG00000130203>",
+          "ObjectValue=<http://purl.obolibrary.org/obo/UBERON_0000458>\u0001PredicateURI=<http://purl.obolibrary.org/obo/RO_0002206>\u0001SubjectURI=<https://www.ensembl.org/id/ENSG00000130203>",
+          "ObjectValue=<http://purl.obolibrary.org/obo/UBERON_0000945>\u0001PredicateURI=<http://purl.obolibrary.org/obo/RO_0002206>\u0001SubjectURI=<https://www.ensembl.org/id/ENSG00000130203>"
+        ],
+        "attempts": 1
+      }
+    },
+    "prokn/kinase_inhibition_phosphosites": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/kinase_inhibition_phosphosites.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/kinase_inhibition_phosphosites.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 1941,
+        "schemaRequests": 0,
+        "responseBytes": 50020404,
+        "statuses": {
+          "200": 4926
+        },
+        "seconds": 4.473,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "prokn/lincs_kinase_perturbations": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/lincs_kinase_perturbations.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/lincs_kinase_perturbations.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 1656,
+        "schemaRequests": 0,
+        "responseBytes": 252280681,
+        "statuses": {
+          "200": 4996
+        },
+        "seconds": 16.628,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "prokn/list_diseases": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/list_diseases.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/list_diseases.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 957,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 29895849,
+        "statuses": {
+          "200": 956
+        },
+        "seconds": 30.012,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "prokn/protein_disease": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_disease.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://apps.okn.us/oard-kg/sparql"
+      ],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_disease.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 16,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 602253,
+        "statuses": {
+          "200": 15
+        },
+        "seconds": 30.005,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "prokn/protein_kinases": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_kinases.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_kinases.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 3545,
+        "requests": 1031,
+        "bindingsRequests": 846,
+        "schemaRequests": 0,
+        "responseBytes": 123010856,
+        "statuses": {
+          "200": 1031
+        },
+        "seconds": 7.679,
+        "exitCode": 0,
+        "multisetHash": "c990c0a4e230dc67:294ad68cc8d33ec9",
+        "samples": [
+          "accession=\"P21675-14\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.3.1.48;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/P21675-14>",
+          "accession=\"P21675-16\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.3.1.48;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/P21675-16>",
+          "accession=\"P21675-18\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001ecNumber=\"2.3.1.48;2.7.11.1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001kinase=<http://purl.uniprot.org/uniprot/P21675-18>"
+        ],
+        "attempts": 1
+      }
+    },
+    "prokn/protein_opioid_abuse": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_opioid_abuse.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://frink.apps.renci.org/biohealth/sparql"
+      ],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_opioid_abuse.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 115,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 2211044,
+        "statuses": {
+          "200": 96,
+          "503": 18
+        },
+        "seconds": 4.948,
+        "exitCode": 1,
+        "error": "Request failed: https://frink.apps.renci.org/biohealth/sparql",
+        "attempts": 1
+      }
+    },
+    "prokn/protein_properties_relationships": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_properties_relationships.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_properties_relationships.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 2983,
+        "requests": 34,
+        "bindingsRequests": 31,
+        "schemaRequests": 0,
+        "responseBytes": 1435571,
+        "statuses": {
+          "200": 34
+        },
+        "seconds": 1.191,
+        "exitCode": 0,
+        "multisetHash": "dec880a1c12d9728:6cabb9f09a0231b6",
+        "samples": [
+          "ObjectValue=\"26569.0\"^^<http://www.w3.org/2001/XMLSchema#decimal>\u0001PredicateURI=<http://edamontology.org/data_1519>\u0001SubjectURI=<http://purl.uniprot.org/uniprot/A0A087X1Q1>",
+          "ObjectValue=\"TP53\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001PredicateURI=<http://purl.obolibrary.org/obo/NCIT_C164806>\u0001SubjectURI=<http://purl.uniprot.org/uniprot/A0A087X1Q1>",
+          "ObjectValue=\"UniProtKB\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001PredicateURI=<http://purl.org/dc/terms/source>\u0001SubjectURI=<http://purl.uniprot.org/uniprot/A0A087X1Q1>"
+        ],
+        "attempts": 1
+      }
+    },
+    "prokn/protein_variant_disease": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_variant_disease.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://apps.okn.us/oard-kg/sparql"
+      ],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_variant_disease.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2469,
+        "bindingsRequests": 1565,
+        "schemaRequests": 0,
+        "responseBytes": 268449583,
+        "statuses": {
+          "200": 2453,
+          "404": 1
+        },
+        "seconds": 23.593,
+        "exitCode": 3,
+        "error": "aborted:max_bytes",
+        "budget": "max_bytes",
+        "attempts": 1
+      }
+    },
+    "prokn/protein_variant_sdoh": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/prokn/protein_variant_sdoh.rq",
+      "tags": [
+        "prokn"
+      ],
+      "targets": [
+        "prokn"
+      ],
+      "targetNote": null,
+      "serviceIris": [
+        "https://frink.apps.renci.org/spoke-okn/sparql"
+      ],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/prokn/v/v0.0.5/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/prokn/protein_variant_sdoh.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 21,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 99719,
+        "statuses": {
+          "200": 3,
+          "503": 18
+        },
+        "seconds": 5.014,
+        "exitCode": 1,
+        "error": "Request failed: https://frink.apps.renci.org/spoke-okn/sparql",
+        "attempts": 1
+      }
+    },
+    "ruralkg/find_nibrs_justice_topics_to_variables": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/find_nibrs_justice_topics_to_variables.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/find_nibrs_justice_topics_to_variables.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 686,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 5622720,
+        "statuses": {
+          "200": 686
+        },
+        "seconds": 2.208,
+        "exitCode": 0,
+        "multisetHash": "dc96488da1af8d39:7f91a3a45e7efaff",
+        "samples": [
+          "justiceLabel=\"Data Element 08A - Bias Motivation\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001justiceTopic=<http://sail.ua.edu/ruralkg/justice/DataElement08A-BiasMotivation>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NIBRS_V20201>\u0001variableCode=\"V20201\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"BIAS MOTIVATION 1 - 1\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "justiceLabel=\"Data Element 08A - Bias Motivation\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001justiceTopic=<http://sail.ua.edu/ruralkg/justice/DataElement08A-BiasMotivation>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NIBRS_V20202>\u0001variableCode=\"V20202\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"BIAS MOTIVATION 1 - 2\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "justiceLabel=\"Data Element 08A - Bias Motivation\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001justiceTopic=<http://sail.ua.edu/ruralkg/justice/DataElement08A-BiasMotivation>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NIBRS_V2020B1>\u0001variableCode=\"V2020B1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"BIAS MOTIVATION 2 - 1\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ruralkg/find_nsduh_variables_that_mention_substances": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/find_nsduh_variables_that_mention_substances.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/find_nsduh_variables_that_mention_substances.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 73,
+        "bindingsRequests": 55,
+        "schemaRequests": 0,
+        "responseBytes": 10463132,
+        "statuses": {
+          "200": 73
+        },
+        "seconds": 0.873,
+        "exitCode": 0,
+        "multisetHash": "ef0d760b7e5973a5:5d5cea07bbc056b7",
+        "samples": [
+          "substanceName=\"Alcohol\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NSDUH_AL30EST>\u0001variableCode=\"AL30EST\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"BEST ESTIMATE # DAYS HAD ONE OR MORE DRINKS\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "substanceName=\"Alcohol\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NSDUH_ALCAGLST>\u0001variableCode=\"ALCAGLST\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"HOW OLD WERE YOU LAST TIME DRANK ALCOHOL BEVERAGE\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "substanceName=\"Alcohol\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variable=<http://sail.ua.edu/ruralkg/variable/NSDUH_ALCBNG30D>\u0001variableCode=\"ALCBNG30D\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001variableContent=\"# DAYS HAD FOUR/FIVE OR MORE DRINKS PAST 30 DYS\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ruralkg/list-providers": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/list-providers.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/list-providers.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 142,
+        "schemaRequests": 0,
+        "responseBytes": 56815809,
+        "statuses": {
+          "200": 4993
+        },
+        "seconds": 7.18,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "ruralkg/list-substances": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/list-substances.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/list-substances.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 23,
+        "requests": 4,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 128398,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.416,
+        "exitCode": 0,
+        "multisetHash": "940cec03fd93bd13:1be6b8e9a388de75",
+        "samples": [
+          "name=\"Alcohol\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001substance=<http://sail.ua.edu/ruralkg/substanceabuse/Substance_f0efa50d-775f-418d-96f4-5ed0a393d3d2>",
+          "name=\"Blunt\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001substance=<http://sail.ua.edu/ruralkg/substanceabuse/Substance_9030d24c-b6ac-48dc-b5a7-f2386620ff9c>",
+          "name=\"Cocaine\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001substance=<http://sail.ua.edu/ruralkg/substanceabuse/Substance_26fc25b2-4e4f-48b5-b539-e0040b348f5d>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ruralkg/mental_health_service_categories": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/mental_health_service_categories.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/mental_health_service_categories.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 21,
+        "requests": 9,
+        "bindingsRequests": 4,
+        "schemaRequests": 0,
+        "responseBytes": 335902,
+        "statuses": {
+          "200": 9
+        },
+        "seconds": 0.555,
+        "exitCode": 0,
+        "multisetHash": "411dd9f541f98ace:6644d6b54973208c",
+        "samples": [
+          "category=<http://sail.ua.edu/ruralkg/treatment/MHSC_PHR>\u0001categoryCode=\"PHR\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001categoryName=\"Pharmacotherapies\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001serviceCount=\"27\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "category=<http://sail.ua.edu/ruralkg/treatment/MHSC_OL>\u0001categoryCode=\"OL\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001categoryName=\"Other Languages\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001serviceCount=\"20\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "category=<http://sail.ua.edu/ruralkg/treatment/MHSC_AS>\u0001categoryCode=\"AS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001categoryName=\"Ancillary Services\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001serviceCount=\"18\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ruralkg/rural_counties_rucc_7_9": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/rural_counties_rucc_7_9.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/rural_counties_rucc_7_9.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 244,
+        "bindingsRequests": 237,
+        "schemaRequests": 0,
+        "responseBytes": 47281933,
+        "statuses": {
+          "200": 244
+        },
+        "seconds": 1.691,
+        "exitCode": 0,
+        "multisetHash": "1e041f6c026b3bc6:7b476584696e1ccc",
+        "samples": [
+          "kwgCounty=<http://stko-kwg.geog.ucsb.edu/lod/resource/administrativeRegion.USA.23003>\u0001population=\"71870\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001ruccCode=\"7\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2013\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "kwgCounty=<http://stko-kwg.geog.ucsb.edu/lod/resource/administrativeRegion.USA.21195>\u0001population=\"65024\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001ruccCode=\"7\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2013\"^^<http://www.w3.org/2001/XMLSchema#integer>",
+          "kwgCounty=<http://stko-kwg.geog.ucsb.edu/lod/resource/administrativeRegion.USA.48001>\u0001population=\"58458\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001ruccCode=\"7\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001year=\"2013\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ruralkg/telehealth_treatment_providers": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ruralkg/telehealth_treatment_providers.rq",
+      "tags": [
+        "ruralkg"
+      ],
+      "targets": [
+        "ruralkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ruralkg/v/v0.2.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ruralkg/telehealth_treatment_providers.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 222,
+        "schemaRequests": 0,
+        "responseBytes": 67881282,
+        "statuses": {
+          "200": 4993
+        },
+        "seconds": 14.711,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "scales/distinct-judges": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/scales/distinct-judges.rq",
+      "tags": [
+        "scales"
+      ],
+      "targets": [
+        "scales"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/scales/v/v0.0.25/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/scales/distinct-judges.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 3,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 53663,
+        "statuses": {
+          "200": 3
+        },
+        "seconds": 0.391,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "scales/scales-ontology-event-labels": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/scales/scales-ontology-event-labels.rq",
+      "tags": [
+        "scales"
+      ],
+      "targets": [
+        "scales"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/scales/v/v0.0.25/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/scales/scales-ontology-event-labels.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 2,
+        "requests": 1238,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 38208074,
+        "statuses": {
+          "200": 1237
+        },
+        "seconds": 30.007,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "securechainkg/ffmpeg-dependencies": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/securechainkg/ffmpeg-dependencies.rq",
+      "tags": [
+        "securechainkg"
+      ],
+      "targets": [
+        "securechainkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/securechainkg/ffmpeg-dependencies.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 100,
+        "requests": 34,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 329241,
+        "statuses": {
+          "200": 32
+        },
+        "seconds": 0.491,
+        "exitCode": 0,
+        "multisetHash": "1f8a4449721dec9e:f12bf9f202606b94",
+        "samples": [
+          "dependency=<https://conan.io/center/recipes/bzip2?version=1.0.8>\u0001package=<https://conan.io/center/recipes/ffmpeg?version=4.2.1>",
+          "dependency=<https://conan.io/center/recipes/freetype?version=2.13.2>\u0001package=<https://conan.io/center/recipes/ffmpeg?version=4.2.1>",
+          "dependency=<https://conan.io/center/recipes/libaom-av1?version=3.6.1>\u0001package=<https://conan.io/center/recipes/ffmpeg?version=4.2.1>"
+        ],
+        "attempts": 1
+      }
+    },
+    "securechainkg/ffmpeg-vulnerabilities": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/securechainkg/ffmpeg-vulnerabilities.rq",
+      "tags": [
+        "securechainkg"
+      ],
+      "targets": [
+        "securechainkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": false,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/securechainkg/v/v0.0.11/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/securechainkg/ffmpeg-vulnerabilities.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 17,
+        "requests": 14,
+        "bindingsRequests": 5,
+        "schemaRequests": 0,
+        "responseBytes": 244286,
+        "statuses": {
+          "200": 14
+        },
+        "seconds": 0.463,
+        "exitCode": 0,
+        "multisetHash": "91c46b9ea1f4ea7f:30e6479486f5800f",
+        "samples": [
+          "software=<https://conan.io/center/recipes/ffmpeg>\u0001vuln=<https://nvd.nist.gov/vuln/detail/CVE-2020-20891>",
+          "software=<https://conan.io/center/recipes/ffmpeg>\u0001vuln=<https://nvd.nist.gov/vuln/detail/CVE-2020-20892>",
+          "software=<https://conan.io/center/recipes/ffmpeg>\u0001vuln=<https://nvd.nist.gov/vuln/detail/CVE-2020-20896>"
+        ],
+        "attempts": 1
+      }
+    },
+    "sockg/average_change_soc_stock": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/average_change_soc_stock.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/average_change_soc_stock.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 20,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 467424,
+        "statuses": {
+          "200": 19
+        },
+        "seconds": 0.432,
+        "exitCode": 1,
+        "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions",
+        "attempts": 1
+      }
+    },
+    "sockg/average_soc_stock_0_30cm": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/average_soc_stock_0_30cm.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/average_soc_stock_0_30cm.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 18,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 467052,
+        "statuses": {
+          "200": 18
+        },
+        "seconds": 0.402,
+        "exitCode": 1,
+        "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions",
+        "attempts": 1
+      }
+    },
+    "sockg/avg_soc_stock_by_state": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/avg_soc_stock_by_state.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/avg_soc_stock_by_state.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 3449,
+        "bindingsRequests": 419,
+        "schemaRequests": 0,
+        "responseBytes": 183704708,
+        "statuses": {
+          "200": 3447
+        },
+        "seconds": 30.014,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "sockg/avg_temp_increase": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/avg_temp_increase.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/avg_temp_increase.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 370,
+        "schemaRequests": 0,
+        "responseBytes": 101613381,
+        "statuses": {
+          "200": 4914
+        },
+        "seconds": 6.225,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/biomassCarbohydrate": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/biomassCarbohydrate.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/biomassCarbohydrate.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 32,
+        "schemaRequests": 0,
+        "responseBytes": 48128434,
+        "statuses": {
+          "200": 4979
+        },
+        "seconds": 8.986,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/field_location": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/field_location.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/field_location.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 18,
+        "requests": 43,
+        "bindingsRequests": 36,
+        "schemaRequests": 0,
+        "responseBytes": 5183630,
+        "statuses": {
+          "200": 43
+        },
+        "seconds": 0.837,
+        "exitCode": 0,
+        "multisetHash": "bec69bd6a279828d:52e5668c1190ba5b",
+        "samples": [
+          "country=\"United States\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001fieldIDs=\"ALAUEVS, ALAURye, ALAUSDR, ALAUSoil, ALAUTVS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001state=\"AL\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "country=\"United States\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001fieldIDs=\"COFOARD1, COFOARD2, COFOARD3, COFOARD4, CONUNRBS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001state=\"CO\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "country=\"United States\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001fieldIDs=\"GAJPCSR1, GAJPCSR2\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001state=\"GA\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "sockg/fields_in_texas": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/fields_in_texas.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/fields_in_texas.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 2,
+        "requests": 15,
+        "bindingsRequests": 10,
+        "schemaRequests": 0,
+        "responseBytes": 881441,
+        "statuses": {
+          "200": 15
+        },
+        "seconds": 0.57,
+        "exitCode": 0,
+        "multisetHash": "ef58fa7101d3c08a:cf50fa0efdc3bc68",
+        "samples": [
+          "fieldId=\"TXBSWEWC\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"TXBSWEWC\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001stateAbbr=\"TX\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "fieldId=\"TXLULIB1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"TXLULIB1\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001stateAbbr=\"TX\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "sockg/fields_on_sites": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/fields_on_sites.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/fields_on_sites.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 49,
+        "requests": 111,
+        "bindingsRequests": 105,
+        "schemaRequests": 0,
+        "responseBytes": 22921527,
+        "statuses": {
+          "200": 111
+        },
+        "seconds": 1.817,
+        "exitCode": 0,
+        "multisetHash": "939e95c1c9718a50:c535967f81a3a0a6",
+        "samples": [
+          "PostalCode=\"36075\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAUEVS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAUEVS\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "PostalCode=\"36345\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAURye\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAURye\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "PostalCode=\"36075\"^^<http://www.w3.org/2001/XMLSchema#integer>\u0001fieldId=\"ALAUSDR\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001site=\"ALAuburn\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "sockg/greatest_soc_increase": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/greatest_soc_increase.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/greatest_soc_increase.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "error",
+        "resultType": null,
+        "rows": 0,
+        "requests": 20,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 467424,
+        "statuses": {
+          "200": 19
+        },
+        "seconds": 0.423,
+        "exitCode": 1,
+        "error": "Creation of function evaluator failed: no configured actor was able to evaluate function http://www.ontotext.com/sparql/functions/asDays\n    Error messages of failing actors:\n        Actor urn:comunica:default:function-factory/actors#expression-function-extensions can only provide non-termExpression implementations for functions that are provided through config entries like: @comunica/actor-init-query:extensionFunctionCreator or @comunica/actor-init-query:extensionFunctions",
+        "attempts": 1
+      }
+    },
+    "sockg/harvest_fraction": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/harvest_fraction.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/harvest_fraction.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 1336,
+        "bindingsRequests": 16,
+        "schemaRequests": 0,
+        "responseBytes": 33514047,
+        "statuses": {
+          "200": 1335
+        },
+        "seconds": 30.005,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "sockg/location": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/location.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/location.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 10,
+        "requests": 52,
+        "bindingsRequests": 46,
+        "schemaRequests": 0,
+        "responseBytes": 9003499,
+        "statuses": {
+          "200": 52
+        },
+        "seconds": 3.25,
+        "exitCode": 0,
+        "multisetHash": "208d70f333d2978d:c5ec0a960513422f",
+        "samples": [
+          "loc=\"ALAUEVS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s2cells=\"http://stko-kwg.geog.ucsb.edu/lod/resource/s2.level13.9839318811512143872\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subLocs=\"https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUEVS_1 https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUEVS_101EVS https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUEVS_102EVS https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUEVS",
+          "loc=\"ALAUSDR\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s2cells=\"http://stko-kwg.geog.ucsb.edu/lod/resource/s2.level13.9839320288980893696\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subLocs=\"https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUSDR_04DRAIN11R1 https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUSDR_04DRAIN12R2 https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUSDR_04DRAIN15R1 https://idir.uta.edu/sockg-ontology/individuals/Expe",
+          "loc=\"ALAUTVS\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s2cells=\"http://stko-kwg.geog.ucsb.edu/lod/resource/s2.level13.9827525690310787072\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001subLocs=\"https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUTVS_1 https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUTVS_101TVS https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUTVS_102TVS https://idir.uta.edu/sockg-ontology/individuals/ExperimentalUnit.ALAUTVS"
+        ],
+        "attempts": 1
+      }
+    },
+    "sockg/soc_stock": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/soc_stock.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/soc_stock.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 45930323,
+        "statuses": {
+          "200": 4957
+        },
+        "seconds": 5.558,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/sock_stock_for_treatmnent_id": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/sock_stock_for_treatmnent_id.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/sock_stock_for_treatmnent_id.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 45974834,
+        "statuses": {
+          "200": 4963
+        },
+        "seconds": 6.251,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/soilBiologicalSample": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/soilBiologicalSample.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/soilBiologicalSample.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 42399762,
+        "statuses": {
+          "200": 4947
+        },
+        "seconds": 6.847,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/soil_samples": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/soil_samples.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/soil_samples.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 24,
+        "schemaRequests": 0,
+        "responseBytes": 47238870,
+        "statuses": {
+          "200": 4980
+        },
+        "seconds": 6.273,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "sockg/water_sample": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/water_sample.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/water_sample.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 3676,
+        "bindingsRequests": 636,
+        "schemaRequests": 0,
+        "responseBytes": 100637733,
+        "statuses": {
+          "200": 3674
+        },
+        "seconds": 30.006,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "sockg/who_works_agcros": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/sockg/who_works_agcros.rq",
+      "tags": [
+        "sockg"
+      ],
+      "targets": [
+        "sockg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/sockg/v/v0.0.10/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/sockg/who_works_agcros.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 66,
+        "requests": 19,
+        "bindingsRequests": 11,
+        "schemaRequests": 0,
+        "responseBytes": 2212708,
+        "statuses": {
+          "200": 19
+        },
+        "seconds": 0.63,
+        "exitCode": 0,
+        "multisetHash": "0b2a6c653b32ee7a:bcbb95bf3383c67a",
+        "samples": [
+          "fieldName=\"MNSPReap\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001name=\"Aaron J. Sindelar\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001role=\"Project Manager\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "fieldName=\"MTSIFERE\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001name=\"Andrew W. Lenssen\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001role=\"Co-PI\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "fieldName=\"IDKM\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001name=\"April B. Leytem\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001role=\"Manure, soil chemistry, soil physics\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "spatialkg/sawgraph-spatial-01": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spatialkg/sawgraph-spatial-01.rq",
+      "tags": [
+        "spatialkg"
+      ],
+      "targets": [
+        "spatialkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spatialkg/sawgraph-spatial-01.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2206,
+        "bindingsRequests": 1247,
+        "schemaRequests": 0,
+        "responseBytes": 268435560,
+        "statuses": {
+          "200": 2191
+        },
+        "seconds": 9.803,
+        "exitCode": 3,
+        "error": "aborted:max_bytes",
+        "budget": "max_bytes",
+        "attempts": 1
+      }
+    },
+    "spatialkg/sawgraph-spatial-02": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spatialkg/sawgraph-spatial-02.rq",
+      "tags": [
+        "spatialkg"
+      ],
+      "targets": [
+        "spatialkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spatialkg/sawgraph-spatial-02.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 18,
+        "requests": 6,
+        "bindingsRequests": 2,
+        "schemaRequests": 0,
+        "responseBytes": 439429,
+        "statuses": {
+          "200": 6
+        },
+        "seconds": 0.458,
+        "exitCode": 0,
+        "multisetHash": "b569058b7933c3b8:1688c6ace9cc45b8",
+        "samples": [
+          "cousub=<https://datacommons.org/browser/geoId/2603503620>\u0001cousub_label=\"Arthur township, Clare County, Michigan\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cousub=<https://datacommons.org/browser/geoId/2603515920>\u0001cousub_label=\"Clare city, Clare County, Michigan\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cousub=<https://datacommons.org/browser/geoId/2603530280>\u0001cousub_label=\"Franklin township, Clare County, Michigan\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "spatialkg/sawgraph-spatial-03": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spatialkg/sawgraph-spatial-03.rq",
+      "tags": [
+        "spatialkg"
+      ],
+      "targets": [
+        "spatialkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spatialkg/sawgraph-spatial-03.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 1,
+        "requests": 8,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 4175719,
+        "statuses": {
+          "200": 8
+        },
+        "seconds": 1.168,
+        "exitCode": 0,
+        "multisetHash": "ef70e6931dd8c77d:ef70e6931dd8c77d",
+        "samples": [
+          "cousub=<https://datacommons.org/browser/geoId/2301955565>\u0001cousub_label=\"Orono town, Penobscot County, Maine\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001geom=\"POLYGON ((-68.802804 44.900741, -68.802799 44.900786, -68.802702 44.900835, -68.802657 44.90084, -68.802566 44.900849, -68.802541 44.900849, -68.802475 44.900858, -68.802445 44.900857, -68.802394 44.900848, -68.802255 44.900812, -68.802182 44.900794, -68.80212 44.900749, -68.802086 44.900726, -68.802065 44.900713, -68.802054 44.900699, -68."
+        ],
+        "attempts": 1
+      }
+    },
+    "spatialkg/sawgraph-spatial-04": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spatialkg/sawgraph-spatial-04.rq",
+      "tags": [
+        "spatialkg"
+      ],
+      "targets": [
+        "spatialkg"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spatialkg/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spatialkg/sawgraph-spatial-04.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 33,
+        "requests": 8,
+        "bindingsRequests": 4,
+        "schemaRequests": 0,
+        "responseBytes": 718452,
+        "statuses": {
+          "200": 8
+        },
+        "seconds": 0.48,
+        "exitCode": 0,
+        "multisetHash": "68d0e9f196ee7fd8:4d9e3d86c2bad59e",
+        "samples": [
+          "name=\"Bernalillo County, New Mexico\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s=<https://datacommons.org/browser/geoId/35001>",
+          "name=\"Catron County, New Mexico\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s=<https://datacommons.org/browser/geoId/35003>",
+          "name=\"Chaves County, New Mexico\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001s=<https://datacommons.org/browser/geoId/35005>"
+        ],
+        "attempts": 1
+      }
+    },
+    "spoke-genelab/genes-expression-and-methylation-spaceflight-osd48": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-genelab/genes-expression-and-methylation-spaceflight-osd48.rq",
+      "tags": [
+        "spoke-genelab"
+      ],
+      "targets": [
+        "spoke-genelab"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-genelab/genes-expression-and-methylation-spaceflight-osd48.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 31,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 588721,
+        "statuses": {
+          "200": 24
+        },
+        "seconds": 0.595,
+        "exitCode": 0,
+        "multisetHash": "0000000000000000:0000000000000000",
+        "samples": [],
+        "attempts": 1
+      }
+    },
+    "spoke-genelab/human-ortholog-of-model-gene": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-genelab/human-ortholog-of-model-gene.rq",
+      "tags": [
+        "spoke-genelab"
+      ],
+      "targets": [
+        "spoke-genelab"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-genelab/human-ortholog-of-model-gene.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2099,
+        "bindingsRequests": 1805,
+        "schemaRequests": 0,
+        "responseBytes": 268445411,
+        "statuses": {
+          "200": 2082
+        },
+        "seconds": 9.708,
+        "exitCode": 3,
+        "error": "aborted:max_bytes",
+        "budget": "max_bytes",
+        "attempts": 1
+      }
+    },
+    "spoke-genelab/spaceflight-vs-ground-control-60day-deg": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-genelab/spaceflight-vs-ground-control-60day-deg.rq",
+      "tags": [
+        "spoke-genelab"
+      ],
+      "targets": [
+        "spoke-genelab"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-genelab/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-genelab/spaceflight-vs-ground-control-60day-deg.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 2125,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 48663770,
+        "statuses": {
+          "200": 2124
+        },
+        "seconds": 30.01,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "spoke-okn/compounds-downregulating-alzheimers-genes": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-okn/compounds-downregulating-alzheimers-genes.rq",
+      "tags": [
+        "spoke-okn"
+      ],
+      "targets": [
+        "spoke-okn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-okn/compounds-downregulating-alzheimers-genes.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 5000,
+        "bindingsRequests": 133,
+        "schemaRequests": 0,
+        "responseBytes": 40624715,
+        "statuses": {
+          "200": 4998
+        },
+        "seconds": 12.436,
+        "exitCode": 3,
+        "error": "aborted:max_requests",
+        "budget": "max_requests",
+        "attempts": 1
+      }
+    },
+    "spoke-okn/compounds-treating-rheumatoid-arthritis": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-okn/compounds-treating-rheumatoid-arthritis.rq",
+      "tags": [
+        "spoke-okn"
+      ],
+      "targets": [
+        "spoke-okn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-okn/compounds-treating-rheumatoid-arthritis.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 4,
+        "requests": 176,
+        "bindingsRequests": 0,
+        "schemaRequests": 0,
+        "responseBytes": 1553075,
+        "statuses": {
+          "200": 176
+        },
+        "seconds": 1.904,
+        "exitCode": 0,
+        "multisetHash": "227a297c88c89a13:00805f77f97f87af",
+        "samples": [
+          "compound=<http://rdf.ncbi.nlm.nih.gov/pubchem/inchikey/BVKZGUZCCUSVTD-UHFFFAOYSA-N>\u0001compoundLabel=\"Carbonic Acid\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "compound=<http://rdf.ncbi.nlm.nih.gov/pubchem/inchikey/KFZMGEQAYNKOFK-UHFFFAOYSA-N>\u0001compoundLabel=\"Isopropyl Alcohol\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "compound=<http://rdf.ncbi.nlm.nih.gov/pubchem/inchikey/WHXSMMKQMYFTQS-UHFFFAOYSA-N>\u0001compoundLabel=\"Lithium\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "spoke-okn/drugs-for-sdoh-associated-diseases": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/spoke-okn/drugs-for-sdoh-associated-diseases.rq",
+      "tags": [
+        "spoke-okn"
+      ],
+      "targets": [
+        "spoke-okn"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/spoke-okn/v/v0.0.6/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/spoke-okn/drugs-for-sdoh-associated-diseases.receipt.json",
+      "result": {
+        "ok": false,
+        "contract": "aborted",
+        "resultType": "bindings",
+        "rows": 0,
+        "requests": 852,
+        "bindingsRequests": 11,
+        "schemaRequests": 0,
+        "responseBytes": 17749628,
+        "statuses": {
+          "200": 851
+        },
+        "seconds": 30.007,
+        "exitCode": 3,
+        "error": "aborted:timeout",
+        "budget": "timeout",
+        "attempts": 1
+      }
+    },
+    "ubergraph/abdominal-cell-types": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ubergraph/abdominal-cell-types.rq",
+      "tags": [
+        "ubergraph"
+      ],
+      "targets": [
+        "ubergraph"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ubergraph/abdominal-cell-types.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 398,
+        "requests": 2593,
+        "bindingsRequests": 55,
+        "schemaRequests": 0,
+        "responseBytes": 25500625,
+        "statuses": {
+          "200": 2593
+        },
+        "seconds": 9.731,
+        "exitCode": 0,
+        "multisetHash": "704e968bbb950ec7:b24c5f716f0575d9",
+        "samples": [
+          "cell=<http://purl.obolibrary.org/obo/CL_0002523>\u0001cell_label=\"mesonephric podocyte\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cell=<http://purl.obolibrary.org/obo/CL_1000022>\u0001cell_label=\"mesonephric nephron tubule epithelial cell\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>",
+          "cell=<http://purl.obolibrary.org/obo/CL_4030066>\u0001cell_label=\"ureteric bud cell\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001organ=<http://purl.obolibrary.org/obo/UBERON_0000080>\u0001organ_label=\"mesonephros\"^^<http://www.w3.org/2001/XMLSchema#string>"
+        ],
+        "attempts": 1
+      }
+    },
+    "ubergraph/adrenal-gland": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ubergraph/adrenal-gland.rq",
+      "tags": [
+        "ubergraph"
+      ],
+      "targets": [
+        "ubergraph"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ubergraph/adrenal-gland.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 35,
+        "requests": 4,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 145491,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.586,
+        "exitCode": 0,
+        "multisetHash": "e8b836fd4c1c4e33:8f032a7041077aa1",
+        "samples": [
+          "x=<http://purl.obolibrary.org/obo/BFO_0000001>\u0001x_label=\"entity\"@en",
+          "x=<http://purl.obolibrary.org/obo/BFO_0000002>\u0001x_label=\"continuant\"@en",
+          "x=<http://purl.obolibrary.org/obo/BFO_0000004>\u0001x_label=\"independent continuant\"@en"
+        ],
+        "attempts": 1
+      }
+    },
+    "ubergraph/processes-that-output-glucose": {
+      "path": "/Users/jim/Documents/Source/okn-registry/docs/registry/queries/ubergraph/processes-that-output-glucose.rq",
+      "tags": [
+        "ubergraph"
+      ],
+      "targets": [
+        "ubergraph"
+      ],
+      "targetNote": null,
+      "serviceIris": [],
+      "determinate": true,
+      "sources": [
+        "brtpf@https://apps.okn.us/kgf/ubergraph/v/v0.0.2/tpf"
+      ],
+      "receipt": "scratch/registry-cli-brtpf/ubergraph/processes-that-output-glucose.receipt.json",
+      "result": {
+        "ok": true,
+        "contract": "complete",
+        "resultType": "bindings",
+        "rows": 2,
+        "requests": 4,
+        "bindingsRequests": 1,
+        "schemaRequests": 0,
+        "responseBytes": 67672,
+        "statuses": {
+          "200": 4
+        },
+        "seconds": 0.397,
+        "exitCode": 0,
+        "multisetHash": "d6f6ff214acbe3b1:16e8fed930cb030d",
+        "samples": [
+          "label=\"gluconeogenesis\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001process=<http://purl.obolibrary.org/obo/GO_0006094>",
+          "label=\"sucrose catabolic process via 3'-ketosucrose\"^^<http://www.w3.org/2001/XMLSchema#string>\u0001process=<http://purl.obolibrary.org/obo/GO_0019574>"
+        ],
+        "attempts": 1
+      }
+    }
+  }
+}

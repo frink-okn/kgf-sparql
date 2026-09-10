@@ -51,7 +51,7 @@ export interface IReceiptOutcome {
   rows: number;
   /** For an aborted run, the budget that ended it. */
   budget?: BudgetName;
-  /** For an errored run, why. */
+  /** For an errored run, why; for an aborted run, only when the engine then stopped without ending it. */
   error?: string;
   /** Comunica's result type, once the query was planned: bindings, quads, or boolean. */
   result_type?: string;

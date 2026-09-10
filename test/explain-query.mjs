@@ -1,10 +1,13 @@
 // Print the physical plan Comunica chose for a query, with the requests it cost.
-// usage: node test/explain-query.mjs query.rq kind@url [kind@url ...]
+// usage: node test/explain-query.mjs [--stock] query.rq kind@url [kind@url ...]
 // Each source spec is explained separately, so plans over different source types compare.
+// --stock uses Comunica's own engine (@comunica/query-sparql) instead of this one, as a control.
 import fs from 'node:fs';
+import { QueryEngine as StockQueryEngine } from '@comunica/query-sparql';
 import { QueryEngine, parseSource } from 'kgf-sparql';
 
-const [ queryPath, ...specs ] = process.argv.slice(2);
+const stock = process.argv[2] === '--stock';
+const [ queryPath, ...specs ] = process.argv.slice(stock ? 3 : 2);
 if (!queryPath || specs.length === 0) {
   console.error('usage: node test/explain-query.mjs query.rq kind@url [kind@url ...]');
   process.exit(2);
@@ -38,7 +41,8 @@ for (const spec of specs) {
     return fetch(input, init);
   };
   const started = Date.now();
-  const result = await new QueryEngine().explain(query, { sources: [{ type: kind, value: url }], fetch: counting }, 'physical-json');
-  console.log(`=== ${spec}: ${requests} requests, ${pushed} carrying bindings, ${((Date.now() - started) / 1000).toFixed(1)} s ===`);
+  const engine = stock ? new StockQueryEngine() : new QueryEngine();
+  const result = await engine.explain(query, { sources: [{ type: kind, value: url }], fetch: counting }, 'physical-json');
+  console.log(`=== ${stock ? 'stock Comunica' : 'kgf-sparql'}, ${spec}: ${requests} requests, ${pushed} carrying bindings, ${((Date.now() - started) / 1000).toFixed(1)} s ===`);
   console.log(lines(result.data).join('\n'));
 }

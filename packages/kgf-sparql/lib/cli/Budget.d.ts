@@ -38,7 +38,7 @@ export declare class RunAccount {
     /** Starts the wall clock; the timeout budget counts from here. */
     startClock(): void;
     stopClock(): void;
-    /** Ends the run at a budget: every in-flight request is aborted through its signal. */
+    /** Ends the run at a budget: every in-flight request is aborted through its signal. A run already ended keeps its reason. */
     abort(budget: BudgetName, detail: string): void;
     /** Ends the run for a reason that is not a budget. The receipt reports it as an error. */
     fail(error: Error): void;

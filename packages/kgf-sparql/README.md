@@ -95,7 +95,10 @@ complete answer, and the receipt is the account of what it is.
 
 Exit status: **0** complete, the output is exactly the solution set the query denotes;
 **1** the query, a source, or the process was wrong; **2** the command line was wrong;
-**3** aborted at a budget, receipt written.
+**3** aborted at a budget, receipt written. An engine that stops without ending the run
+(Comunica does, on some failures) cannot make the command exit 0: when the event loop
+drains with a run open, the receipt is written with that reason and the status is 1, or 3
+if a budget had already ended the run.
 
 ### The receipt
 

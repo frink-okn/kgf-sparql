@@ -7,7 +7,7 @@ rows, an order-independent result hash computed the same way, and the receipt's 
 contract, and budget. When an earlier results file is given, a comparison is printed.
 
 usage: python3 test/registry-corpus-cli.py [results.json]
-       python3 test/registry-corpus-cli.py --rerun-interrupted results.json
+       python3 test/registry-corpus-cli.py --rerun-interrupted results.json [substring]
        python3 test/registry-corpus-cli.py --compare-only results.json
        A query whose run outlives its budget by more than a minute was interrupted (a
        sleeping machine stops the timers that would have ended it); such a run is retried,
@@ -189,8 +189,9 @@ def compare(results: dict[str, dict], earlier_path: Path) -> None:
         print(f"    {k}: {label(ran.get(k, {'error': 'not run'}))}")
 
 
-def rerun_interrupted(results_path: Path) -> None:
-    """Re-run the entries of an existing results file whose runs were interrupted, in place."""
+def rerun_interrupted(results_path: Path, only: str | None = None) -> None:
+    """Re-run the entries of an existing results file whose runs were interrupted, in place;
+    with a substring, re-run the entries it matches whatever their state."""
     document = json.loads(results_path.read_text(encoding="utf-8"))
     results = document["results"]
     stale = []
@@ -198,8 +199,13 @@ def rerun_interrupted(results_path: Path) -> None:
         result = record["result"]
         if result.get("skipped"):
             continue
+        if only is not None:
+            if only in query_id:
+                stale.append(query_id)
+            continue
         receipt = Path(record["receipt"]) if record.get("receipt") else None
         if result.get("interrupted") or result.get("error") == "harness-timeout" or \
+                str(result.get("error", "")).startswith("exit:") or \
                 (receipt and receipt.exists() and interrupted(json.loads(receipt.read_text(encoding="utf-8")))):
             stale.append(query_id)
     print(f"{len(stale)} interrupted runs to repeat in {results_path}", flush=True)
@@ -216,7 +222,7 @@ def main() -> None:
         compare(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))["results"], COMPARE)
         return
     if len(sys.argv) > 2 and sys.argv[1] == "--rerun-interrupted":
-        rerun_interrupted(Path(sys.argv[2]))
+        rerun_interrupted(Path(sys.argv[2]), sys.argv[3] if len(sys.argv) > 3 else None)
         return
     descriptor = json.load(urllib.request.urlopen(f"{ROOT}/"))
     origin = "{0.scheme}://{0.netloc}".format(urllib.parse.urlparse(ROOT))

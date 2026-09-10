@@ -47,12 +47,13 @@ class RunAccount {
         clearTimeout(this.timer);
         this.timer = undefined;
     }
-    /** Ends the run at a budget: every in-flight request is aborted through its signal. */
+    /** Ends the run at a budget: every in-flight request is aborted through its signal. A run already ended keeps its reason. */
     abort(budget, detail) {
-        this.exceeded ??= budget;
-        if (!this.signal.aborted) {
-            this.controller.abort(new BudgetExceeded(this.exceeded, detail));
+        if (this.signal.aborted) {
+            return;
         }
+        this.exceeded ??= budget;
+        this.controller.abort(new BudgetExceeded(this.exceeded, detail));
     }
     /** Ends the run for a reason that is not a budget. The receipt reports it as an error. */
     fail(error) {

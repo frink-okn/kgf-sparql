@@ -563,6 +563,31 @@ needed between 470 and 17,386 brTPF requests and now stops at 5,000 requests or 
 seconds. All twenty August timeouts and heap deaths are now two completions and eighteen
 budget aborts with receipts.
 
+**Controls run the same day.** A repeat of the native run under the same engine changed
+no outcome between complete and not; four aborts moved between budgets, and the bare-`LIMIT`
+queries varied in request count, `names-of-chemical-entities` between 2,884 and 4,670.
+Under matched server latency the new engine is also faster: over the 52 queries complete
+in both runs, the stock-bind run took 97 s and the repeat 91 s, so the 140 s seen the night
+before was the night's latency, not the plans. The corpus was also run over `brtpf@`
+sources through the same command and budgets
+([`test/registry-query-results-cli-brtpf.json`](../test/registry-query-results-cli-brtpf.json)):
+against August's brTPF run the median request ratio is 1.00 over 42 queries complete in
+both, and on the three queries whose counts differ most, this engine and stock Comunica
+(`node test/explain-query.mjs --stock`) choose the same plan with the same request count,
+so the swapped bind actor leaves the brTPF path as Comunica shipped it. Same day, same
+command, same budgets, over the 49 queries complete on both source types: brTPF 10,770
+requests, native 18,354; brTPF 702 MB received, native 153 MB; brTPF 109 s, native 87 s;
+brTPF completes 50 queries, native 55. The remaining request gap is count-first planning,
+a count and a page per pattern where a brTPF page carries its own count, at its starkest
+on `federation/one-hundred-triples` over 41 datasets: 41 brTPF requests, 205 native.
+
+The brTPF run also found that the command could exit 0 without writing a receipt: on
+`evoweb/connections-to-group`, a property path with an inverse alternative, Comunica asks
+brTPF for `object=??o`, KGF answers 400, and the engine drops the run without ending it,
+so the event loop drained with the run's promise pending and Node exited successfully.
+The command now writes the receipt when the loop drains during a run and exits 1, or 3 if
+a budget had already ended it.
+
 **What the honest bind cost exposes next.** `ubergraph/abdominal-cell-types` completes,
 but at 4,535 requests where brTPF needed 323: its six-entry join still binds per row,
 because the alternative, the filter-bindings actor, prices a multi-entry join by

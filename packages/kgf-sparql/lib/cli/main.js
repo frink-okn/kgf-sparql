@@ -227,6 +227,27 @@ async function run(parsed, options, stderr) {
     let output = null;
     let code = exports.EXIT_ERROR;
     let sink;
+    let settled = false;
+    // If the engine leaves a promise pending with nothing else to do, the event loop drains and
+    // Node exits 0 before the finally below runs. Comunica does that on some failures (a property
+    // path over brTPF, at the time of writing). The receipt must still be written, and the
+    // status must still say the run did not complete.
+    const onDrain = () => {
+        if (settled) {
+            return;
+        }
+        const stall = 'The engine stopped without ending the run';
+        outcome = account.exceeded ?
+            { ...outcome, contract: 'aborted', rows: account.rows, budget: account.exceeded, error: stall } :
+            { ...outcome, contract: 'error', rows: account.rows, error: `${stall}${account.failure ? `: ${brief(account.failure)}` : ''}` };
+        code = account.exceeded ? exports.EXIT_ABORTED : exports.EXIT_ERROR;
+        stderr(`${outcome.error}\n`);
+        if (parsed.receipt) {
+            (0, Receipt_1.writeReceipt)(parsed.receipt, receipt(parsed, sources, outcome, output, account, started, new Date()));
+        }
+        process.exitCode = code;
+    };
+    process.once('beforeExit', onDrain);
     try {
         sink = await Output_1.FileSink.open(parsed.out);
         account.startClock();
@@ -289,12 +310,14 @@ async function run(parsed, options, stderr) {
         }
         else {
             const cause = account.failure ?? toError(error);
-            outcome = { ...outcome, contract: 'error', rows: account.rows, error: cause.message };
+            outcome = { ...outcome, contract: 'error', rows: account.rows, error: brief(cause) };
             code = cause instanceof UsageError ? exports.EXIT_USAGE : exports.EXIT_ERROR;
             stderr(`${cause.message}\n`);
         }
     }
     finally {
+        settled = true;
+        process.removeListener('beforeExit', onDrain);
         account.stopClock();
         options.fatal?.removeEventListener('abort', onFatal);
         if (account.exceeded) {
@@ -392,5 +415,10 @@ function pathOf(url) {
 }
 function toError(value) {
     return value instanceof Error ? value : new Error(String(value));
+}
+/** An error's message, cut where a server's whole error page would otherwise follow. */
+function brief(error) {
+    const message = error.message.trim();
+    return message.length > 1_000 ? `${message.slice(0, 1_000)}…` : message;
 }
 //# sourceMappingURL=main.js.map

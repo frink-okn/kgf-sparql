@@ -284,6 +284,30 @@ test('the executable flushes results, writes the receipt, and reports the exit s
   assert.match(usage.stderr, /Usage:/u);
 });
 
+test('a run the engine never ends still writes its receipt when the event loop drains', async t => {
+  // A fetch that never settles, with no timer or socket behind it, is what a stalled engine looks like.
+  const stalled = () => new Promise(() => {});
+  for (const [ args, expected ] of [
+    [[], { contract: 'error', code: 1 }],
+    [[ '--timeout', '0.1' ], { contract: 'aborted', code: 3 }],
+  ]) {
+    const ws = workspace(t);
+    let stderr = '';
+    const pending = runCli([ '-q', SCAN, '--source', SOURCE, '--out', ws.out, '--receipt', ws.receipt, ...args ],
+      { fetch: stalled, stderr: text => { stderr += text; } });
+    await new Promise(resolve => setTimeout(resolve, 250));
+    assert.equal(readJson(ws.receipt), undefined, 'nothing written while the run is open');
+    process.emit('beforeExit', 0);
+    const receipt = readJson(ws.receipt);
+    assert.equal(receipt.outcome.contract, expected.contract);
+    assert.match(receipt.outcome.error, /stopped without ending the run/u);
+    assert.equal(process.exitCode, expected.code);
+    assert.match(stderr, /stopped without ending/u);
+    process.exitCode = 0;
+    void pending;
+  }
+});
+
 test("a brTPF request carrying bindings in its URL counts as a bindings request", async() => {
   const account = new RunAccount({}, async() => new Response('{}', { headers: { 'content-type': 'application/json' } }));
   await account.fetch('https://kgf.test/graph/tpf?s=%3Curn%3Aa%3E&values=%7B%7D');
