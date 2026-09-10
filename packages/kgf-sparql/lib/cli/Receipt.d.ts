@@ -81,6 +81,8 @@ export interface IReceipt {
         max_bytes: number | null;
         max_rows: number | null;
         timeout_s: number | null;
+        /** Concurrent connections per origin the run's transport allowed. Not an abort budget. */
+        max_connections: number;
     };
     engine: {
         kgf_sparql: string;

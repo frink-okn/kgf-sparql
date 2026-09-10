@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.USAGE = exports.EXIT_ABORTED = exports.EXIT_USAGE = exports.EXIT_ERROR = exports.EXIT_COMPLETE = void 0;
+exports.USAGE = exports.DEFAULT_MAX_CONNECTIONS = exports.EXIT_ABORTED = exports.EXIT_USAGE = exports.EXIT_ERROR = exports.EXIT_COMPLETE = void 0;
 exports.runCli = runCli;
 exports.main = main;
 const fs = require("node:fs");
@@ -12,6 +12,7 @@ const Budget_1 = require("./Budget");
 const Output_1 = require("./Output");
 const Receipt_1 = require("./Receipt");
 const Sources_1 = require("./Sources");
+const Transport_1 = require("./Transport");
 // eslint-disable-next-line ts/no-require-imports,ts/no-var-requires,import/extensions
 const packageJson = require('../../package.json');
 // eslint-disable-next-line ts/no-require-imports,ts/no-var-requires,import/extensions
@@ -24,6 +25,8 @@ exports.EXIT_ERROR = 1;
 exports.EXIT_USAGE = 2;
 /** A budget ended the run; the receipt says which. */
 exports.EXIT_ABORTED = 3;
+/** Concurrent connections per origin unless `--max-connections` says otherwise: well under the bursts that fail. */
+exports.DEFAULT_MAX_CONNECTIONS = 32;
 exports.USAGE = `Usage: kgf-sparql (-q <query> | -f <file>) --source <kind@url>... --out <file> [options]
 
 Runs one SPARQL query to completion, or fails, and accounts for every request it made.
@@ -44,6 +47,7 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --bindings-size <n>   Bindings per KGF request, capped by the server
       --no-void-statistics  Plan without lazy VoID join statistics
       --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
+      --max-connections <n> Cap concurrent connections per origin (default ${exports.DEFAULT_MAX_CONNECTIONS})
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -65,6 +69,7 @@ const OPTIONS = {
     'bindings-size': { type: 'string' },
     'no-void-statistics': { type: 'boolean' },
     'http-retries': { type: 'string' },
+    'max-connections': { type: 'string' },
     help: { type: 'boolean', short: 'h' },
 };
 class UsageError extends Error {
@@ -173,7 +178,8 @@ function parseArguments(argv) {
         settings[context_entries_1.KeysHttp.httpRetryStatusCodes.name] = [502];
         settings[context_entries_1.KeysHttp.httpRetryDelayFallback.name] = 250;
     }
-    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, settings };
+    const maxConnections = integer('--max-connections', values['max-connections']) ?? exports.DEFAULT_MAX_CONNECTIONS;
+    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, settings };
 }
 function integer(name, value, minimum = 1) {
     if (value === undefined) {
@@ -208,7 +214,9 @@ function seconds(name, value) {
 }
 async function run(parsed, options, stderr) {
     const started = new Date();
-    const account = new Budget_1.RunAccount(parsed.budget, options.fetch ?? globalThis.fetch);
+    // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
+    const transport = options.fetch ? undefined : (0, Transport_1.createPooledFetch)(parsed.maxConnections);
+    const account = new Budget_1.RunAccount(parsed.budget, options.fetch ?? transport.fetch);
     const onFatal = () => account.fail(toError(options.fatal?.reason));
     options.fatal?.addEventListener('abort', onFatal, { once: true });
     if (options.fatal?.aborted) {
@@ -306,6 +314,7 @@ async function run(parsed, options, stderr) {
         if (parsed.receipt) {
             (0, Receipt_1.writeReceipt)(parsed.receipt, receipt(parsed, sources, outcome, output, account, started, new Date()));
         }
+        await transport?.close();
     }
     return code;
 }
@@ -366,6 +375,7 @@ function receipt(parsed, sources, outcome, output, account, started, finished) {
             max_bytes: parsed.budget.maxBytes ?? null,
             max_rows: parsed.budget.maxRows ?? null,
             timeout_s: parsed.budget.timeoutSeconds ?? null,
+            max_connections: parsed.maxConnections,
         },
         engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
         started: started.toISOString(),

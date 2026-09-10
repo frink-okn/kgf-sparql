@@ -6,6 +6,8 @@ export declare const EXIT_ERROR = 1;
 export declare const EXIT_USAGE = 2;
 /** A budget ended the run; the receipt says which. */
 export declare const EXIT_ABORTED = 3;
+/** Concurrent connections per origin unless `--max-connections` says otherwise: well under the bursts that fail. */
+export declare const DEFAULT_MAX_CONNECTIONS = 32;
 export declare const USAGE: string;
 export interface IRunOptions {
     /** The fetch to count, the global one by default. Tests pass a fake. */

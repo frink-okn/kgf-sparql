@@ -472,7 +472,13 @@ so 94 ran.
 were aborted at a budget (26 at requests, 4 at bytes, 4 at the clock), and 8 failed: three
 name external `SERVICE` endpoints the runner does not configure, three call an Ontotext
 function, and two hit Comunica's unretried network error (`fetch failed`) after a burst
-of parallel connections. Of the 20 August timeouts and heap deaths, two now complete
+of parallel connections. Comunica has no in-flight limit: measured against the public
+server, the engine put 281 requests in flight at once on `prokn/protein_kinases`, 506 on
+`federation/sawgraph-hydrology-spatial-04`, and 1,209 on `prokn/protein_variant_disease`,
+each on its own TCP connection. The command line now caps connections per origin
+(`--max-connections`, default 32, recorded in the receipt); rerun with the cap, both
+queries end at a budget with no request failure, and the federation query reaches its
+5,000 requests no later than it did uncapped. Of the 20 August timeouts and heap deaths, two now complete
 (`federation/list-things-and-their-labels`, `spoke-okn/drugs-for-sdoh-associated-diseases`),
 17 are budget aborts with receipts, and one is the network error. The byte budget did what
 it was added for: `fiokg/fio-facilities-by-NAICS-Subsector` and

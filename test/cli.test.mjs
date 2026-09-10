@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { Parser } from 'n3';
-import { runCli } from 'kgf-sparql';
+import { createPooledFetch, runCli } from 'kgf-sparql';
 import { server, triples, EP } from './helpers/mock-kgf.mjs';
 
 const BIN = new URL('../packages/kgf-sparql/bin/kgf-sparql.js', import.meta.url).pathname;
@@ -23,6 +23,42 @@ function workspace(t) {
 const readJson = file => (fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined);
 const readText = file => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : undefined);
 const quadKey = quad => [ quad.subject.value, quad.predicate.value, quad.object.value, quad.object.language ?? '', quad.object.datatype?.value ?? '' ].join('|');
+
+// A real HTTP server in front of the mock, for the executable and the transport; it records
+// how many requests it was handling at once.
+async function bridge(t, options = {}) {
+  const state = { active: 0, peak: 0 };
+  let mock;
+  const httpServer = http.createServer(async(request, response) => {
+    state.active++;
+    state.peak = Math.max(state.peak, state.active);
+    try {
+      const chunks = [];
+      for await (const chunk of request) {
+        chunks.push(chunk);
+      }
+      const body = Buffer.concat(chunks);
+      const answer = await mock.fetch(new URL(request.url, `http://${request.headers.host}`).href, {
+        method: request.method, headers: request.headers, body: body.length ? body.toString() : undefined,
+      });
+      response.writeHead(answer.status, Object.fromEntries(answer.headers));
+      response.end(Buffer.from(await answer.arrayBuffer()));
+    } finally {
+      state.active--;
+    }
+  });
+  await new Promise(resolve => httpServer.listen(0, '127.0.0.1', resolve));
+  t.after(() => httpServer.close());
+  const origin = `http://127.0.0.1:${httpServer.address().port}`;
+  mock = server({ origin, ...options });
+  return { origin, mock, state, source: `kgf@${origin}/mount/graph/v/1/fragment` };
+}
+const spawnCli = args => new Promise(resolve => {
+  const child = spawn(process.execPath, [ BIN, ...args ], { stdio: [ 'ignore', 'pipe', 'pipe' ] });
+  let stderr = '';
+  child.stderr.on('data', chunk => { stderr += chunk; });
+  child.on('close', code => resolve({ code, stderr }));
+});
 
 async function run(t, mock, args, extra = {}) {
   const ws = workspace(t);
@@ -60,7 +96,7 @@ test('a complete run writes SPARQL Results JSON and a receipt that accounts for 
   assert.equal(receipt.statistics.void, true);
   assert.equal(receipt.statistics.schema_requests, mock.requests.filter(call => call.url.pathname.endsWith('/schema')).length);
   assert.ok(receipt.statistics.schema_requests > 0, 'a two-pattern join consults the lazy VoID provider');
-  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null });
+  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32 });
   assert.ok(receipt.engine.kgf_sparql && receipt.engine.comunica);
   assert.equal(receipt.engine.node, process.version);
   assert.ok(Date.parse(receipt.started) <= Date.parse(receipt.finished));
@@ -154,6 +190,7 @@ test('usage errors exit 2 before any run; a format the result cannot take exits 
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-bytes', '0' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--timeout', '-1' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--http-method', 'PATCH' ],
+    [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-connections', '0' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--bogus' ],
   ]) {
     const mock = server();
@@ -231,29 +268,7 @@ test('a SPARQL endpoint named explicitly is queried through the same counting fe
 });
 
 test('the executable flushes results, writes the receipt, and reports the exit status', async t => {
-  const httpServer = http.createServer(async(request, response) => {
-    const chunks = [];
-    for await (const chunk of request) {
-      chunks.push(chunk);
-    }
-    const body = Buffer.concat(chunks);
-    const answer = await mock.fetch(new URL(request.url, `http://${request.headers.host}`).href, {
-      method: request.method, headers: request.headers, body: body.length ? body.toString() : undefined,
-    });
-    response.writeHead(answer.status, Object.fromEntries(answer.headers));
-    response.end(Buffer.from(await answer.arrayBuffer()));
-  });
-  await new Promise(resolve => httpServer.listen(0, '127.0.0.1', resolve));
-  t.after(() => httpServer.close());
-  const origin = `http://127.0.0.1:${httpServer.address().port}`;
-  const mock = server({ origin });
-  const source = `kgf@${origin}/mount/graph/v/1/fragment`;
-  const spawnCli = args => new Promise(resolve => {
-    const child = spawn(process.execPath, [ BIN, ...args ], { stdio: [ 'ignore', 'pipe', 'pipe' ] });
-    let stderr = '';
-    child.stderr.on('data', chunk => { stderr += chunk; });
-    child.on('close', code => resolve({ code, stderr }));
-  });
+  const { source } = await bridge(t);
   const ws = workspace(t);
   const aborted = await spawnCli([ '-q', SCAN, '--source', source, '--out', ws.out, '--receipt', ws.receipt, '--max-rows', '1' ]);
   assert.equal(aborted.code, 3, aborted.stderr);
@@ -267,4 +282,36 @@ test('the executable flushes results, writes the receipt, and reports the exit s
   const usage = await spawnCli([]);
   assert.equal(usage.code, 2);
   assert.match(usage.stderr, /Usage:/u);
+});
+
+test('the pooled fetch caps concurrent connections per origin and reuses them', async t => {
+  const state = { active: 0, peak: 0, sockets: new Set() };
+  const httpServer = http.createServer((request, response) => {
+    state.active++;
+    state.peak = Math.max(state.peak, state.active);
+    state.sockets.add(request.socket);
+    setTimeout(() => { state.active--; response.end('ok'); }, 150);
+  });
+  await new Promise(resolve => httpServer.listen(0, '127.0.0.1', resolve));
+  t.after(() => httpServer.close());
+  const url = `http://127.0.0.1:${httpServer.address().port}/`;
+  for (const cap of [ 2, 6 ]) {
+    Object.assign(state, { active: 0, peak: 0, sockets: new Set() });
+    const pooled = createPooledFetch(cap);
+    const bodies = await Promise.all(Array.from({ length: 6 }, () => pooled.fetch(url).then(response => response.text())));
+    await pooled.close();
+    assert.deepEqual(bodies, Array.from({ length: 6 }, () => 'ok'));
+    assert.equal(state.peak, cap, `at most ${cap} requests in flight`);
+    assert.equal(state.sockets.size, cap, 'the connections were reused, not reopened');
+  }
+});
+
+test('--max-connections reaches the transport and bounds what the server sees at once', async t => {
+  const { source, state } = await bridge(t, { delayMs: 20 });
+  const ws = workspace(t);
+  const one = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt, '--max-connections', '1' ]);
+  assert.equal(one.code, 0, one.stderr);
+  assert.equal(readJson(ws.receipt).outcome.rows, 5);
+  assert.equal(readJson(ws.receipt).budget.max_connections, 1);
+  assert.equal(state.peak, 1, 'one connection means one request at a time');
 });

@@ -16,6 +16,7 @@ import type { IReceipt, IReceiptOutcome, IReceiptOutput, IReceiptSource } from '
 import { RECEIPT_SCHEMA, writeReceipt } from './Receipt';
 import type { ISourceSpec } from './Sources';
 import { describeKgfSource, parseSource } from './Sources';
+import { createPooledFetch } from './Transport';
 
 // eslint-disable-next-line ts/no-require-imports,ts/no-var-requires,import/extensions
 const packageJson: { version: string } = require('../../package.json');
@@ -30,6 +31,9 @@ export const EXIT_ERROR = 1;
 export const EXIT_USAGE = 2;
 /** A budget ended the run; the receipt says which. */
 export const EXIT_ABORTED = 3;
+
+/** Concurrent connections per origin unless `--max-connections` says otherwise: well under the bursts that fail. */
+export const DEFAULT_MAX_CONNECTIONS = 32;
 
 export const USAGE = `Usage: kgf-sparql (-q <query> | -f <file>) --source <kind@url>... --out <file> [options]
 
@@ -51,6 +55,7 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --bindings-size <n>   Bindings per KGF request, capped by the server
       --no-void-statistics  Plan without lazy VoID join statistics
       --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
+      --max-connections <n> Cap concurrent connections per origin (default ${DEFAULT_MAX_CONNECTIONS})
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -73,6 +78,7 @@ const OPTIONS = {
   'bindings-size': { type: 'string' },
   'no-void-statistics': { type: 'boolean' },
   'http-retries': { type: 'string' },
+  'max-connections': { type: 'string' },
   help: { type: 'boolean', short: 'h' },
 } as const;
 
@@ -87,6 +93,8 @@ interface IParsedArguments {
   format?: string;
   receipt?: string;
   budget: IBudget;
+  /** Cap on concurrent connections per origin. Not an abort budget; it bounds the run's load. */
+  maxConnections: number;
   settings: Record<string, unknown>;
 }
 
@@ -203,7 +211,8 @@ function parseArguments(argv: string[]): IParsedArguments | 'help' {
     settings[KeysHttp.httpRetryStatusCodes.name] = [ 502 ];
     settings[KeysHttp.httpRetryDelayFallback.name] = 250;
   }
-  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, settings };
+  const maxConnections = integer('--max-connections', values['max-connections']) ?? DEFAULT_MAX_CONNECTIONS;
+  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, settings };
 }
 
 function integer(name: string, value: string | undefined, minimum = 1): number | undefined {
@@ -242,7 +251,9 @@ function seconds(name: string, value: string | undefined): number | undefined {
 
 async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text: string) => void): Promise<number> {
   const started = new Date();
-  const account = new RunAccount(parsed.budget, options.fetch ?? globalThis.fetch);
+  // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
+  const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections);
+  const account = new RunAccount(parsed.budget, options.fetch ?? transport!.fetch);
   const onFatal = (): void => account.fail(toError(options.fatal?.reason));
   options.fatal?.addEventListener('abort', onFatal, { once: true });
   if (options.fatal?.aborted) {
@@ -333,6 +344,7 @@ async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text
     if (parsed.receipt) {
       writeReceipt(parsed.receipt, receipt(parsed, sources, outcome, output, account, started, new Date()));
     }
+    await transport?.close();
   }
   return code;
 }
@@ -404,6 +416,7 @@ function receipt(
       max_bytes: parsed.budget.maxBytes ?? null,
       max_rows: parsed.budget.maxRows ?? null,
       timeout_s: parsed.budget.timeoutSeconds ?? null,
+      max_connections: parsed.maxConnections,
     },
     engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
     started: started.toISOString(),

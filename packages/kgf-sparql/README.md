@@ -64,6 +64,11 @@ kgf-sparql -f query.rq \
 - **Transport:** `--http-method QUERY|POST`, `--page-size`, `--bindings-size`, and
   `--no-void-statistics` set the context keys described below. `--http-retries N` retries
   429, 502, 503, and 504 responses; network errors are not retried.
+- **Connections:** `--max-connections N` (default 32) caps concurrent connections per
+  origin. Comunica has no in-flight limit and a plan that fans out can put hundreds of
+  requests in flight at once, which a shared server answers with bursts of connection
+  failures. The run's fetch pools its connections through undici's `Agent`, reuses them,
+  and queues requests beyond the cap. Request counts are the plan's and do not change.
 - `kgf-sparql-comunica` is Comunica's own command line over this engine, for scripts
   written against it.
 
@@ -109,7 +114,8 @@ Exit status: **0** complete, the output is exactly the solution set the query de
                  "bindings": false, "complete": false, "truncation_reason": "page_limit" }],
   "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114, "elapsed_ms": 1812 },
   "statistics": { "void": true, "schema_requests": 0 },
-  "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120 },
+  "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120,
+              "max_connections": 32 },
   "engine": { "kgf_sparql": "0.1.0", "comunica": "5.3.0", "node": "v25.9.0" },
   "started": "2026-09-09T22:14:03.000Z",
   "finished": "2026-09-09T22:14:04.812Z"
@@ -132,9 +138,10 @@ Exit status: **0** complete, the output is exactly the solution set the query de
 
 Every request the engine makes passes through a `fetch` the command installs in the query
 context under Comunica's `KeysHttp.fetch`; the HTTP actor prefers a fetch supplied there.
-No actor or configuration changes for the budget or the receipt. The same pieces are
-exported for programs: `RunAccount` is the counting fetch with its budgets, and `runCli`
-runs the command line in-process.
+No actor or configuration changes for the budget, the receipt, or the connection cap. The
+same pieces are exported for programs: `RunAccount` is the counting fetch with its
+budgets, `createPooledFetch` the capped transport to hand it, and `runCli` runs the
+command line in-process.
 
 ## Planning and transport
 
