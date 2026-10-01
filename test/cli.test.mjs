@@ -96,7 +96,8 @@ test('a complete run writes SPARQL Results JSON and a receipt that accounts for 
   assert.equal(receipt.statistics.void, true);
   assert.equal(receipt.statistics.schema_requests, mock.requests.filter(call => call.url.pathname.endsWith('/schema')).length);
   assert.ok(receipt.statistics.schema_requests > 0, 'a two-pattern join consults the lazy VoID provider');
-  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32 });
+  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32,
+    max_in_flight: 32, max_in_flight_hosts: {} });
   assert.ok(receipt.engine.kgf_sparql && receipt.engine.comunica);
   assert.equal(receipt.engine.node, process.version);
   assert.ok(Date.parse(receipt.started) <= Date.parse(receipt.finished));
@@ -335,6 +336,52 @@ test('the pooled fetch caps concurrent connections per origin and reuses them', 
     assert.equal(state.peak, cap, `at most ${cap} requests in flight`);
     assert.equal(state.sockets.size, cap, 'the connections were reused, not reopened');
   }
+});
+
+test('requests in flight are capped per origin apart from connections, as HTTP/2 needs', async t => {
+  const state = { active: 0, peak: 0 };
+  const httpServer = http.createServer((request, response) => {
+    state.active++;
+    state.peak = Math.max(state.peak, state.active);
+    setTimeout(() => { state.active--; response.end('ok'); }, 50);
+  });
+  await new Promise(resolve => httpServer.listen(0, '127.0.0.1', resolve));
+  t.after(() => httpServer.close());
+  const url = `http://127.0.0.1:${httpServer.address().port}/`;
+  for (const [ limits, expected ] of [[{ default: 2 }, 2 ], [{ default: 6, hosts: { '127.0.0.1': 1 }}, 1 ]]) {
+    Object.assign(state, { active: 0, peak: 0 });
+    // Plenty of connections: only the in-flight gate can hold the requests back.
+    const pooled = createPooledFetch(32, limits);
+    const bodies = await Promise.all(Array.from({ length: 6 }, () => pooled.fetch(url).then(response => response.text())));
+    await pooled.close();
+    assert.deepEqual(bodies, Array.from({ length: 6 }, () => 'ok'));
+    assert.equal(state.peak, expected, `at most ${expected} requests in flight`);
+  }
+  // A request aborted while it waits leaves the queue without taking a place.
+  Object.assign(state, { active: 0, peak: 0 });
+  const pooled = createPooledFetch(32, { default: 1 });
+  const first = pooled.fetch(url).then(response => response.text());
+  const controller = new AbortController();
+  const waiting = pooled.fetch(url, { signal: controller.signal });
+  controller.abort(new Error('gave up'));
+  await assert.rejects(waiting, /gave up/u);
+  assert.equal(await first, 'ok');
+  assert.equal(await pooled.fetch(url).then(response => response.text()), 'ok');
+  await pooled.close();
+});
+
+test('--max-in-flight sets the default and per-host caps, and the receipt records them', async t => {
+  const { source } = await bridge(t, {});
+  const ws = workspace(t);
+  const run = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
+    '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2' ]);
+  assert.equal(run.code, 0, run.stderr);
+  const { budget } = readJson(ws.receipt);
+  assert.equal(budget.max_in_flight, 4);
+  assert.deepEqual(budget.max_in_flight_hosts, { 'qlever.dev': 2 });
+  const usage = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--max-in-flight', '=2' ]);
+  assert.equal(usage.code, 2);
+  assert.match(usage.stderr, /needs a host/u);
 });
 
 test('--max-connections reaches the transport and bounds what the server sees at once', async t => {

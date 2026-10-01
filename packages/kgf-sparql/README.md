@@ -65,10 +65,15 @@ kgf-sparql -f query.rq \
   `--no-void-statistics` set the context keys described below. `--http-retries N` retries
   429, 502, 503, and 504 responses; network errors are not retried.
 - **Connections:** `--max-connections N` (default 32) caps concurrent connections per
-  origin. Comunica has no in-flight limit and a plan that fans out can put hundreds of
-  requests in flight at once, which a shared server answers with bursts of connection
-  failures. The run's fetch pools its connections through undici's `Agent`, reuses them,
-  and queues requests beyond the cap. Request counts are the plan's and do not change.
+  origin, and `--max-in-flight N` (default: the connection cap) caps requests in flight per
+  origin; `--max-in-flight host=N`, repeatable, caps one host, such as a rate-limited SPARQL
+  endpoint (`--max-in-flight qlever.dev=2`). Comunica has no in-flight limit and a plan that
+  fans out can put hundreds of requests in flight at once, which a shared server answers
+  with connection failures or 429s. The two caps differ because the transport speaks HTTP/2
+  where the server offers it, as the public KGF server does, and one HTTP/2 connection
+  carries any number of requests: the connection cap alone let about 650 requests reach that
+  server at once. A request holds its place until its response headers arrive. Requests
+  beyond either cap are queued; request counts are the plan's and do not change.
 - `kgf-sparql-comunica` is Comunica's own command line over this engine, for scripts
   written against it.
 
@@ -118,7 +123,7 @@ if a budget had already ended the run.
   "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114, "elapsed_ms": 1812 },
   "statistics": { "void": true, "schema_requests": 0 },
   "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120,
-              "max_connections": 32 },
+              "max_connections": 32, "max_in_flight": 32, "max_in_flight_hosts": {} },
   "engine": { "kgf_sparql": "0.1.0", "comunica": "5.3.0", "node": "v25.9.0" },
   "started": "2026-09-09T22:14:03.000Z",
   "finished": "2026-09-09T22:14:04.812Z"

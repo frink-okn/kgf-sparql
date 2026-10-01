@@ -83,6 +83,10 @@ export interface IReceipt {
         timeout_s: number | null;
         /** Concurrent connections per origin the run's transport allowed. Not an abort budget. */
         max_connections: number;
+        /** Requests in flight per origin the transport allowed; with HTTP/2 this, not the connection cap, bounds load. */
+        max_in_flight: number;
+        /** Per-host overrides of `max_in_flight`, keyed as given on the command line. */
+        max_in_flight_hosts: Record<string, number>;
     };
     engine: {
         kgf_sparql: string;

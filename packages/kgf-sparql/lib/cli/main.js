@@ -48,6 +48,8 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --no-void-statistics  Plan without lazy VoID join statistics
       --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
       --max-connections <n> Cap concurrent connections per origin (default ${exports.DEFAULT_MAX_CONNECTIONS})
+      --max-in-flight <n>   Cap requests in flight per origin (default: the connection cap); repeatable,
+                            and host=n caps one host, e.g. --max-in-flight qlever.dev=2
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -70,6 +72,7 @@ const OPTIONS = {
     'no-void-statistics': { type: 'boolean' },
     'http-retries': { type: 'string' },
     'max-connections': { type: 'string' },
+    'max-in-flight': { type: 'string', multiple: true },
     help: { type: 'boolean', short: 'h' },
 };
 class UsageError extends Error {
@@ -179,7 +182,25 @@ function parseArguments(argv) {
         settings[context_entries_1.KeysHttp.httpRetryDelayFallback.name] = 250;
     }
     const maxConnections = integer('--max-connections', values['max-connections']) ?? exports.DEFAULT_MAX_CONNECTIONS;
-    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, settings };
+    const inFlight = inFlightLimits(values['max-in-flight'], maxConnections);
+    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, inFlight, settings };
+}
+/** `--max-in-flight` values: a bare number is the default for every origin, `host=n` caps one host. */
+function inFlightLimits(values, fallback) {
+    const limits = { default: fallback, hosts: {} };
+    for (const value of values ?? []) {
+        const at = value.lastIndexOf('=');
+        if (at < 0) {
+            limits.default = integer('--max-in-flight', value);
+        }
+        else if (at === 0) {
+            throw new UsageError(`--max-in-flight needs a host before '=', not '${value}'`);
+        }
+        else {
+            limits.hosts[value.slice(0, at)] = integer(`--max-in-flight ${value.slice(0, at)}`, value.slice(at + 1));
+        }
+    }
+    return limits;
 }
 function integer(name, value, minimum = 1) {
     if (value === undefined) {
@@ -215,7 +236,7 @@ function seconds(name, value) {
 async function run(parsed, options, stderr) {
     const started = new Date();
     // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
-    const transport = options.fetch ? undefined : (0, Transport_1.createPooledFetch)(parsed.maxConnections);
+    const transport = options.fetch ? undefined : (0, Transport_1.createPooledFetch)(parsed.maxConnections, parsed.inFlight);
     const account = new Budget_1.RunAccount(parsed.budget, options.fetch ?? transport.fetch);
     const onFatal = () => account.fail(toError(options.fatal?.reason));
     options.fatal?.addEventListener('abort', onFatal, { once: true });
@@ -399,6 +420,8 @@ function receipt(parsed, sources, outcome, output, account, started, finished) {
             max_rows: parsed.budget.maxRows ?? null,
             timeout_s: parsed.budget.timeoutSeconds ?? null,
             max_connections: parsed.maxConnections,
+            max_in_flight: parsed.inFlight.default,
+            max_in_flight_hosts: parsed.inFlight.hosts ?? {},
         },
         engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
         started: started.toISOString(),

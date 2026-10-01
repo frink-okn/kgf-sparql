@@ -16,6 +16,7 @@ import type { IReceipt, IReceiptOutcome, IReceiptOutput, IReceiptSource } from '
 import { RECEIPT_SCHEMA, writeReceipt } from './Receipt';
 import type { ISourceSpec } from './Sources';
 import { describeKgfSource, parseSource } from './Sources';
+import type { IInFlightLimits } from './Transport';
 import { createPooledFetch } from './Transport';
 
 // eslint-disable-next-line ts/no-require-imports,ts/no-var-requires,import/extensions
@@ -56,6 +57,8 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --no-void-statistics  Plan without lazy VoID join statistics
       --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
       --max-connections <n> Cap concurrent connections per origin (default ${DEFAULT_MAX_CONNECTIONS})
+      --max-in-flight <n>   Cap requests in flight per origin (default: the connection cap); repeatable,
+                            and host=n caps one host, e.g. --max-in-flight qlever.dev=2
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -79,6 +82,7 @@ const OPTIONS = {
   'no-void-statistics': { type: 'boolean' },
   'http-retries': { type: 'string' },
   'max-connections': { type: 'string' },
+  'max-in-flight': { type: 'string', multiple: true },
   help: { type: 'boolean', short: 'h' },
 } as const;
 
@@ -95,6 +99,8 @@ interface IParsedArguments {
   budget: IBudget;
   /** Cap on concurrent connections per origin. Not an abort budget; it bounds the run's load. */
   maxConnections: number;
+  /** Cap on requests in flight per origin, which HTTP/2 makes different from the connection cap. */
+  inFlight: IInFlightLimits;
   settings: Record<string, unknown>;
 }
 
@@ -212,7 +218,24 @@ function parseArguments(argv: string[]): IParsedArguments | 'help' {
     settings[KeysHttp.httpRetryDelayFallback.name] = 250;
   }
   const maxConnections = integer('--max-connections', values['max-connections']) ?? DEFAULT_MAX_CONNECTIONS;
-  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, settings };
+  const inFlight = inFlightLimits(values['max-in-flight'], maxConnections);
+  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, inFlight, settings };
+}
+
+/** `--max-in-flight` values: a bare number is the default for every origin, `host=n` caps one host. */
+function inFlightLimits(values: string[] | undefined, fallback: number): IInFlightLimits {
+  const limits: Required<IInFlightLimits> = { default: fallback, hosts: {}};
+  for (const value of values ?? []) {
+    const at = value.lastIndexOf('=');
+    if (at < 0) {
+      limits.default = integer('--max-in-flight', value)!;
+    } else if (at === 0) {
+      throw new UsageError(`--max-in-flight needs a host before '=', not '${value}'`);
+    } else {
+      limits.hosts[value.slice(0, at)] = integer(`--max-in-flight ${value.slice(0, at)}`, value.slice(at + 1))!;
+    }
+  }
+  return limits;
 }
 
 function integer(name: string, value: string | undefined, minimum = 1): number | undefined {
@@ -252,7 +275,7 @@ function seconds(name: string, value: string | undefined): number | undefined {
 async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text: string) => void): Promise<number> {
   const started = new Date();
   // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
-  const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections);
+  const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections, parsed.inFlight);
   const account = new RunAccount(parsed.budget, options.fetch ?? transport!.fetch);
   const onFatal = (): void => account.fail(toError(options.fatal?.reason));
   options.fatal?.addEventListener('abort', onFatal, { once: true });
@@ -440,6 +463,8 @@ function receipt(
       max_rows: parsed.budget.maxRows ?? null,
       timeout_s: parsed.budget.timeoutSeconds ?? null,
       max_connections: parsed.maxConnections,
+      max_in_flight: parsed.inFlight.default,
+      max_in_flight_hosts: parsed.inFlight.hosts ?? {},
     },
     engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
     started: started.toISOString(),
