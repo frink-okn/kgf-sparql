@@ -37,6 +37,12 @@ dataset descriptor and pinned for the duration of each query.
 A version URL ending in `/v/v0.0.2/` is accepted too. The service root lists
 datasets; select a dataset rather than using the root as a triple source.
 
+The engine also runs in a browser. Bundlers that honour the package's `browser` field, as
+Vite and esbuild do, take `lib/index-browser.js`, which leaves out the command line and its
+Node-only transport. The public KGF server allows any origin, and the `QUERY` method that
+bindings requests use. The per-host request cap (`--max-in-flight`) is the command line's
+for now.
+
 ## Use as a CLI
 
 `kgf-sparql` runs one query to completion, or fails, and accounts for every request it

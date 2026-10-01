@@ -4,6 +4,9 @@
   "description": "Comunica SPARQL engine tuned for Knowledge Graph Fragments endpoints",
   "license": "MIT",
   "main": "lib/index.js",
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js"
+  },
   "typings": "lib/index",
   "sideEffects": false,
   "publishConfig": {
