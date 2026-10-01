@@ -242,6 +242,23 @@ over the corpus, requests fell by a fifth and no query that completed before fai
 Comunica's own defaults, weights, and refusals are untouched; the override keeps the
 actor's identifier so the join actors' ordering still refers to it.
 
+Two further actors address federated joins.
+[`@kgf/actor-rdf-join-selectivity-bound`](packages/actor-rdf-join-selectivity-bound/) caps
+whatever join-size estimate the selectivity bus gives with an upper bound: an entry whose
+variables all occur in the others cannot make the join larger, so `?cell rdfs:subClassOf
+cell:` joined with `?cell part_of: abdomen:` has at most 838 rows where the shape heuristic
+estimated 7.4 million. It never raises an estimate, so its error can only shrink.
+[`@kgf/actor-rdf-join-inner-multi-bind-block`](packages/actor-rdf-join-inner-multi-bind-block/)
+sends the smallest entry in blocks through every entry that accepts bindings, a SPARQL
+endpoint through `VALUES` and a union across sources included, in one pass, as FedX's bound
+joins do. A query joining Ubergraph with QLever's Wikidata endpoint, which stock Comunica had
+not finished after four minutes, returns its 3,332 rows in 56 requests. On the registry
+corpus (2026-10-01) 63 queries return results where 51 did, none is lost, and every
+single-answer query returns the same rows (one differs only in `GROUP_CONCAT` order); on
+the 58 queries complete in both runs, requests fell from 28,883 to 15,205, bytes from
+516 MB to 274 MB, and time from 115 s to 76 s. `frequent-sciencekeywords` went from 28.6 s
+and 227 MB to 2.9 s and 22 MB, `abdominal-cell-types` from 4,535 requests to 52.
+
 ## Development
 
 ```bash
@@ -268,6 +285,8 @@ earlier runner.
 packages/actor-query-source-identify-kgf/          Native JSON source and HTTP transport
 packages/actor-rdf-join-selectivity-void/          Generic VoID join-selectivity actor
 packages/actor-rdf-join-inner-multi-bind-round-trip/  Bind join charging a request per probe
+packages/actor-rdf-join-selectivity-bound/        Upper bound on any join-size estimate
+packages/actor-rdf-join-inner-multi-bind-block/   Block bind join through every bindable entry
 packages/kgf-sparql/                              Engine configuration, library, and CLI
 ```
 
