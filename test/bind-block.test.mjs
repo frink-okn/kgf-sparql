@@ -178,6 +178,27 @@ test('entries that are not bound go back to the join mediator with the bound res
   assert.deepEqual(sorted(rows), sorted([ row([ 'cell', 'c1' ], [ 'w', 'w1' ]) ]));
 });
 
+test('an entry of unknown size does not stop the join binding from one of known size', async() => {
+  // A COUNT that failed or timed out leaves an entry of unknown size, and one computed
+  // locally sorts first; the join used to refuse, and a per-row bind join took over.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [[ n('w1'), n('P7963'), n('c1') ]], 'joinBindings');
+  let handed;
+  const mediatorJoin = { mediate: async action => {
+    handed = action.entries;
+    return action.entries[0].output;
+  } };
+  const unknown = { ...entry(af.createJoin([]), Number.POSITIVE_INFINITY, [ 'cell', 'x' ]), operationModified: true };
+  const { rows } = await run(actor(2, mediatorJoin), [
+    unknown,
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 1, [ 'cell' ], {}, [ row([ 'cell', 'c1' ]) ]),
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+  ]);
+  assert.equal(handed.length, 2, 'the bound result, and the entry of unknown size to join it with');
+  assert.ok(handed.some(handedEntry => handedEntry.operation === unknown.operation));
+  assert.deepEqual(sorted(rows), sorted([ row([ 'cell', 'c1' ], [ 'w', 'w1' ]) ]));
+});
+
 test('the cost is the stock bind join\'s, with requests charged per block instead of per row', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [], 'joinBindings');

@@ -168,13 +168,17 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         // An entry already computed locally cannot be probed, so it is the one to bind if there is one.
         const sorted = [...sortedTest.get()]
             .sort((left, right) => Number(Boolean(right.operationModified)) - Number(Boolean(left.operationModified)));
-        const first = sorted[0];
-        const rows = first.metadata.cardinality.value;
-        if (!Number.isFinite(rows) || rows <= 0) {
-            return (0, core_1.failTest)(`${this.name} needs a smallest entry of known, non-zero size`);
+        // Of known size: an entry whose count failed or timed out, reported as an infinite
+        // estimate, cannot be bound in blocks, but it can still be probed. Refusing whenever
+        // such an entry came first let a slow COUNT hand the join to a per-row bind join.
+        const first = sorted.find(entry => Number.isFinite(entry.metadata.cardinality.value));
+        const rows = first?.metadata.cardinality.value ?? Number.NaN;
+        if (!first || rows <= 0) {
+            return (0, core_1.failTest)(`${this.name} needs an entry of known, non-zero size`);
         }
+        const others = sorted.filter(entry => entry !== first);
         const known = new Set(first.metadata.variables.map(variable => variable.variable.value));
-        const pool = sorted.slice(1).filter(entry => !entry.operationModified &&
+        const pool = others.filter(entry => !entry.operationModified &&
             // An entry smaller than the bound one is cheaper to fetch whole and join afterwards.
             !(Number.isFinite(entry.metadata.cardinality.value) && entry.metadata.cardinality.value < rows));
         const steps = [];
@@ -208,7 +212,7 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         return (0, core_1.passTest)({
             first,
             steps,
-            remaining: sorted.slice(1).filter(entry => !steps.some(step => step.entry === entry)),
+            remaining: others.filter(entry => !steps.some(step => step.entry === entry)),
             firstIndex: entriesUnsorted.indexOf(first),
             stepIndexes: steps.map(step => entriesUnsorted.indexOf(step.entry)),
         });
