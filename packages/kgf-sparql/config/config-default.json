@@ -6,7 +6,8 @@
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-query-source-identify-kgf/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-round-trip/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-bound/^0.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-block/^0.0.0/components/context.jsonld"
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-block/^0.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-http-throttle/^0.0.0/components/context.jsonld"
   ],
   "@graph": [
     {
@@ -144,6 +145,29 @@
         "mediatorMergeBindingsContext": {
           "@id": "urn:comunica:default:merge-bindings-context/mediators#main"
         }
+      }
+    },
+    {
+      "@id": "urn:kgf:override/http/actors#limit-rate",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:http/actors#limit-rate"
+      },
+      "overrideParameters": {
+        "@type": "ActorHttpThrottle",
+        "mediatorHttp": {
+          "@id": "urn:comunica:default:http/mediators#main"
+        },
+        "inFlight": 32,
+        "retries": 5,
+        "beforeActors": [
+          {
+            "@id": "urn:comunica:default:http/actors#retry"
+          },
+          {
+            "@id": "urn:comunica:default:http/actors#proxy"
+          }
+        ]
       }
     }
   ]

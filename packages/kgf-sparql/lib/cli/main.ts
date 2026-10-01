@@ -2,6 +2,8 @@ import * as fs from 'node:fs';
 import { parseArgs } from 'node:util';
 import { KeysHttp } from '@comunica/context-entries';
 import type { IActionContext, QueryType } from '@comunica/types';
+import type { IHostLimits } from '@kgf/actor-http-throttle';
+import { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kgf/actor-http-throttle';
 import {
   KEY_KGF_BINDINGS_SIZE,
   KEY_KGF_HTTP_METHOD,
@@ -16,7 +18,6 @@ import type { IReceipt, IReceiptOutcome, IReceiptOutput, IReceiptSource } from '
 import { RECEIPT_SCHEMA, writeReceipt } from './Receipt';
 import type { ISourceSpec } from './Sources';
 import { describeKgfSource, parseSource } from './Sources';
-import type { IInFlightLimits } from './Transport';
 import { createPooledFetch } from './Transport';
 
 // eslint-disable-next-line ts/no-require-imports,ts/no-var-requires,import/extensions
@@ -55,10 +56,13 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --page-size <n>       Rows per KGF fragment page, capped by the server
       --bindings-size <n>   Bindings per KGF request, capped by the server
       --no-void-statistics  Plan without lazy VoID join statistics
-      --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
+      --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times; without it, 429
+                            and 503 are retried up to 5 times and the others not at all
       --max-connections <n> Cap concurrent connections per origin (default ${DEFAULT_MAX_CONNECTIONS})
-      --max-in-flight <n>   Cap requests in flight per origin (default: the connection cap); repeatable,
+      --max-in-flight <n>   Cap requests in flight per host (default: the connection cap); repeatable,
                             and host=n caps one host, e.g. --max-in-flight qlever.dev=2
+      --max-rate <host=n>   Start at most n requests a second to a host, e.g. --max-rate qlever.dev=1;
+                            repeatable. Hosts that answer 429 without Retry-After are slowed anyway
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -83,6 +87,7 @@ const OPTIONS = {
   'http-retries': { type: 'string' },
   'max-connections': { type: 'string' },
   'max-in-flight': { type: 'string', multiple: true },
+  'max-rate': { type: 'string', multiple: true },
   help: { type: 'boolean', short: 'h' },
 } as const;
 
@@ -99,8 +104,8 @@ interface IParsedArguments {
   budget: IBudget;
   /** Cap on concurrent connections per origin. Not an abort budget; it bounds the run's load. */
   maxConnections: number;
-  /** Cap on requests in flight per origin, which HTTP/2 makes different from the connection cap. */
-  inFlight: IInFlightLimits;
+  /** Requests in flight per host, and per-host limits, for the engine's throttle actor. */
+  throttle: IThrottle;
   settings: Record<string, unknown>;
 }
 
@@ -211,31 +216,64 @@ function parseArguments(argv: string[]): IParsedArguments | 'help' {
     settings[KEY_KGF_VOID_STATISTICS.name] = false;
   }
   const retries = integer('--http-retries', values['http-retries'], 0);
-  if (retries) {
+  if (retries !== undefined) {
+    // The engine's throttle actor retries 429 and 503 itself, paced, honouring Retry-After;
+    // given a count it also retries 504 and the statuses listed here.
     settings[KeysHttp.httpRetryCount.name] = retries;
-    // Comunica retries 429, 503, and 504 on its own, honouring Retry-After; 502 needs forcing.
     settings[KeysHttp.httpRetryStatusCodes.name] = [ 502 ];
     settings[KeysHttp.httpRetryDelayFallback.name] = 250;
   }
   const maxConnections = integer('--max-connections', values['max-connections']) ?? DEFAULT_MAX_CONNECTIONS;
-  const inFlight = inFlightLimits(values['max-in-flight'], maxConnections);
-  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, inFlight, settings };
+  const throttle = throttleLimits(values['max-in-flight'], values['max-rate'], maxConnections);
+  settings[KEY_HTTP_IN_FLIGHT.name] = throttle.inFlight;
+  if (Object.keys(throttle.hosts).length > 0) {
+    settings[KEY_HTTP_HOST_LIMITS.name] = throttle.hosts;
+  }
+  return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, throttle, settings };
 }
 
-/** `--max-in-flight` values: a bare number is the default for every origin, `host=n` caps one host. */
-function inFlightLimits(values: string[] | undefined, fallback: number): IInFlightLimits {
-  const limits: Required<IInFlightLimits> = { default: fallback, hosts: {}};
-  for (const value of values ?? []) {
+interface IThrottle {
+  /** Requests in flight per host, for hosts without their own cap. */
+  inFlight: number;
+  hosts: Record<string, IHostLimits>;
+}
+
+/**
+ * `--max-in-flight` values: a bare number is the cap for every host, `host=n` caps one host.
+ * `--max-rate` values are always `host=n`, in requests started per second.
+ */
+function throttleLimits(inFlight: string[] | undefined, rates: string[] | undefined, fallback: number): IThrottle {
+  const throttle: IThrottle = { inFlight: fallback, hosts: {}};
+  const host = (option: string, value: string, at: number): string => {
+    if (at === 0) {
+      throw new UsageError(`${option} needs a host before '=', not '${value}'`);
+    }
+    const name = value.slice(0, at);
+    throttle.hosts[name] ??= {};
+    return name;
+  };
+  for (const value of inFlight ?? []) {
     const at = value.lastIndexOf('=');
     if (at < 0) {
-      limits.default = integer('--max-in-flight', value)!;
-    } else if (at === 0) {
-      throw new UsageError(`--max-in-flight needs a host before '=', not '${value}'`);
+      throttle.inFlight = integer('--max-in-flight', value)!;
     } else {
-      limits.hosts[value.slice(0, at)] = integer(`--max-in-flight ${value.slice(0, at)}`, value.slice(at + 1))!;
+      const name = host('--max-in-flight', value, at);
+      throttle.hosts[name].inFlight = integer(`--max-in-flight ${name}`, value.slice(at + 1))!;
     }
   }
-  return limits;
+  for (const value of rates ?? []) {
+    const at = value.lastIndexOf('=');
+    if (at < 0) {
+      throw new UsageError(`--max-rate takes host=n, not '${value}'`);
+    }
+    const name = host('--max-rate', value, at);
+    const rate = Number(value.slice(at + 1));
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new UsageError(`--max-rate ${name} must be a positive number of requests a second, not '${value.slice(at + 1)}'`);
+    }
+    throttle.hosts[name].perSecond = rate;
+  }
+  return throttle;
 }
 
 function integer(name: string, value: string | undefined, minimum = 1): number | undefined {
@@ -275,7 +313,7 @@ function seconds(name: string, value: string | undefined): number | undefined {
 async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text: string) => void): Promise<number> {
   const started = new Date();
   // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
-  const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections, parsed.inFlight);
+  const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections);
   const account = new RunAccount(parsed.budget, options.fetch ?? transport!.fetch);
   const onFatal = (): void => account.fail(toError(options.fatal?.reason));
   options.fatal?.addEventListener('abort', onFatal, { once: true });
@@ -463,8 +501,11 @@ function receipt(
       max_rows: parsed.budget.maxRows ?? null,
       timeout_s: parsed.budget.timeoutSeconds ?? null,
       max_connections: parsed.maxConnections,
-      max_in_flight: parsed.inFlight.default,
-      max_in_flight_hosts: parsed.inFlight.hosts ?? {},
+      max_in_flight: parsed.throttle.inFlight,
+      max_in_flight_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
+        .filter(([ , limits ]) => limits.inFlight !== undefined).map(([ name, limits ]) => [ name, limits.inFlight! ])),
+      max_rate_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
+        .filter(([ , limits ]) => limits.perSecond !== undefined).map(([ name, limits ]) => [ name, limits.perSecond! ])),
     },
     engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
     started: started.toISOString(),

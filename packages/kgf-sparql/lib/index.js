@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runCli = exports.USAGE = exports.EXIT_USAGE = exports.EXIT_ERROR = exports.EXIT_COMPLETE = exports.EXIT_ABORTED = exports.DEFAULT_MAX_CONNECTIONS = exports.createPooledFetch = exports.parseSource = exports.describeKgfSource = exports.writeReceipt = exports.RECEIPT_SCHEMA = exports.RunAccount = exports.BudgetExceeded = exports.KEY_VOID_STATISTICS = exports.KEY_KGF_VOID_STATISTICS = exports.KEY_KGF_HTTP_METHOD = exports.KEY_KGF_BINDINGS_SIZE = exports.KEY_KGF_PAGE_SIZE = void 0;
+exports.runCli = exports.USAGE = exports.EXIT_USAGE = exports.EXIT_ERROR = exports.EXIT_COMPLETE = exports.EXIT_ABORTED = exports.DEFAULT_MAX_CONNECTIONS = exports.createPooledFetch = exports.parseSource = exports.describeKgfSource = exports.writeReceipt = exports.RECEIPT_SCHEMA = exports.RunAccount = exports.BudgetExceeded = exports.KEY_HTTP_IN_FLIGHT = exports.KEY_HTTP_HOST_LIMITS = exports.KEY_VOID_STATISTICS = exports.KEY_KGF_VOID_STATISTICS = exports.KEY_KGF_HTTP_METHOD = exports.KEY_KGF_BINDINGS_SIZE = exports.KEY_KGF_PAGE_SIZE = void 0;
 __exportStar(require("./QueryEngine"), exports);
 __exportStar(require("./QueryEngineFactory"), exports);
 var actor_query_source_identify_kgf_1 = require("@kgf/actor-query-source-identify-kgf");
@@ -24,6 +24,9 @@ Object.defineProperty(exports, "KEY_KGF_HTTP_METHOD", { enumerable: true, get: f
 Object.defineProperty(exports, "KEY_KGF_VOID_STATISTICS", { enumerable: true, get: function () { return actor_query_source_identify_kgf_1.KEY_KGF_VOID_STATISTICS; } });
 var actor_rdf_join_selectivity_void_1 = require("@kgf/actor-rdf-join-selectivity-void");
 Object.defineProperty(exports, "KEY_VOID_STATISTICS", { enumerable: true, get: function () { return actor_rdf_join_selectivity_void_1.KEY_VOID_STATISTICS; } });
+var actor_http_throttle_1 = require("@kgf/actor-http-throttle");
+Object.defineProperty(exports, "KEY_HTTP_HOST_LIMITS", { enumerable: true, get: function () { return actor_http_throttle_1.KEY_HTTP_HOST_LIMITS; } });
+Object.defineProperty(exports, "KEY_HTTP_IN_FLIGHT", { enumerable: true, get: function () { return actor_http_throttle_1.KEY_HTTP_IN_FLIGHT; } });
 var Budget_1 = require("./cli/Budget");
 Object.defineProperty(exports, "BudgetExceeded", { enumerable: true, get: function () { return Budget_1.BudgetExceeded; } });
 Object.defineProperty(exports, "RunAccount", { enumerable: true, get: function () { return Budget_1.RunAccount; } });

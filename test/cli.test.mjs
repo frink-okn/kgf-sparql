@@ -97,7 +97,7 @@ test('a complete run writes SPARQL Results JSON and a receipt that accounts for 
   assert.equal(receipt.statistics.schema_requests, mock.requests.filter(call => call.url.pathname.endsWith('/schema')).length);
   assert.ok(receipt.statistics.schema_requests > 0, 'a two-pattern join consults the lazy VoID provider');
   assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32,
-    max_in_flight: 32, max_in_flight_hosts: {} });
+    max_in_flight: 32, max_in_flight_hosts: {}, max_rate_hosts: {} });
   assert.ok(receipt.engine.kgf_sparql && receipt.engine.comunica);
   assert.equal(receipt.engine.node, process.version);
   assert.ok(Date.parse(receipt.started) <= Date.parse(receipt.finished));
@@ -338,50 +338,72 @@ test('the pooled fetch caps concurrent connections per origin and reuses them', 
   }
 });
 
-test('requests in flight are capped per origin apart from connections, as HTTP/2 needs', async t => {
-  const state = { active: 0, peak: 0 };
-  const httpServer = http.createServer((request, response) => {
-    state.active++;
-    state.peak = Math.max(state.peak, state.active);
-    setTimeout(() => { state.active--; response.end('ok'); }, 50);
-  });
-  await new Promise(resolve => httpServer.listen(0, '127.0.0.1', resolve));
-  t.after(() => httpServer.close());
-  const url = `http://127.0.0.1:${httpServer.address().port}/`;
-  for (const [ limits, expected ] of [[{ default: 2 }, 2 ], [{ default: 6, hosts: { '127.0.0.1': 1 }}, 1 ]]) {
-    Object.assign(state, { active: 0, peak: 0 });
-    // Plenty of connections: only the in-flight gate can hold the requests back.
-    const pooled = createPooledFetch(32, limits);
-    const bodies = await Promise.all(Array.from({ length: 6 }, () => pooled.fetch(url).then(response => response.text())));
-    await pooled.close();
-    assert.deepEqual(bodies, Array.from({ length: 6 }, () => 'ok'));
-    assert.equal(state.peak, expected, `at most ${expected} requests in flight`);
-  }
-  // A request aborted while it waits leaves the queue without taking a place.
-  Object.assign(state, { active: 0, peak: 0 });
-  const pooled = createPooledFetch(32, { default: 1 });
-  const first = pooled.fetch(url).then(response => response.text());
-  const controller = new AbortController();
-  const waiting = pooled.fetch(url, { signal: controller.signal });
-  controller.abort(new Error('gave up'));
-  await assert.rejects(waiting, /gave up/u);
-  assert.equal(await first, 'ok');
-  assert.equal(await pooled.fetch(url).then(response => response.text()), 'ok');
-  await pooled.close();
+test('--max-in-flight reaches the engine, which holds requests back however many connections there are', async t => {
+  // HTTP/2 carries any number of requests on one connection, so the cap is the engine's.
+  const { source, state } = await bridge(t, { delayMs: 20 });
+  const ws = workspace(t);
+  const run = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
+    '--max-connections', '32', '--max-in-flight', '1' ]);
+  assert.equal(run.code, 0, run.stderr);
+  assert.equal(readJson(ws.receipt).outcome.rows, 5);
+  assert.equal(state.peak, 1, 'one request at a time');
 });
 
-test('--max-in-flight sets the default and per-host caps, and the receipt records them', async t => {
+test('a server that refuses with 429 is retried, paced, and the receipt shows the refusals', async t => {
+  // QLever's way: 429 with no Retry-After. No --http-retries: the engine retries refusals anyway.
+  const mock = server();
+  let refusals = 0;
+  const fetch = async(input, init) => {
+    if (init?.body && refusals < 2) {
+      refusals++;
+      return new Response('slow down', { status: 429 });
+    }
+    return mock.fetch(input, init);
+  };
+  const { code, receipt } = await run(t, mock, [ '-q', JOIN, '--source', SOURCE ], { fetch });
+  assert.equal(code, 0);
+  assert.equal(receipt.outcome.rows, 5);
+  assert.equal(receipt.requests.filter(request => request.status === 429).length, 2);
+});
+
+test('--http-retries bounds a refused request\'s attempts once, not once per retrying actor', async t => {
+  // The engine's throttle wraps Comunica's retry actor and tells it to stand aside; were it the
+  // other way round, each of Comunica's attempts would carry the throttle's own retries.
+  const mock = server();
+  const attempts = new Map();
+  const fetch = async(input, init) => {
+    if (init?.body) {
+      const key = `${input} ${init.body}`;
+      attempts.set(key, (attempts.get(key) ?? 0) + 1);
+      return new Response('slow down', { status: 429 });
+    }
+    return mock.fetch(input, init);
+  };
+  const { code } = await run(t, mock, [ '-q', JOIN, '--source', SOURCE, '--http-retries', '2' ], { fetch });
+  assert.equal(code, 1);
+  assert.ok(attempts.size > 0);
+  assert.equal(Math.max(...attempts.values()), 3, 'one attempt and two retries');
+});
+
+test('--max-in-flight and --max-rate set the caps, and the receipt records them', async t => {
   const { source } = await bridge(t, {});
   const ws = workspace(t);
   const run = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
-    '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2' ]);
+    '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2', '--max-rate', 'qlever.dev=1', '--max-rate', 'example.org=0.5' ]);
   assert.equal(run.code, 0, run.stderr);
   const { budget } = readJson(ws.receipt);
   assert.equal(budget.max_in_flight, 4);
   assert.deepEqual(budget.max_in_flight_hosts, { 'qlever.dev': 2 });
-  const usage = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--max-in-flight', '=2' ]);
-  assert.equal(usage.code, 2);
-  assert.match(usage.stderr, /needs a host/u);
+  assert.deepEqual(budget.max_rate_hosts, { 'qlever.dev': 1, 'example.org': 0.5 });
+  for (const [ flag, value, message ] of [
+    [ '--max-in-flight', '=2', /needs a host/u ],
+    [ '--max-rate', '2', /takes host=n/u ],
+    [ '--max-rate', 'qlever.dev=0', /positive number/u ],
+  ]) {
+    const usage = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, flag, value ]);
+    assert.equal(usage.code, 2, `${flag} ${value}`);
+    assert.match(usage.stderr, message);
+  }
 });
 
 test('--max-connections reaches the transport and bounds what the server sees at once', async t => {

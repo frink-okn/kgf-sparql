@@ -6,6 +6,7 @@ exports.main = main;
 const fs = require("node:fs");
 const node_util_1 = require("node:util");
 const context_entries_1 = require("@comunica/context-entries");
+const actor_http_throttle_1 = require("@kgf/actor-http-throttle");
 const actor_query_source_identify_kgf_1 = require("@kgf/actor-query-source-identify-kgf");
 const QueryEngine_1 = require("../QueryEngine");
 const Budget_1 = require("./Budget");
@@ -46,10 +47,13 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --page-size <n>       Rows per KGF fragment page, capped by the server
       --bindings-size <n>   Bindings per KGF request, capped by the server
       --no-void-statistics  Plan without lazy VoID join statistics
-      --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times (default 0)
+      --http-retries <n>    Retry 429, 502, 503, and 504 responses up to n times; without it, 429
+                            and 503 are retried up to 5 times and the others not at all
       --max-connections <n> Cap concurrent connections per origin (default ${exports.DEFAULT_MAX_CONNECTIONS})
-      --max-in-flight <n>   Cap requests in flight per origin (default: the connection cap); repeatable,
+      --max-in-flight <n>   Cap requests in flight per host (default: the connection cap); repeatable,
                             and host=n caps one host, e.g. --max-in-flight qlever.dev=2
+      --max-rate <host=n>   Start at most n requests a second to a host, e.g. --max-rate qlever.dev=1;
+                            repeatable. Hosts that answer 429 without Retry-After are slowed anyway
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -73,6 +77,7 @@ const OPTIONS = {
     'http-retries': { type: 'string' },
     'max-connections': { type: 'string' },
     'max-in-flight': { type: 'string', multiple: true },
+    'max-rate': { type: 'string', multiple: true },
     help: { type: 'boolean', short: 'h' },
 };
 class UsageError extends Error {
@@ -175,32 +180,58 @@ function parseArguments(argv) {
         settings[actor_query_source_identify_kgf_1.KEY_KGF_VOID_STATISTICS.name] = false;
     }
     const retries = integer('--http-retries', values['http-retries'], 0);
-    if (retries) {
+    if (retries !== undefined) {
+        // The engine's throttle actor retries 429 and 503 itself, paced, honouring Retry-After;
+        // given a count it also retries 504 and the statuses listed here.
         settings[context_entries_1.KeysHttp.httpRetryCount.name] = retries;
-        // Comunica retries 429, 503, and 504 on its own, honouring Retry-After; 502 needs forcing.
         settings[context_entries_1.KeysHttp.httpRetryStatusCodes.name] = [502];
         settings[context_entries_1.KeysHttp.httpRetryDelayFallback.name] = 250;
     }
     const maxConnections = integer('--max-connections', values['max-connections']) ?? exports.DEFAULT_MAX_CONNECTIONS;
-    const inFlight = inFlightLimits(values['max-in-flight'], maxConnections);
-    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, inFlight, settings };
+    const throttle = throttleLimits(values['max-in-flight'], values['max-rate'], maxConnections);
+    settings[actor_http_throttle_1.KEY_HTTP_IN_FLIGHT.name] = throttle.inFlight;
+    if (Object.keys(throttle.hosts).length > 0) {
+        settings[actor_http_throttle_1.KEY_HTTP_HOST_LIMITS.name] = throttle.hosts;
+    }
+    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, throttle, settings };
 }
-/** `--max-in-flight` values: a bare number is the default for every origin, `host=n` caps one host. */
-function inFlightLimits(values, fallback) {
-    const limits = { default: fallback, hosts: {} };
-    for (const value of values ?? []) {
+/**
+ * `--max-in-flight` values: a bare number is the cap for every host, `host=n` caps one host.
+ * `--max-rate` values are always `host=n`, in requests started per second.
+ */
+function throttleLimits(inFlight, rates, fallback) {
+    const throttle = { inFlight: fallback, hosts: {} };
+    const host = (option, value, at) => {
+        if (at === 0) {
+            throw new UsageError(`${option} needs a host before '=', not '${value}'`);
+        }
+        const name = value.slice(0, at);
+        throttle.hosts[name] ??= {};
+        return name;
+    };
+    for (const value of inFlight ?? []) {
         const at = value.lastIndexOf('=');
         if (at < 0) {
-            limits.default = integer('--max-in-flight', value);
-        }
-        else if (at === 0) {
-            throw new UsageError(`--max-in-flight needs a host before '=', not '${value}'`);
+            throttle.inFlight = integer('--max-in-flight', value);
         }
         else {
-            limits.hosts[value.slice(0, at)] = integer(`--max-in-flight ${value.slice(0, at)}`, value.slice(at + 1));
+            const name = host('--max-in-flight', value, at);
+            throttle.hosts[name].inFlight = integer(`--max-in-flight ${name}`, value.slice(at + 1));
         }
     }
-    return limits;
+    for (const value of rates ?? []) {
+        const at = value.lastIndexOf('=');
+        if (at < 0) {
+            throw new UsageError(`--max-rate takes host=n, not '${value}'`);
+        }
+        const name = host('--max-rate', value, at);
+        const rate = Number(value.slice(at + 1));
+        if (!Number.isFinite(rate) || rate <= 0) {
+            throw new UsageError(`--max-rate ${name} must be a positive number of requests a second, not '${value.slice(at + 1)}'`);
+        }
+        throttle.hosts[name].perSecond = rate;
+    }
+    return throttle;
 }
 function integer(name, value, minimum = 1) {
     if (value === undefined) {
@@ -236,7 +267,7 @@ function seconds(name, value) {
 async function run(parsed, options, stderr) {
     const started = new Date();
     // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
-    const transport = options.fetch ? undefined : (0, Transport_1.createPooledFetch)(parsed.maxConnections, parsed.inFlight);
+    const transport = options.fetch ? undefined : (0, Transport_1.createPooledFetch)(parsed.maxConnections);
     const account = new Budget_1.RunAccount(parsed.budget, options.fetch ?? transport.fetch);
     const onFatal = () => account.fail(toError(options.fatal?.reason));
     options.fatal?.addEventListener('abort', onFatal, { once: true });
@@ -420,8 +451,11 @@ function receipt(parsed, sources, outcome, output, account, started, finished) {
             max_rows: parsed.budget.maxRows ?? null,
             timeout_s: parsed.budget.timeoutSeconds ?? null,
             max_connections: parsed.maxConnections,
-            max_in_flight: parsed.inFlight.default,
-            max_in_flight_hosts: parsed.inFlight.hosts ?? {},
+            max_in_flight: parsed.throttle.inFlight,
+            max_in_flight_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
+                .filter(([, limits]) => limits.inFlight !== undefined).map(([name, limits]) => [name, limits.inFlight])),
+            max_rate_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
+                .filter(([, limits]) => limits.perSecond !== undefined).map(([name, limits]) => [name, limits.perSecond])),
         },
         engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
         started: started.toISOString(),

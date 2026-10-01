@@ -40,8 +40,8 @@ datasets; select a dataset rather than using the root as a triple source.
 The engine also runs in a browser. Bundlers that honour the package's `browser` field, as
 Vite and esbuild do, take `lib/index-browser.js`, which leaves out the command line and its
 Node-only transport. The public KGF server allows any origin, and the `QUERY` method that
-bindings requests use. The per-host request cap (`--max-in-flight`) is the command line's
-for now.
+bindings requests use. Requests are paced per host in the engine, so a page gets the same
+caps and retries as the command line (see `@kgf/actor-http-throttle` below).
 
 ## Use as a CLI
 
@@ -69,17 +69,19 @@ kgf-sparql -f query.rq \
   engine serializes. Comunica's own serializers write every format.
 - **Transport:** `--http-method QUERY|POST`, `--page-size`, `--bindings-size`, and
   `--no-void-statistics` set the context keys described below. `--http-retries N` retries
-  429, 502, 503, and 504 responses; network errors are not retried.
+  429, 502, 503, and 504 responses up to N times; without it, 429 and 503 are retried up to
+  5 times and the others not at all. Network errors are not retried.
 - **Connections:** `--max-connections N` (default 32) caps concurrent connections per
-  origin, and `--max-in-flight N` (default: the connection cap) caps requests in flight per
-  origin; `--max-in-flight host=N`, repeatable, caps one host, such as a rate-limited SPARQL
-  endpoint (`--max-in-flight qlever.dev=2`). Comunica has no in-flight limit and a plan that
-  fans out can put hundreds of requests in flight at once, which a shared server answers
-  with connection failures or 429s. The two caps differ because the transport speaks HTTP/2
-  where the server offers it, as the public KGF server does, and one HTTP/2 connection
-  carries any number of requests: the connection cap alone let about 650 requests reach that
-  server at once. A request holds its place until its response headers arrive. Requests
-  beyond either cap are queued; request counts are the plan's and do not change.
+  origin. `--max-in-flight N` (default: the connection cap) caps requests in flight per
+  host, and `--max-in-flight host=N`, repeatable, one host's; `--max-rate host=N` starts at
+  most N requests a second to a host (`--max-rate qlever.dev=1`). A plan that fans out can
+  put hundreds of requests in flight at once, which a shared server answers with connection
+  failures or 429s. The two caps differ because the transport speaks HTTP/2 where the
+  server offers it, as the public KGF server does, and one HTTP/2 connection carries any
+  number of requests: the connection cap alone let about 650 requests reach that server at
+  once. The in-flight and rate caps are the engine's, so a page in a browser has them too.
+  A request holds its place until its response headers arrive, and requests beyond a cap
+  are queued; request counts are the plan's, plus the retries of refused requests.
 - `kgf-sparql-comunica` is Comunica's own command line over this engine, for scripts
   written against it.
 
@@ -129,7 +131,8 @@ if a budget had already ended the run.
   "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114, "elapsed_ms": 1812 },
   "statistics": { "void": true, "schema_requests": 0 },
   "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120,
-              "max_connections": 32, "max_in_flight": 32, "max_in_flight_hosts": {} },
+              "max_connections": 32, "max_in_flight": 32, "max_in_flight_hosts": {},
+              "max_rate_hosts": {} },
   "engine": { "kgf_sparql": "0.1.0", "comunica": "5.3.0", "node": "v25.9.0" },
   "started": "2026-09-09T22:14:03.000Z",
   "finished": "2026-09-09T22:14:04.812Z"
@@ -270,6 +273,28 @@ the 58 queries complete in both runs, requests fell from 28,883 to 15,205, bytes
 516 MB to 274 MB, and time from 115 s to 76 s. `frequent-sciencekeywords` went from 28.6 s
 and 227 MB to 2.9 s and 22 MB, `abdominal-cell-types` from 4,535 requests to 52.
 
+[`@kgf/actor-http-throttle`](packages/actor-http-throttle/) paces requests per host, in
+place of Comunica's rate limiter. A host has at most `KEY_HTTP_IN_FLIGHT` requests in
+flight (default 32); `KEY_HTTP_HOST_LIMITS` gives particular hosts their own `inFlight` and
+`perSecond`. A 429 or 503 with `Retry-After`, as KGF's admission gate sends, pauses the host
+until then; one without, as QLever sends, doubles the interval between the host's requests,
+and later answers shorten it again. Refused requests are retried through the same queue, up
+to 5 times unless the context sets `httpRetryCount`, and Comunica's retry actor stands
+aside, so retries are paced and never multiplied. Timeouts and network errors no longer
+slow a host: Comunica's limiter slowed a whole host after any failure, so a SPARQL endpoint
+on the KGF server's host that timed out on its service description held every KGF request
+to one every 1 to 3 seconds, and three corpus queries to 12 to 19 requests in 30 seconds.
+The same queries now reach 5,000.
+
+```js
+import { KEY_HTTP_HOST_LIMITS, QueryEngine } from 'kgf-sparql';
+
+await new QueryEngine().queryBindings(query, {
+  sources,
+  [KEY_HTTP_HOST_LIMITS.name]: { 'qlever.dev': { inFlight: 1, perSecond: 1 } },
+});
+```
+
 ## Development
 
 ```bash
@@ -298,6 +323,7 @@ packages/actor-rdf-join-selectivity-void/          Generic VoID join-selectivity
 packages/actor-rdf-join-inner-multi-bind-round-trip/  Bind join charging a request per probe
 packages/actor-rdf-join-selectivity-bound/        Upper bound on any join-size estimate
 packages/actor-rdf-join-inner-multi-bind-block/   Block bind join through every bindable entry
+packages/actor-http-throttle/                      Per-host pacing, and retries of refused requests
 packages/kgf-sparql/                              Engine configuration, library, and CLI
 ```
 
