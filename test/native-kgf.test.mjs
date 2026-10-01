@@ -123,7 +123,19 @@ test('byte limits split binding requests independently of the row cap', async() 
   const { source: kgf, context } = source(mock);
   const rows = Array.from({ length: 9 }, (_, i) => ({ s: iri(`absent-${i}-${'ü'.repeat(50)}`) }));
   assert.equal((await kgf.queryBindings(pattern(), context, filter(rows)).toArray()).length, 0);
-  assert.ok(calls(mock, 'count').length > 1);
+  const batches = calls(mock, 'count').map(call => call.body);
+  assert.ok(batches.length > 1);
+  // Every batch is as full as the budget allows: each fits, and the next batch's first row
+  // would not have. The sizes are counted as the body grows, so they must match it exactly.
+  const budget = 900 - 512;
+  const size = body => Buffer.byteLength(JSON.stringify({ ...body, limit: 2 }));
+  for (const [ i, body ] of batches.entries()) {
+    assert.ok(size(body) <= budget, `batch ${i} fits`);
+    if (i + 1 < batches.length) {
+      const grown = { ...body, bindings: { ...body.bindings, rows: [ ...body.bindings.rows, batches[i + 1].bindings.rows[0] ] }};
+      assert.ok(size(grown) > budget, `batch ${i} could not take another row`);
+    }
+  }
   const bad = kgf.queryBindings(pattern(), context, filter([{ s: iri('ü'.repeat(1000)) }]));
   await assert.rejects(bad.toArray(), /max_request_bytes/);
 });

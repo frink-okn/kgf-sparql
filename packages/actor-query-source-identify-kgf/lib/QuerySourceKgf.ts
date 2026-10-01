@@ -124,16 +124,24 @@ export class QuerySourceKgf implements IQuerySource {
     const batches: Batch[] = [];
     if (rows) {
       // Split on both row count and encoded UTF-8 bytes. A little headroom accommodates cursors.
+      // The body's size is counted as it grows: the body without rows, plus each row's encoding
+      // and a comma between rows, which is the length of the whole body exactly. Encoding the
+      // whole batch again for every row added took 11.5 s of a 30 s query that sent a few
+      // thousand bindings requests.
+      const budget = service.maxRequestBytes - 512;
+      const empty = bytes({ ...bindingBody(pattern, variables, []), limit: pageSize });
       let batch: Batch = { rows: [], offset: 0 };
+      let size = empty;
       for (const row of rows) {
-        const candidate = [...batch.rows, row];
-        const fits = bytes({ ...bindingBody(pattern, variables, candidate), limit: pageSize }) <= service.maxRequestBytes - 512;
-        if (batch.rows.length && (candidate.length > batchSize || !fits)) {
+        const rowSize = bytes(bindingRow(row));
+        if (batch.rows.length && (batch.rows.length + 1 > batchSize || size + 1 + rowSize > budget)) {
           batches.push(batch);
           batch = { rows: [], offset: batch.offset + batch.rows.length };
+          size = empty;
         }
+        size += (batch.rows.length ? 1 : 0) + rowSize;
         batch.rows.push(row);
-        if (bytes({ ...bindingBody(pattern, variables, batch.rows), limit: pageSize }) > service.maxRequestBytes - 512) {
+        if (size > budget) {
           throw new Error('A KGF binding exceeds max_request_bytes (including pagination headroom)');
         }
       }
@@ -322,8 +330,13 @@ function bindingBody(pattern: Algebra.Pattern, variables: string[], rows: Bindin
   return {
     pattern: Object.fromEntries(POSITIONS.map((position, index) => [WIRE_POSITIONS[index],
       pattern[position].termType === 'Variable' ? `?${pattern[position].value}` : encodeTerm(pattern[position])])),
-    bindings: { vars: variables.map(variable => `?${variable}`), rows: rows.map(row => row.map(term => term ? encodeTerm(term) : null)) },
+    bindings: { vars: variables.map(variable => `?${variable}`), rows: rows.map(bindingRow) },
   };
+}
+
+/** One row of a bindings body, as it is sent. */
+function bindingRow(row: BindingRow): unknown[] {
+  return row.map(term => term ? encodeTerm(term) : null);
 }
 
 function matchesBinding(quad: RDF.Quad, pattern: Algebra.Pattern, variables: string[], row: BindingRow): boolean {
@@ -334,7 +347,9 @@ function matchesBinding(quad: RDF.Quad, pattern: Algebra.Pattern, variables: str
   });
 }
 
-function bytes(body: object): number { return new TextEncoder().encode(JSON.stringify(body)).length; }
+const encoder = new TextEncoder();
+
+function bytes(body: object): number { return encoder.encode(JSON.stringify(body)).length; }
 
 function setting(value: number | undefined, fallback: number, name: string): number {
   if (value !== undefined && positiveInteger(value, 0) === 0) {
