@@ -288,7 +288,18 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         let batches = parts.map(() => new Batch());
         // Batches sent and not yet joined, per part; a part sends a few at once, not one after another.
         const sent = parts.map(() => new Set());
+        // A batch leaves `sent` once it settles, so one that failed before anything waited on it
+        // took its error with it, and the block ended with the rows the other batches made: in a
+        // browser, where every batch failed, a query "completed" with none. The first failure
+        // is kept here and thrown at the next chance.
+        let failure;
+        const check = () => {
+            if (failure) {
+                throw failure.error;
+            }
+        };
         const feed = async (level, incoming) => {
+            check();
             if (incoming.length === 0) {
                 return;
             }
@@ -311,20 +322,23 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             }
             // Swapped out before any await, so rows arriving meanwhile start the next batch.
             batches = batches.map((current, i) => i === level ? new Batch() : current);
-            const joining = this.probeBatch(batch.rows, parts[level], run, async (joined) => await feed(level + 1, joined));
-            // Awaited below or at the end; a failure must not also surface as unhandled meanwhile.
-            joining.catch(() => undefined);
+            const joining = this.probeBatch(batch.rows, parts[level], run, async (joined) => await feed(level + 1, joined))
+                .catch((error) => {
+                failure ??= { error };
+            });
             sent[level].add(joining);
-            void joining.finally(() => sent[level].delete(joining)).catch(() => undefined);
+            void joining.finally(() => sent[level].delete(joining));
             if (sent[level].size >= BATCHES_IN_FLIGHT) {
                 await Promise.race(sent[level]);
             }
+            check();
         };
         await feed(0, rows);
         for (let level = 0; level < parts.length; level++) {
             // A part's last batch can go once every batch of the part before it has been joined.
             await send(level);
             await Promise.all(sent[level]);
+            check();
         }
     }
     /** Join one batch to a part: index the batch, and stream each probe's rows past it. */
@@ -390,8 +404,14 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             variables: leaf.shared.map(name => ({ variable: run.dataFactory.variable(name), canBeUndef: false })),
         };
         const requests = [];
+        const track = (request) => {
+            // Awaited at the end, after the values other blocks are fetching; a failure meanwhile
+            // must not also surface as an unhandled rejection.
+            request.catch(() => undefined);
+            requests.push(request);
+        };
         for (let start = 0; start < send.length; start += this.blockSize) {
-            requests.push(this.request(leaf, send.slice(start, start + this.blockSize), metadata, run, onRows, true));
+            track(this.request(leaf, send.slice(start, start + this.blockSize), metadata, run, onRows, true));
         }
         const answered = await Promise.all(elsewhere.map(async (value) => ({ value, rows: await value.answer })));
         const kept = answered.flatMap(({ rows: answer }) => answer ?? []);
@@ -402,7 +422,7 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         const resend = answered.filter(({ rows: answer }) => !answer)
             .map(({ value }) => ({ key: value.key, bindings: value.bindings, answer: deferred() }));
         for (let start = 0; start < resend.length; start += this.blockSize) {
-            requests.push(this.request(leaf, resend.slice(start, start + this.blockSize), metadata, run, onRows, false));
+            track(this.request(leaf, resend.slice(start, start + this.blockSize), metadata, run, onRows, false));
         }
         await Promise.all(requests);
     }
@@ -602,9 +622,23 @@ const BATCHES_IN_FLIGHT = 4;
 const NO_ROWS = [];
 /** Thrown into a block's work once the joined stream is closed, as a LIMIT above it does. */
 const STOPPED = new Error('The joined stream was closed');
-/** Lets timers, I/O, and signal handlers run before continuing. */
-async function yieldToEventLoop() {
-    await new Promise(resolve => setImmediate(resolve));
+/**
+ * Lets timers, I/O, and signal handlers run before continuing. Browsers have no
+ * `setImmediate`, and a `setTimeout` chain is held to 4 ms a step there, so they get a
+ * message to themselves instead, which runs as soon as pending input and network events have.
+ */
+const yieldToEventLoop = typeof setImmediate === 'function' ?
+    async () => await new Promise(resolve => setImmediate(resolve)) :
+    messageYield();
+function messageYield() {
+    const channel = new MessageChannel();
+    const waiting = [];
+    // The browser's port, which Node's types (the only ones this package compiles with) lack.
+    channel.port1.onmessage = () => waiting.shift()?.();
+    return async () => await new Promise((resolve) => {
+        waiting.push(resolve);
+        channel.port2.postMessage(undefined);
+    });
 }
 /**
  * Reads a stream a chunk at a time: whatever is ready now, or the first items to arrive.

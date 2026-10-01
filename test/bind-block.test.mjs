@@ -258,6 +258,31 @@ test('destroying the output stops the probes, as a LIMIT above the join does', a
   assert.ok(labels.calls.length <= 2 * joinActor.blocksInFlight, `${labels.calls.length} of 100 blocks probed`);
 });
 
+test('a probe that fails fails the join, rather than ending it early', async() => {
+  // A batch sent while its step was still filling, as a fan-out sends one, left the set of
+  // batches in flight as soon as it failed, before the block waited on that set; its error
+  // was lost and the join ended with the rows the other batches made. In a browser, where
+  // the yield between chunks threw, every batch failed and a query "completed" with none.
+  // One cell links to 1,500 values. They reach the labels step in two chunks, so the first
+  // 1,000 values go out while the second chunk is still on its way, and fail. The last 500
+  // went out when the block's rows were all in, and succeeded; now they are not sent.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const values = Array.from({ length: 1_500 }, (_, i) => `x${i}`);
+  const links = source('links', values.map(x => [ n('c1'), n('has'), n(x) ]), 'filterBindings');
+  const labels = source('labels', values.map(x => [ n(x), n('label'), n(`l${x}`) ]), 'filterBindings');
+  const answer = labels.wrapper.source.queryBindings.bind(labels.wrapper.source);
+  let calls = 0;
+  labels.wrapper.source.queryBindings = (...args) => calls++ === 0 ?
+    wrap(Promise.reject(new Error('HTTP 500'))) :
+    answer(...args);
+  await assert.rejects(run(actor(1_000), [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 1, [ 'cell' ], {}, [ row([ 'cell', 'c1' ]) ]),
+    entry(on(links, v('cell'), n('has'), v('x')), 10_000, [ 'cell', 'x' ]),
+    entry(on(labels, v('x'), n('label'), v('l')), 10_000, [ 'x', 'l' ]),
+  ]), { message: 'HTTP 500' });
+  assert.equal(calls, 1, 'nothing more goes out once a batch has failed');
+});
+
 test('a bound entry that fails fails the join with its own error', async() => {
   // As a SERVICE clause refused with 403 does. Destroying the join used to destroy the
   // failed entry again with the same error, which it emitted again, until the stack ran out.
