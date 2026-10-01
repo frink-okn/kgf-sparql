@@ -463,7 +463,7 @@ graphs) through the `kgf-sparql` command line: native `kgf@` sources with count-
 planning and lazy VoID statistics, a budget of 5,000 requests, 256 MB received, and 30
 seconds per query, eight status-code retries, and a receipt for every run. The runner is
 [`test/registry-corpus-cli.py`](../test/registry-corpus-cli.py); the results are in
-[`test/registry-query-results-cli.json`](../test/registry-query-results-cli.json), in the
+[`test/registry-query-results-cli-20260909-stock-bind.json`](../test/registry-query-results-cli-20260909-stock-bind.json), in the
 shape of the August file so the two compare directly. The registry has grown to 97
 queries since August (six `evoweb`, two `spatialkg`); three Wikidata queries are skipped,
 so 94 ran.
@@ -536,7 +536,7 @@ The engine now replaces Comunica's bind join in place with
 which adds to the stock cost formula the one term it lacked: one request per bound probe
 per paged entry. Nothing else in the planner changed, and the command line gained a
 connection cap (`--max-connections`, default 32). The corpus was rerun with both, same
-budgets, results in [`test/registry-query-results-cli.json`](../test/registry-query-results-cli.json);
+budgets, results in [`test/registry-query-results-cli-20260910.json`](../test/registry-query-results-cli-20260910.json);
 the earlier native run is kept as
 [`test/registry-query-results-cli-20260909-stock-bind.json`](../test/registry-query-results-cli-20260909-stock-bind.json)
 and [`test/compare-runs.py`](../test/compare-runs.py) compares the two.
@@ -626,6 +626,89 @@ iterations. And `biobricks-ice/names-of-chemical-entities` still spends 2,884 re
 200 rows: its `LIMIT 200` sits behind a join that pushes 413,000 bindings, the
 limit-after-a-full-input shape the client-suite report warns about. Both are the planner's
 next inaccuracies, not this one.
+
+### Block bind joins and bounded estimates (2026-10-01)
+
+Two actors take on those inaccuracies.
+[`@kgf/actor-rdf-join-selectivity-bound`](../packages/actor-rdf-join-selectivity-bound/)
+caps whatever join-size estimate the selectivity bus gives with an upper bound: an entry
+whose variables all occur in the other entries can only filter them, so it cannot make the
+join larger. [`@kgf/actor-rdf-join-inner-multi-bind-block`](../packages/actor-rdf-join-inner-multi-bind-block/)
+sends the smallest entry, 256 rows at a time, through every entry that accepts bindings in
+one pass, as FedX's bound joins do, with 16 blocks and 16 probe requests in flight. The
+command line also caps requests in flight per origin (`--max-in-flight`, default 32, the
+connection cap): the public server speaks HTTP/2, and one connection carries any number of
+requests, so the connection cap alone had let about 650 reach it at once. The corpus was
+rerun with all three under the same budgets; the results are in
+[`test/registry-query-results-cli.json`](../test/registry-query-results-cli.json), and the
+September 10 run is kept as
+[`test/registry-query-results-cli-20260910.json`](../test/registry-query-results-cli-20260910.json).
+One entry, `evoweb/protein-group-associated-organisms`, was rerun after a fix described
+below.
+
+**No result is lost and twelve are gained: 63 queries are non-empty where 51 were.**
+Thirteen queries that aborted now complete: `federation/sawgraph-hydrology-spatial-04` (64
+rows, 144 requests) and `federation/sawgraph-hydrology-spatial_03` (46 rows, 548);
+`nde/nde-resources-by-count` (8 rows, 2,267 requests, where the native run with a 20,000
+budget needed 8,275); the two `oard-kg` phenotype queries (100 rows each, 139 and 64
+requests); six `sockg` queries, among them `soc_stock` (66 rows, 297), `water_sample` (924
+rows, 84), and `soil_samples` (534 rows, 1,401); `spoke-okn/compounds-downregulating-alzheimers-genes`
+(10 rows, 204, where the larger budget had seen 17,959 label probes); and
+`prokn/lincs_kinase_perturbations`, empty in 19. Row counts agree on every query complete
+in both runs, and of the 39 non-empty in both whose query denotes one bag, 38 return an
+identical multiset; `nde/dataset-count-by-agent` returns the same rows with its
+`GROUP_CONCAT` lists in another order. Outcomes are 71 complete, 19 budget aborts (9 at the
+clock, 6 at bytes, 4 at requests), and 4 errors: the three `sockg` queries that call an
+Ontotext function, and UniProt refusing a `SERVICE` clause.
+
+**Over the 58 queries complete in both runs, requests and bytes fell by almost half:
+requests from 28,883 to 15,205, bytes received from 516 MB to 274 MB.** The median ratio is
+again 1.00, since most plans have no join the new actors take; where they take one the
+change is large. `ubergraph/abdominal-cell-types` went from 4,535 requests to 52 (August's
+brTPF run needed 323), `spoke-okn/drugs-for-sdoh-associated-diseases` from 1,616 to 33,
+`spoke-okn/compounds-treating-rheumatoid-arthritis` from 666 to 16,
+`pankgraph/non-acinar-cell-adhesion-regulation` from 2,072 to 151, `prokn/protein_kinases`
+from 1,719 to 455, and `nasa-gesdisc-kg/frequent-sciencekeywords` from 1,236 requests,
+227 MB, and 28.6 s to 277 requests, 22 MB, and 2.9 s. Five queries need up to 12% more
+requests: three with a bare `LIMIT`, and `sockg/who_works_agcros` (34 to 38) and
+`nestkg/enriched-systems` (53 to 59), whose results are identical. The 58 took 76 s against
+115 s, but the runs are three weeks apart, and in September one engine took 140 s over 52
+such queries one night and 91 s the next day; the requests and bytes are the plans', the
+seconds partly the server's.
+
+**Against August: 63 non-empty results to 45, 44 of them the same queries, and 29 of the 34
+that denote one bag identical.** The five that differ are the releases that changed
+(`ncipidkg/list-all-labeled-proteins`, and `ubergraph/abdominal-cell-types` and
+`ubergraph/processes-that-output-glucose`), `GROUP_CONCAT` order, and
+`sockg/who_works_agcros`, as before. Five of the six August results lost on September 10
+are back. The sixth, `prokn/protein_disease`, is one of the next three.
+
+**Three timeouts are Comunica's host rate limiter, not the plans.** `prokn/protein_disease`,
+`prokn/protein_opioid_abuse`, and `prokn/protein_variant_sdoh` send only 12 to 19 requests
+in their 30 seconds; on September 10 `protein_disease` sent 1,339. Their `SERVICE` endpoints
+(`/oard-kg/sparql`, `/biohealth/sparql`, `/spoke-okn/sparql`) are on the KGF server's host,
+`apps.okn.us`, and Comunica's first request to each, for its service description, times out
+after 3 seconds. `ActorHttpLimitRate` then marks the whole host as rate-limited and spaces
+every later request to it, KGF's included, by an interval that starts at 3 seconds (the
+failed request's 3 seconds, times a failure multiplier of 10, times a correction of 0.1) and
+shrinks by a tenth with each fast response. A trace of `protein_disease` shows 20 ms
+requests 2.7 seconds apart, 12 requests in the first 24 seconds, and the process idle for
+14 of 22. On September 10 the other two named `frink.apps.renci.org` endpoints and failed
+there. Limiting by endpoint rather than by host, or not marking a host on a timeout, is a
+separate change.
+
+**One error was the block join's own, and is fixed.** `evoweb/protein-group-associated-organisms`
+binds through a UniProt `SERVICE` clause, which answers its five requests with 403 ("This
+looks like abusive access"). The block join turned that error into a stack overflow: it
+destroyed the failed entry again with the same error, which the entry emitted again. The
+join now stops the entry without passing the error back, and the rerun records UniProt's
+own failure. On September 10 the query failed at the same endpoint.
+
+**What remains.** `biobricks-ice/names-of-chemical-entities` still spends 2,113 requests on
+200 rows, half of September's but nearly three times August's brTPF 759, and
+`federation/nde-diseases-mondo-parents` 2,046 on 200: a `LIMIT` behind a join that reads its
+whole input. And every probe against the native source still counts before its first page,
+the count-first doubling described above.
 
 ## Reproducing the run
 
