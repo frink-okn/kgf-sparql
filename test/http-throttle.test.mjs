@@ -180,3 +180,14 @@ test('a burst refused together slows the host once, not once per refusal', async
   assert.equal(retries.length, 5);
   assert.ok(retries.at(-1).at - calls[0].at < 2_000, `the retries were done ${retries.at(-1).at - calls[0].at} ms after the burst`);
 });
+
+test('an attempt listener hears when each attempt is sent and settled, not while it waits', async() => {
+  const { calls, fetch } = throttle((_, call) => call === 0 ? refused(429) : new Response('ok'), { hold: 20 });
+  const events = [];
+  const listener = { sent: () => events.push([ 'sent', Date.now() ]), settled: () => events.push([ 'settled', Date.now() ]) };
+  await fetch('https://q.example/sparql', { '@kgf/actor-http-throttle:attemptListener': listener });
+  assert.deepEqual(events.map(([ name ]) => name), [ 'sent', 'settled', 'sent', 'settled' ]);
+  assert.equal(calls.length, 2);
+  // The retry waits for the interval learned from the refusal, counted from the first start.
+  assert.ok(events[2][1] - events[0][1] >= 245, 'the wait before the retry falls between settled and sent');
+});

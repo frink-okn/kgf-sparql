@@ -15,8 +15,11 @@ requests.
 
 ## The plan
 
-Starting from the smallest entry, the actor repeatedly picks, among the entries it can
-probe, the one sharing the most variables with what is bound so far, then the smallest:
+Starting from the smallest entry of known size, the actor repeatedly picks, among the
+entries it can probe, the one sharing the most variables with what is bound so far, then
+the smallest. An entry whose size is unknown, as a COUNT that failed or timed out leaves it,
+can still be probed; the actor used to refuse when such an entry sorted first, and a
+per-row bind join took the join over. The entries it can probe are:
 
 - an operation on one source that accepts `filterBindings` (KGF, brTPF) or `joinBindings`
   (a SPARQL endpoint, through `VALUES`);
@@ -83,8 +86,10 @@ candidate when its cost is `NaN`, which happens whenever a COUNT has timed out.
 
 - A SPARQL endpoint answers each probe request with a COUNT first, and a native KGF source
   counts before its first page, because both fetch metadata eagerly.
-- SPARQL entries report no `requestTime`, so when every cost is finite the stock bind join
-  prices its per-row requests at nothing and can still win.
+- Comunica's SPARQL source reports no `requestTime`, so when every cost is finite the stock
+  bind join prices its per-row requests at nothing and can win. `kgf-sparql`'s
+  [bounded SPARQL source](../actor-query-source-identify-hypermedia-sparql-bounded/) reports
+  the time its requests take.
 - Entries with possibly unbound variables are left to other actors.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica

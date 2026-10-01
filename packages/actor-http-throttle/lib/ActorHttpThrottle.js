@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ActorHttpThrottle = exports.KEY_HTTP_HOST_LIMITS = exports.KEY_HTTP_IN_FLIGHT = void 0;
+exports.ActorHttpThrottle = exports.KEY_HTTP_ATTEMPT_LISTENER = exports.KEY_HTTP_HOST_LIMITS = exports.KEY_HTTP_IN_FLIGHT = void 0;
 const bus_http_1 = require("@comunica/bus-http");
 const context_entries_1 = require("@comunica/context-entries");
 const core_1 = require("@comunica/core");
@@ -8,6 +8,8 @@ const core_1 = require("@comunica/core");
 exports.KEY_HTTP_IN_FLIGHT = new core_1.ActionContextKey('@kgf/actor-http-throttle:inFlight');
 /** Limits for particular hosts, keyed by `URL.host` or `URL.hostname`. */
 exports.KEY_HTTP_HOST_LIMITS = new core_1.ActionContextKey('@kgf/actor-http-throttle:hosts');
+/** An `IHttpAttemptListener` for the request this context goes with. */
+exports.KEY_HTTP_ATTEMPT_LISTENER = new core_1.ActionContextKey('@kgf/actor-http-throttle:attemptListener');
 /** Set on the requests this actor sends on, so that it paces each request once. */
 const KEY_WRAPPED = new core_1.ActionContextKey('@kgf/actor-http-throttle:wrapped');
 /**
@@ -91,16 +93,19 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
         const fallbackDelay = action.context.get(context_entries_1.KeysHttp.httpRetryDelayFallback) ?? 0;
         const delayLimit = action.context.get(context_entries_1.KeysHttp.httpRetryDelayLimit);
         const replayable = ActorHttpThrottle.replayable(action.init?.body);
+        const listener = action.context.get(exports.KEY_HTTP_ATTEMPT_LISTENER);
         const context = action.context.set(KEY_WRAPPED, true).set(KEY_STOCK_RETRY_WRAPPED, true);
         for (let attempt = 0;; attempt++) {
             await queue.enter(signal, attempt > 0);
             const started = Date.now();
+            listener?.sent();
             let response;
             try {
                 response = await this.mediatorHttp.mediate({ ...action, context });
             }
             finally {
                 queue.leave();
+                listener?.settled();
             }
             if (ActorHttpThrottle.refusal(response)) {
                 const wait = ActorHttpThrottle.retryAfter(response.headers.get('retry-after'));

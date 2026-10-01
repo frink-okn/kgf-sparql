@@ -53,6 +53,11 @@ multiply this actor's, and this actor keeps its other duties: with `httpRetryCou
 retries run out the last response is returned as it is, not a bare "Request failed", so the
 caller reports its status. A request whose body is a stream is sent once.
 
+`KEY_HTTP_ATTEMPT_LISTENER` in a request's context is told when each attempt leaves its
+host's queue (`sent`) and when its response headers arrive or it fails (`settled`), so a
+caller can time a request by the server alone: `kgf-sparql`'s bounded SPARQL source times
+its COUNT queries this way.
+
 ## Configuration
 
 `kgf-sparql` installs the actor with an override of Comunica's

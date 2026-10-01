@@ -1,0 +1,52 @@
+{
+  "name": "@kgf/actor-query-source-identify-hypermedia-sparql-bounded",
+  "version": "0.1.0",
+  "description": "Comunica's SPARQL endpoint source with bounded COUNT queries, timed by the server, and source selection that accepts a bounded count without an ASK",
+  "license": "MIT",
+  "lsd:module": true,
+  "main": "lib/index.js",
+  "typings": "lib/index",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "components",
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "README.md"
+  ],
+  "dependencies": {
+    "@comunica/actor-optimize-query-operation-prune-empty-source-operations": "~5.3.0",
+    "@comunica/actor-query-source-identify-hypermedia-sparql": "~5.3.0",
+    "@comunica/bus-http": "~5.3.0",
+    "@comunica/bus-merge-bindings-context": "~5.3.0",
+    "@comunica/bus-optimize-query-operation": "~5.3.0",
+    "@comunica/bus-query-serialize": "~5.3.0",
+    "@comunica/bus-query-source-identify-hypermedia": "~5.3.0",
+    "@comunica/context-entries": "~5.3.0",
+    "@comunica/core": "^5.3.0",
+    "@comunica/mediatortype-time": "~5.3.0",
+    "@comunica/types": "^5.3.0",
+    "@comunica/utils-algebra": "^5.3.0",
+    "@comunica/utils-bindings-factory": "^5.3.0",
+    "@comunica/utils-metadata": "^5.3.0",
+    "@comunica/utils-query-operation": "~5.3.0",
+    "@kgf/actor-http-throttle": "^0.1.0",
+    "asynciterator": "^3.9.0"
+  },
+  "scripts": {
+    "build": "tsc -b . && componentsjs-generator .",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "componentsjs-generator": "^4.2.0",
+    "typescript": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "directory": "packages/actor-query-source-identify-hypermedia-sparql-bounded"
+  }
+}

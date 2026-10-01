@@ -15,6 +15,18 @@ export declare const KEY_HTTP_IN_FLIGHT: ActionContextKey<number>;
 /** Limits for particular hosts, keyed by `URL.host` or `URL.hostname`. */
 export declare const KEY_HTTP_HOST_LIMITS: ActionContextKey<Record<string, IHostLimits>>;
 /**
+ * Told when each attempt at a request leaves its host's queue (`sent`) and when its response
+ * headers arrive or it fails (`settled`), so that a caller can time a request by how long the
+ * server takes rather than how long it waited its turn. A SPARQL source times its COUNT
+ * queries this way.
+ */
+export interface IHttpAttemptListener {
+    sent: () => void;
+    settled: () => void;
+}
+/** An `IHttpAttemptListener` for the request this context goes with. */
+export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptListener>;
+/**
  * Paces the requests to each host, and retries those a host refuses as too many.
  *
  * ## Why

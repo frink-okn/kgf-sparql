@@ -7,6 +7,7 @@ const fs = require("node:fs");
 const node_util_1 = require("node:util");
 const context_entries_1 = require("@comunica/context-entries");
 const actor_http_throttle_1 = require("@kgf/actor-http-throttle");
+const actor_query_source_identify_hypermedia_sparql_bounded_1 = require("@kgf/actor-query-source-identify-hypermedia-sparql-bounded");
 const actor_query_source_identify_kgf_1 = require("@kgf/actor-query-source-identify-kgf");
 const QueryEngine_1 = require("../QueryEngine");
 const Budget_1 = require("./Budget");
@@ -54,6 +55,8 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
                             and host=n caps one host, e.g. --max-in-flight qlever.dev=2
       --max-rate <host=n>   Start at most n requests a second to a host, e.g. --max-rate qlever.dev=1;
                             repeatable. Hosts that answer 429 without Retry-After are slowed anyway
+      --count-cap <n>       Count at most n matches when planning against a SPARQL endpoint
+                            (default 1000000); repeatable, and host=n sets one host's cap
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -78,6 +81,7 @@ const OPTIONS = {
     'max-connections': { type: 'string' },
     'max-in-flight': { type: 'string', multiple: true },
     'max-rate': { type: 'string', multiple: true },
+    'count-cap': { type: 'string', multiple: true },
     help: { type: 'boolean', short: 'h' },
 };
 class UsageError extends Error {
@@ -193,7 +197,42 @@ function parseArguments(argv) {
     if (Object.keys(throttle.hosts).length > 0) {
         settings[actor_http_throttle_1.KEY_HTTP_HOST_LIMITS.name] = throttle.hosts;
     }
-    return { query, sources, out: values.out, format: values.format, receipt: values.receipt, budget, maxConnections, throttle, settings };
+    const countCaps = countCapLimits(values['count-cap']);
+    if (countCaps.default !== undefined) {
+        settings[actor_query_source_identify_hypermedia_sparql_bounded_1.KEY_SPARQL_COUNT_CAP.name] = countCaps.default;
+    }
+    if (Object.keys(countCaps.hosts).length > 0) {
+        settings[actor_query_source_identify_hypermedia_sparql_bounded_1.KEY_SPARQL_COUNT_CAP_HOSTS.name] = countCaps.hosts;
+    }
+    return {
+        query,
+        sources,
+        out: values.out,
+        format: values.format,
+        receipt: values.receipt,
+        budget,
+        maxConnections,
+        throttle,
+        countCaps,
+        settings,
+    };
+}
+/** `--count-cap` values: a bare number is the cap for every endpoint, `host=n` one host's. */
+function countCapLimits(values) {
+    const caps = { hosts: {} };
+    for (const value of values ?? []) {
+        const at = value.lastIndexOf('=');
+        if (at < 0) {
+            caps.default = integer('--count-cap', value);
+        }
+        else if (at === 0) {
+            throw new UsageError(`--count-cap needs a host before '=', not '${value}'`);
+        }
+        else {
+            caps.hosts[value.slice(0, at)] = integer(`--count-cap ${value.slice(0, at)}`, value.slice(at + 1));
+        }
+    }
+    return caps;
 }
 /**
  * `--max-in-flight` values: a bare number is the cap for every host, `host=n` caps one host.
@@ -456,6 +495,8 @@ function receipt(parsed, sources, outcome, output, account, started, finished) {
                 .filter(([, limits]) => limits.inFlight !== undefined).map(([name, limits]) => [name, limits.inFlight])),
             max_rate_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
                 .filter(([, limits]) => limits.perSecond !== undefined).map(([name, limits]) => [name, limits.perSecond])),
+            sparql_count_cap: parsed.countCaps.default ?? null,
+            sparql_count_cap_hosts: parsed.countCaps.hosts,
         },
         engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
         started: started.toISOString(),

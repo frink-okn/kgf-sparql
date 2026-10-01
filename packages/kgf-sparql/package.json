@@ -38,6 +38,7 @@
     "@comunica/runner-cli": "^5.3.0",
     "@comunica/types": "^5.3.0",
     "@kgf/actor-http-throttle": "^0.1.0",
+    "@kgf/actor-query-source-identify-hypermedia-sparql-bounded": "^0.1.0",
     "@kgf/actor-query-source-identify-kgf": "^0.1.0",
     "@kgf/actor-rdf-join-inner-multi-bind-block": "^0.1.0",
     "@kgf/actor-rdf-join-inner-multi-bind-round-trip": "^0.1.0",

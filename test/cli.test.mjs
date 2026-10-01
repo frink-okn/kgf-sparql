@@ -97,7 +97,7 @@ test('a complete run writes SPARQL Results JSON and a receipt that accounts for 
   assert.equal(receipt.statistics.schema_requests, mock.requests.filter(call => call.url.pathname.endsWith('/schema')).length);
   assert.ok(receipt.statistics.schema_requests > 0, 'a two-pattern join consults the lazy VoID provider');
   assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32,
-    max_in_flight: 32, max_in_flight_hosts: {}, max_rate_hosts: {} });
+    max_in_flight: 32, max_in_flight_hosts: {}, max_rate_hosts: {}, sparql_count_cap: null, sparql_count_cap_hosts: {} });
   assert.ok(receipt.engine.kgf_sparql && receipt.engine.comunica);
   assert.equal(receipt.engine.node, process.version);
   assert.ok(Date.parse(receipt.started) <= Date.parse(receipt.finished));
@@ -385,20 +385,24 @@ test('--http-retries bounds a refused request\'s attempts once, not once per ret
   assert.equal(Math.max(...attempts.values()), 3, 'one attempt and two retries');
 });
 
-test('--max-in-flight and --max-rate set the caps, and the receipt records them', async t => {
+test('--max-in-flight, --max-rate and --count-cap set the limits, and the receipt records them', async t => {
   const { source } = await bridge(t, {});
   const ws = workspace(t);
   const run = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
-    '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2', '--max-rate', 'qlever.dev=1', '--max-rate', 'example.org=0.5' ]);
+    '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2', '--max-rate', 'qlever.dev=1', '--max-rate', 'example.org=0.5',
+    '--count-cap', '100000', '--count-cap', 'query.wikidata.org=10000' ]);
   assert.equal(run.code, 0, run.stderr);
   const { budget } = readJson(ws.receipt);
   assert.equal(budget.max_in_flight, 4);
   assert.deepEqual(budget.max_in_flight_hosts, { 'qlever.dev': 2 });
   assert.deepEqual(budget.max_rate_hosts, { 'qlever.dev': 1, 'example.org': 0.5 });
+  assert.equal(budget.sparql_count_cap, 100000);
+  assert.deepEqual(budget.sparql_count_cap_hosts, { 'query.wikidata.org': 10000 });
   for (const [ flag, value, message ] of [
     [ '--max-in-flight', '=2', /needs a host/u ],
     [ '--max-rate', '2', /takes host=n/u ],
     [ '--max-rate', 'qlever.dev=0', /positive number/u ],
+    [ '--count-cap', '=5', /needs a host/u ],
   ]) {
     const usage = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, flag, value ]);
     assert.equal(usage.code, 2, `${flag} ${value}`);

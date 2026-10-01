@@ -22,6 +22,22 @@ export const KEY_HTTP_HOST_LIMITS = new ActionContextKey<Record<string, IHostLim
   '@kgf/actor-http-throttle:hosts',
 );
 
+/**
+ * Told when each attempt at a request leaves its host's queue (`sent`) and when its response
+ * headers arrive or it fails (`settled`), so that a caller can time a request by how long the
+ * server takes rather than how long it waited its turn. A SPARQL source times its COUNT
+ * queries this way.
+ */
+export interface IHttpAttemptListener {
+  sent: () => void;
+  settled: () => void;
+}
+
+/** An `IHttpAttemptListener` for the request this context goes with. */
+export const KEY_HTTP_ATTEMPT_LISTENER = new ActionContextKey<IHttpAttemptListener>(
+  '@kgf/actor-http-throttle:attemptListener',
+);
+
 /** Set on the requests this actor sends on, so that it paces each request once. */
 const KEY_WRAPPED = new ActionContextKey<boolean>('@kgf/actor-http-throttle:wrapped');
 
@@ -111,15 +127,18 @@ export class ActorHttpThrottle extends ActorHttp {
     const fallbackDelay = action.context.get(KeysHttp.httpRetryDelayFallback) ?? 0;
     const delayLimit = action.context.get(KeysHttp.httpRetryDelayLimit);
     const replayable = ActorHttpThrottle.replayable(action.init?.body);
+    const listener = action.context.get(KEY_HTTP_ATTEMPT_LISTENER);
     const context = action.context.set(KEY_WRAPPED, true).set(KEY_STOCK_RETRY_WRAPPED, true);
     for (let attempt = 0; ; attempt++) {
       await queue.enter(signal, attempt > 0);
       const started = Date.now();
+      listener?.sent();
       let response: IActorHttpOutput;
       try {
         response = await this.mediatorHttp.mediate({ ...action, context });
       } finally {
         queue.leave();
+        listener?.settled();
       }
       if (ActorHttpThrottle.refusal(response)) {
         const wait = ActorHttpThrottle.retryAfter(response.headers.get('retry-after'));

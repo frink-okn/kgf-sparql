@@ -7,7 +7,8 @@
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-round-trip/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-selectivity-bound/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-rdf-join-inner-multi-bind-block/^0.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-http-throttle/^0.0.0/components/context.jsonld"
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-http-throttle/^0.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@kgf/actor-query-source-identify-hypermedia-sparql-bounded/^0.0.0/components/context.jsonld"
   ],
   "@graph": [
     {
@@ -166,6 +167,43 @@
           },
           {
             "@id": "urn:comunica:default:http/actors#proxy"
+          }
+        ]
+      }
+    },
+    {
+      "@id": "urn:kgf:override/query-source-identify-hypermedia/actors#sparql",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:query-source-identify-hypermedia/actors#sparql"
+      },
+      "overrideParameters": {
+        "@type": "ActorQuerySourceIdentifyHypermediaSparqlBounded",
+        "mediatorHttp": {
+          "@id": "urn:comunica:default:http/mediators#main"
+        },
+        "mediatorMergeBindingsContext": {
+          "@id": "urn:comunica:default:merge-bindings-context/mediators#main"
+        },
+        "mediatorQuerySerialize": {
+          "@id": "urn:comunica:default:query-serialize/mediators#main"
+        },
+        "countCap": 1000000,
+        "countDeadline": 30000
+      }
+    },
+    {
+      "@id": "urn:kgf:override/optimize-query-operation/actors#prune-empty-source-operations",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:optimize-query-operation/actors#prune-empty-source-operations"
+      },
+      "overrideParameters": {
+        "@type": "ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded",
+        "useAskIfSupported": false,
+        "beforeActors": [
+          {
+            "@id": "urn:comunica:default:optimize-query-operation/actors#filter-pushdown"
           }
         ]
       }

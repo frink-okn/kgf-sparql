@@ -70,7 +70,9 @@ kgf-sparql -f query.rq \
 - **Transport:** `--http-method QUERY|POST`, `--page-size`, `--bindings-size`, and
   `--no-void-statistics` set the context keys described below. `--http-retries N` retries
   429, 502, 503, and 504 responses up to N times; without it, 429 and 503 are retried up to
-  5 times and the others not at all. Network errors are not retried.
+  5 times and the others not at all. Network errors are not retried. `--count-cap N`, or
+  `host=N` for one endpoint, caps the COUNT queries sent to SPARQL endpoints while planning
+  (default 1,000,000).
 - **Connections:** `--max-connections N` (default 32) caps concurrent connections per
   origin. `--max-in-flight N` (default: the connection cap) caps requests in flight per
   host, and `--max-in-flight host=N`, repeatable, one host's; `--max-rate host=N` starts at
@@ -295,6 +297,21 @@ await new QueryEngine().queryBindings(query, {
 });
 ```
 
+[`@kgf/actor-query-source-identify-hypermedia-sparql-bounded`](packages/actor-query-source-identify-hypermedia-sparql-bounded/)
+makes plans over SPARQL endpoints come out the same from run to run. Comunica plans a
+federated query from a COUNT per pattern per endpoint; an exact count of a large pattern
+outlasts its 3 second timeout (4.4 s for every `rdfs:label` on QLever's Wikidata), the
+cardinality becomes unknown, and which counts came back in time decided the plan: the
+Ubergraph and Wikidata cells query returned 1,000 rows in 21 s on one run and timed out after
+375 requests on the next. Counts are bounded at a cap (`KEY_SPARQL_COUNT_CAP`, per host
+`KEY_SPARQL_COUNT_CAP_HOSTS`, `--count-cap`; default 1,000,000), timed only while the server
+has them, and reported with their request time, so that a bind join sending a request per row
+no longer costs the same as one sending a block of rows; a count at the cap is accepted
+without the ASK Comunica would confirm it with. The cells query now takes the block join on
+every run, 1,000 rows in 13 to 16 s and about 21 requests to QLever. `prokn/protein_disease`,
+whose plan had waited on host-wide slowdowns and timed-out counts, returned its 277 rows in
+6 s and 29 s in two runs; in a third, its SERVICE endpoint did not answer within the budget.
+
 ## Development
 
 ```bash
@@ -324,6 +341,7 @@ packages/actor-rdf-join-inner-multi-bind-round-trip/  Bind join charging a reque
 packages/actor-rdf-join-selectivity-bound/        Upper bound on any join-size estimate
 packages/actor-rdf-join-inner-multi-bind-block/   Block bind join through every bindable entry
 packages/actor-http-throttle/                      Per-host pacing, and retries of refused requests
+packages/actor-query-source-identify-hypermedia-sparql-bounded/  SPARQL source with bounded, server-timed COUNTs
 packages/kgf-sparql/                              Engine configuration, library, and CLI
 ```
 
