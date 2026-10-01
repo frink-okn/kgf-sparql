@@ -976,7 +976,9 @@ class BlockJoinIterator extends BufferedIterator<Bindings> {
   }
 
   protected override _destroy(cause: Error | undefined, callback: (error?: Error) => void): void {
-    this.blocks.destroy(cause);
+    // Without the cause: destroyed with one, the blocks emit it as an error, and when the
+    // error came from them in the first place that destroys this iterator again, without end.
+    this.blocks.destroy();
     this.wake();
     super._destroy(cause, callback);
   }

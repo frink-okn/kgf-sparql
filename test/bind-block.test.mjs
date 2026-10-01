@@ -258,6 +258,21 @@ test('destroying the output stops the probes, as a LIMIT above the join does', a
   assert.ok(labels.calls.length <= 2 * joinActor.blocksInFlight, `${labels.calls.length} of 100 blocks probed`);
 });
 
+test('a bound entry that fails fails the join with its own error', async() => {
+  // As a SERVICE clause refused with 403 does. Destroying the join used to destroy the
+  // failed entry again with the same error, which it emitted again, until the stack ran out.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const labels = source('labels', [], 'filterBindings');
+  const failing = new BufferedIterator({ autoStart: false });
+  failing._read = () => setImmediate(() => failing.destroy(new Error('HTTP 403')));
+  const bound = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 3, [ 'cell' ]);
+  bound.output.bindingsStream = failing;
+  await assert.rejects(run(actor(2), [
+    bound,
+    entry(on(labels, v('cell'), n('label'), v('l')), 1_000, [ 'cell', 'l' ]),
+  ]), { message: 'HTTP 403' });
+});
+
 test('blocks queued ahead are probed at once, up to blocksInFlight', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   let open = 0;
