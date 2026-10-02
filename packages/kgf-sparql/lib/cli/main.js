@@ -52,8 +52,9 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
                             and 503 are retried up to 5 times and the others not at all
       --max-connections <n> Cap concurrent connections per origin (default ${exports.DEFAULT_MAX_CONNECTIONS})
       --max-in-flight <n>   Cap requests in flight per host (default: the connection cap); repeatable,
-                            and host=n caps one host, e.g. --max-in-flight qlever.dev=2
-      --max-rate <host=n>   Start at most n requests a second to a host, e.g. --max-rate qlever.dev=1;
+                            host=n caps one host and '*.domain=n' a domain's hosts together,
+                            e.g. --max-in-flight '*.wikidata.org=5'
+      --max-rate <host=n>   Start at most n requests a second to a host (QLever's: 1 by default);
                             repeatable. Hosts that answer 429 without Retry-After are slowed anyway
       --count-cap <n>       Count at most n matches when planning against a SPARQL endpoint
                             (default 1000000); repeatable, and host=n sets one host's cap

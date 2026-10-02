@@ -6,7 +6,10 @@ const context_entries_1 = require("@comunica/context-entries");
 const core_1 = require("@comunica/core");
 /** Requests in flight per host, for every host without a limit of its own. */
 exports.KEY_HTTP_IN_FLIGHT = new core_1.ActionContextKey('@kgf/actor-http-throttle:inFlight');
-/** Limits for particular hosts, keyed by `URL.host` or `URL.hostname`. */
+/**
+ * Limits for particular hosts, keyed by `URL.host`, `URL.hostname`, or `*.` and a domain. They
+ * take precedence, field by field, over the actor's own `hosts`.
+ */
 exports.KEY_HTTP_HOST_LIMITS = new core_1.ActionContextKey('@kgf/actor-http-throttle:hosts');
 /** An `IHttpAttemptListener` for the request this context goes with. */
 exports.KEY_HTTP_ATTEMPT_LISTENER = new core_1.ActionContextKey('@kgf/actor-http-throttle:attemptListener');
@@ -43,9 +46,11 @@ const SHORTEST_INTERVAL_MS = 10;
  * ## What it does
  *
  * Each host has a queue. A request starts when the host has fewer than its limit in flight
- * (`KEY_HTTP_IN_FLIGHT`, or the host's own in `KEY_HTTP_HOST_LIMITS`, else `inFlight`), and
- * no sooner after the previous start than the host's spacing allows. It holds its place until
- * its response headers arrive; the body is read outside the queue.
+ * (the host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`,
+ * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
+ * holds its place until its response headers arrive; the body is read outside the queue. A
+ * limit named `*.` and a domain gives the hosts in that domain one queue between them, for a
+ * service that limits a client across its hosts.
  *
  * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals.
  * A 429 or 503 with `Retry-After` pauses the host until then, and teaches nothing else: the
@@ -63,18 +68,29 @@ const SHORTEST_INTERVAL_MS = 10;
  * out, the last response is returned as it is, rather than a bare "Request failed", so the
  * caller reports the status. A request whose body is a stream is not retried.
  *
- * Nothing here is particular to Node: the actor runs the same in a browser.
+ * ## Who is asking
+ *
+ * Under Node, a request without a `User-Agent` header is sent with the actor's `userAgent`,
+ * in place of Comunica's generic one. Some endpoints ask clients to name themselves and a
+ * contact (Wikidata's query service does), and some turn generic clients away (UniProt). A
+ * browser sends its own, and the actor leaves it alone there.
+ *
+ * Nothing else here is particular to Node: the actor runs the same in a browser.
  */
 class ActorHttpThrottle extends bus_http_1.ActorHttp {
     mediatorHttp;
     inFlight;
     retries;
+    hosts;
+    userAgent;
     queues = new Map();
     constructor(args) {
         super(args);
         this.mediatorHttp = args.mediatorHttp;
         this.inFlight = args.inFlight ?? 32;
         this.retries = args.retries ?? 5;
+        this.hosts = args.hosts ?? {};
+        this.userAgent = args.userAgent;
     }
     async test(action) {
         if (action.context.has(KEY_WRAPPED)) {
@@ -83,6 +99,7 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
         return (0, core_1.passTest)({ time: 0 });
     }
     async run(action) {
+        action = this.identified(action);
         const url = bus_http_1.ActorHttp.getInputUrl(action.input);
         const queue = this.queueFor(url, action.context);
         const signal = action.init?.signal ?? undefined;
@@ -137,15 +154,36 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
             return response;
         }
     }
-    /** The host's queue, with the limits this request's context gives it. */
+    /** The action, with the actor's `User-Agent` if it has none and runs outside a browser. */
+    identified(action) {
+        if (this.userAgent === undefined || bus_http_1.ActorHttp.isBrowser()) {
+            return action;
+        }
+        const headers = new Headers(action.init?.headers);
+        if (headers.has('user-agent')) {
+            return action;
+        }
+        headers.set('user-agent', this.userAgent);
+        return { ...action, init: { ...action.init, headers } };
+    }
+    /**
+     * The queue of the host, or of the group of hosts, with the limits the request's context and
+     * the actor give it. The most particular name either knows decides: the host with its port,
+     * then without, then `*.` and each shorter domain the host is in.
+     */
     queueFor(url, context) {
-        const own = context.get(exports.KEY_HTTP_HOST_LIMITS)?.[url.host] ?? context.get(exports.KEY_HTTP_HOST_LIMITS)?.[url.hostname];
-        let queue = this.queues.get(url.host);
+        const given = context.get(exports.KEY_HTTP_HOST_LIMITS);
+        const labels = url.hostname.split('.');
+        const names = [url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`)];
+        const name = names.find(candidate => given?.[candidate] ?? this.hosts[candidate]);
+        const own = name === undefined ? {} : { ...this.hosts[name], ...given?.[name] };
+        const key = name?.startsWith('*.') ? name : url.host;
+        let queue = this.queues.get(key);
         if (!queue) {
             queue = new HostQueue();
-            this.queues.set(url.host, queue);
+            this.queues.set(key, queue);
         }
-        queue.configure(own?.inFlight ?? context.get(exports.KEY_HTTP_IN_FLIGHT) ?? this.inFlight, own?.perSecond ? 1_000 / own.perSecond : 0);
+        queue.configure(own.inFlight ?? context.get(exports.KEY_HTTP_IN_FLIGHT) ?? this.inFlight, own.perSecond ? 1_000 / own.perSecond : 0);
         return queue;
     }
     /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */

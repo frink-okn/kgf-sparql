@@ -75,8 +75,10 @@ kgf-sparql -f query.rq \
   (default 1,000,000).
 - **Connections:** `--max-connections N` (default 32) caps concurrent connections per
   origin. `--max-in-flight N` (default: the connection cap) caps requests in flight per
-  host, and `--max-in-flight host=N`, repeatable, one host's; `--max-rate host=N` starts at
-  most N requests a second to a host (`--max-rate qlever.dev=1`). A plan that fans out can
+  host, `--max-in-flight host=N`, repeatable, one host's, and `--max-in-flight
+  '*.domain=N'` the domain's hosts together (`'*.wikidata.org=5'`); `--max-rate host=N`
+  starts at most N requests a second to a host, as the engine does for QLever's hosts
+  (`qlever.dev`, `qlever.cs.uni-freiburg.de`) at 1 unless told otherwise. A plan that fans out can
   put hundreds of requests in flight at once, which a shared server answers with connection
   failures or 429s. The two caps differ because the transport speaks HTTP/2 where the
   server offers it, as the public KGF server does, and one HTTP/2 connection carries any
@@ -278,7 +280,12 @@ and 227 MB to 2.9 s and 22 MB, `abdominal-cell-types` from 4,535 requests to 52.
 [`@kgf/actor-http-throttle`](packages/actor-http-throttle/) paces requests per host, in
 place of Comunica's rate limiter. A host has at most `KEY_HTTP_IN_FLIGHT` requests in
 flight (default 32); `KEY_HTTP_HOST_LIMITS` gives particular hosts their own `inFlight` and
-`perSecond`. A 429 or 503 with `Retry-After`, as KGF's admission gate sends, pauses the host
+`perSecond`, and `*.domain` a domain's hosts one queue between them. QLever's hosts start at
+most one request a second unless the context says otherwise: QLever publishes no limit, and
+learning it from refusals cost every run its first requests. Under Node, requests name
+`kgf-sparql/<version> (+https://github.com/frink-okn/kgf-sparql)` as their user agent:
+Wikidata's query service asks clients to name themselves, and UniProt turned Comunica's
+default away. A 429 or 503 with `Retry-After`, as KGF's admission gate sends, pauses the host
 until then; one without, as QLever sends, doubles the interval between the host's requests,
 and later answers shorten it again. Refused requests are retried through the same queue, up
 to 5 times unless the context sets `httpRetryCount`, and Comunica's retry actor stands

@@ -22,7 +22,15 @@ place until its response headers arrive; the body is read outside the queue.
 - `KEY_HTTP_IN_FLIGHT` in the query context caps requests in flight for every host
   (the actor's `inFlight`, 32 in `kgf-sparql`, when it is not set).
 - `KEY_HTTP_HOST_LIMITS` gives hosts their own `{ inFlight, perSecond }`, keyed by `host`
-  (`example.org:8080`) or `hostname`.
+  (`example.org:8080`) or `hostname`. A key of `*.` and a domain gives the hosts in that
+  domain one queue between them: `*.wikidata.org` caps `query.wikidata.org` and
+  `query-scholarly.wikidata.org` together. The most particular key that names a host
+  decides its queue.
+- The actor's `hosts` are limits of the same form that hold unless the context overrides
+  them, field by field. `kgf-sparql` starts at most one request a second to QLever's hosts
+  (`qlever.dev`, `qlever.cs.uni-freiburg.de`), about the rate its Wikidata endpoint was
+  seen to accept from one client. QLever publishes no limit, and the refusals that would
+  teach the actor the rate cost the first requests of every run.
 
 ```js
 import { KEY_HTTP_HOST_LIMITS, QueryEngine } from 'kgf-sparql';
@@ -53,6 +61,16 @@ multiply this actor's, and this actor keeps its other duties: with `httpRetryCou
 retries run out the last response is returned as it is, not a bare "Request failed", so the
 caller reports its status. A request whose body is a stream is sent once.
 
+## User agent
+
+Under Node, a request without a `User-Agent` header is sent with the actor's `userAgent`
+in place of Comunica's generic one. Wikidata's query service asks clients to name
+themselves and a contact, and UniProt turns Comunica's default away. `kgf-sparql` sends
+`kgf-sparql/<version> (+https://github.com/frink-okn/kgf-sparql)`. A request that names its
+own keeps it, and a browser sends its own, so the actor sets none there.
+
+## Attempts
+
 `KEY_HTTP_ATTEMPT_LISTENER` in a request's context is told when each attempt leaves its
 host's queue (`sent`) and when its response headers arrive or it fails (`settled`), so a
 caller can time a request by the server alone: `kgf-sparql`'s bounded SPARQL source times
@@ -61,9 +79,9 @@ its COUNT queries this way.
 ## Configuration
 
 `kgf-sparql` installs the actor with an override of Comunica's
-`urn:comunica:default:http/actors#limit-rate`, ahead of `#retry` and `#proxy`. Queues and
-learned intervals belong to the actor, so one engine shares them across its queries, as a
-page that keeps one engine does.
+`urn:comunica:default:http/actors#limit-rate`, ahead of `#retry` and `#proxy`, with the
+`hosts` and `userAgent` above. Queues and learned intervals belong to the actor, so one
+engine shares them across its queries, as a page that keeps one engine does.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), where the command
 line's `--max-in-flight` and `--max-rate` set these keys.

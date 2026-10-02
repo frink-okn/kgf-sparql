@@ -17,7 +17,7 @@ function throttle(answer = () => new Response('ok'), { hold = 0, ...args } = {})
   const mediatorHttp = {
     async mediate(action) {
       const url = new URL(action.input);
-      const call = { url: url.href, host: url.host, at: Date.now(), context: action.context };
+      const call = { url: url.href, host: url.host, at: Date.now(), context: action.context, init: action.init };
       calls.push(call);
       open[url.host] = (open[url.host] ?? 0) + 1;
       peak[url.host] = Math.max(peak[url.host] ?? 0, open[url.host]);
@@ -190,4 +190,47 @@ test('an attempt listener hears when each attempt is sent and settled, not while
   assert.equal(calls.length, 2);
   // The retry waits for the interval learned from the refusal, counted from the first start.
   assert.ok(events[2][1] - events[0][1] >= 245, 'the wait before the retry falls between settled and sent');
+});
+
+test('the actor\'s own host limits apply, and the context\'s override them field by field', async() => {
+  const { calls, peak, fetch } = throttle(undefined, { hold: 10, hosts: { 'q.example': { inFlight: 1, perSecond: 20 }}});
+  await Promise.all(Array.from({ length: 3 }, () => fetch('https://q.example/sparql')));
+  assert.equal(peak['q.example'], 1);
+  assert.ok(gaps(calls).every(gap => gap >= 45), `${gaps(calls)} ms between starts at 20 a second`);
+  calls.length = 0;
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { 'q.example': { inFlight: 3 }}};
+  await Promise.all(Array.from({ length: 3 }, () => fetch('https://q.example/sparql', settings)));
+  assert.ok(gaps(calls).every(gap => gap >= 45), 'the rate is still the actor\'s');
+});
+
+test('a limit on *.domain is shared by the hosts in it, and a host\'s own limit comes first', async() => {
+  const { peak, fetch } = throttle(undefined, { hold: 20 });
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { '*.wikidata.example': { inFlight: 2 }, 'own.wikidata.example': { inFlight: 3 }}};
+  const started = Date.now();
+  await Promise.all([
+    ...Array.from({ length: 2 }, () => fetch('https://query.wikidata.example/sparql', settings)),
+    ...Array.from({ length: 2 }, () => fetch('https://query-scholarly.wikidata.example/sparql', settings)),
+  ]);
+  assert.ok(Date.now() - started >= 38, 'four requests to the group, two at a time, take two turns');
+  await Promise.all(Array.from({ length: 3 }, () => fetch('https://own.wikidata.example/sparql', settings)));
+  assert.equal(peak['own.wikidata.example'], 3);
+  await Promise.all(Array.from({ length: 3 }, () => fetch('https://wikidata.example/sparql', settings)));
+  assert.equal(peak['wikidata.example'], 3, 'the domain itself is not in the group');
+});
+
+test('under Node a request is sent with the actor\'s user agent, unless it names its own', async() => {
+  const { calls, fetch } = throttle(undefined, { userAgent: 'kgf-sparql/test (+https://example.org/kgf-sparql)' });
+  await fetch('https://a.example/x');
+  await fetch('https://a.example/x', {}, { headers: { 'User-Agent': 'kgfq/1' }});
+  await fetch('https://a.example/x', {}, { headers: [[ 'accept', 'text/plain' ]]});
+  const agent = call => new Headers(call.init.headers).get('user-agent');
+  assert.deepEqual(calls.map(agent), [
+    'kgf-sparql/test (+https://example.org/kgf-sparql)',
+    'kgfq/1',
+    'kgf-sparql/test (+https://example.org/kgf-sparql)',
+  ]);
+  assert.equal(new Headers(calls[2].init.headers).get('accept'), 'text/plain', 'other headers are kept');
+  const { calls: plain, fetch: fetchPlain } = throttle();
+  await fetchPlain('https://a.example/x');
+  assert.equal(plain[0].init.headers, undefined, 'without a userAgent the request is left alone');
 });
