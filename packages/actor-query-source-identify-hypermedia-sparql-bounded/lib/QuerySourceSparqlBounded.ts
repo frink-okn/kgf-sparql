@@ -1,11 +1,21 @@
 import { QuerySourceSparql } from '@comunica/actor-query-source-identify-hypermedia-sparql';
-import type { ComunicaDataFactory, IActionContext, MetadataBindings } from '@comunica/types';
+import { ActionContextKey } from '@comunica/core';
+import type {
+  BindingsStream,
+  ComunicaDataFactory,
+  IActionContext,
+  IQueryBindingsOptions,
+  MetadataBindings,
+} from '@comunica/types';
 import type { AlgebraFactory, Algebra } from '@comunica/utils-algebra';
 import { algebraUtils } from '@comunica/utils-algebra';
 import { MetadataValidationState } from '@comunica/utils-metadata';
 import type { IHttpAttemptListener } from '@kgf/actor-http-throttle';
 import { KEY_HTTP_ATTEMPT_LISTENER } from '@kgf/actor-http-throttle';
 import type { AsyncIterator } from 'asynciterator';
+
+/** Set on the context of a call that carries bindings, whose cardinality is not counted. */
+const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identify-hypermedia-sparql-bounded:bound');
 
 /**
  * Comunica's SPARQL endpoint source, with two changes to the COUNT query it sends for each
@@ -38,6 +48,14 @@ import type { AsyncIterator } from 'asynciterator';
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
  * spent with the server is reported as the metadata's `requestTime`, or, for a count already
  * known, the time of this source's last request.
+ *
+ * ## Bindings are not counted
+ *
+ * A call that carries bindings, sent as `VALUES`, is a bind join's probe, and Comunica counts
+ * it before selecting, so each block of bindings cost the endpoint two requests. Nothing reads
+ * that count: the bind joins that send blocks take their cardinality from their own entries,
+ * and the COUNT, which carries the block, never matches a cached one. Such a call reports an
+ * unknown cardinality, as Comunica's source does with count queries turned off.
  */
 export class QuerySourceSparqlBounded extends QuerySourceSparql {
   private readonly cap: number;
@@ -55,6 +73,14 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
     this.cap = cap;
     this.attemptTimeout = attemptTimeout;
     this.endpoint = args[0];
+  }
+
+  public override queryBindings(
+    operation: Algebra.Operation,
+    context: IActionContext,
+    options?: IQueryBindingsOptions,
+  ): BindingsStream {
+    return super.queryBindings(operation, options?.joinBindings ? context.set(KEY_BOUND, true) : context, options);
   }
 
   public override operationToCountQuery(
@@ -90,9 +116,8 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
         target.setProperty('metadata', this.bound(time === undefined ? metadata : { ...metadata, requestTime: time }));
       }
     };
-    // The server took too long on this attempt: the cardinality is unknown, as Comunica
-    // reports a COUNT that timed out. The COUNT itself carries on, and its answer is cached.
-    const giveUp = async(): Promise<void> => {
+    // The cardinality is unknown, as Comunica reports a COUNT that timed out.
+    const unknown = async(): Promise<void> => {
       const operation = await operationPromise;
       const undefs = QuerySourceSparql.getOperationUndefs(operation);
       write({
@@ -104,11 +129,17 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
         })),
       });
     };
+    if (context.get(KEY_BOUND)) {
+      void unknown().catch(() => undefined);
+      return;
+    }
     const listener: IHttpAttemptListener = {
       sent: () => {
         clearTimeout(timer);
         sentAt = Date.now();
-        timer = setTimeout(() => void giveUp().catch(() => undefined), this.attemptTimeout);
+        // Past this the server took too long on this attempt. The COUNT itself carries on,
+        // and its answer is cached.
+        timer = setTimeout(() => void unknown().catch(() => undefined), this.attemptTimeout);
       },
       settled: () => {
         clearTimeout(timer);

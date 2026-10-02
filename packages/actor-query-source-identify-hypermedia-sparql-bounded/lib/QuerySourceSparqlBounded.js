@@ -2,9 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuerySourceSparqlBounded = void 0;
 const actor_query_source_identify_hypermedia_sparql_1 = require("@comunica/actor-query-source-identify-hypermedia-sparql");
+const core_1 = require("@comunica/core");
 const utils_algebra_1 = require("@comunica/utils-algebra");
 const utils_metadata_1 = require("@comunica/utils-metadata");
 const actor_http_throttle_1 = require("@kgf/actor-http-throttle");
+/** Set on the context of a call that carries bindings, whose cardinality is not counted. */
+const KEY_BOUND = new core_1.ActionContextKey('@kgf/actor-query-source-identify-hypermedia-sparql-bounded:bound');
 /**
  * Comunica's SPARQL endpoint source, with two changes to the COUNT query it sends for each
  * operation's cardinality.
@@ -36,6 +39,14 @@ const actor_http_throttle_1 = require("@kgf/actor-http-throttle");
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
  * spent with the server is reported as the metadata's `requestTime`, or, for a count already
  * known, the time of this source's last request.
+ *
+ * ## Bindings are not counted
+ *
+ * A call that carries bindings, sent as `VALUES`, is a bind join's probe, and Comunica counts
+ * it before selecting, so each block of bindings cost the endpoint two requests. Nothing reads
+ * that count: the bind joins that send blocks take their cardinality from their own entries,
+ * and the COUNT, which carries the block, never matches a cached one. Such a call reports an
+ * unknown cardinality, as Comunica's source does with count queries turned off.
  */
 class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sparql_1.QuerySourceSparql {
     cap;
@@ -48,6 +59,9 @@ class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sp
         this.cap = cap;
         this.attemptTimeout = attemptTimeout;
         this.endpoint = args[0];
+    }
+    queryBindings(operation, context, options) {
+        return super.queryBindings(operation, options?.joinBindings ? context.set(KEY_BOUND, true) : context, options);
     }
     operationToCountQuery(dataFactory, algebraFactory, operation) {
         if (!Number.isFinite(this.cap)) {
@@ -69,9 +83,8 @@ class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sp
                 target.setProperty('metadata', this.bound(time === undefined ? metadata : { ...metadata, requestTime: time }));
             }
         };
-        // The server took too long on this attempt: the cardinality is unknown, as Comunica
-        // reports a COUNT that timed out. The COUNT itself carries on, and its answer is cached.
-        const giveUp = async () => {
+        // The cardinality is unknown, as Comunica reports a COUNT that timed out.
+        const unknown = async () => {
             const operation = await operationPromise;
             const undefs = actor_query_source_identify_hypermedia_sparql_1.QuerySourceSparql.getOperationUndefs(operation);
             write({
@@ -83,11 +96,17 @@ class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sp
                 })),
             });
         };
+        if (context.get(KEY_BOUND)) {
+            void unknown().catch(() => undefined);
+            return;
+        }
         const listener = {
             sent: () => {
                 clearTimeout(timer);
                 sentAt = Date.now();
-                timer = setTimeout(() => void giveUp().catch(() => undefined), this.attemptTimeout);
+                // Past this the server took too long on this attempt. The COUNT itself carries on,
+                // and its answer is cached.
+                timer = setTimeout(() => void unknown().catch(() => undefined), this.attemptTimeout);
             },
             settled: () => {
                 clearTimeout(timer);

@@ -1,5 +1,5 @@
 import { QuerySourceSparql } from '@comunica/actor-query-source-identify-hypermedia-sparql';
-import type { ComunicaDataFactory, IActionContext } from '@comunica/types';
+import type { BindingsStream, ComunicaDataFactory, IActionContext, IQueryBindingsOptions } from '@comunica/types';
 import type { AlgebraFactory, Algebra } from '@comunica/utils-algebra';
 import type { AsyncIterator } from 'asynciterator';
 /**
@@ -33,6 +33,14 @@ import type { AsyncIterator } from 'asynciterator';
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
  * spent with the server is reported as the metadata's `requestTime`, or, for a count already
  * known, the time of this source's last request.
+ *
+ * ## Bindings are not counted
+ *
+ * A call that carries bindings, sent as `VALUES`, is a bind join's probe, and Comunica counts
+ * it before selecting, so each block of bindings cost the endpoint two requests. Nothing reads
+ * that count: the bind joins that send blocks take their cardinality from their own entries,
+ * and the COUNT, which carries the block, never matches a cached one. Such a call reports an
+ * unknown cardinality, as Comunica's source does with count queries turned off.
  */
 export declare class QuerySourceSparqlBounded extends QuerySourceSparql {
     private readonly cap;
@@ -41,6 +49,7 @@ export declare class QuerySourceSparqlBounded extends QuerySourceSparql {
     /** Milliseconds this source's last COUNT spent with the server. */
     private lastRequestTime?;
     constructor(cap: number, attemptTimeout: number, ...args: ConstructorParameters<typeof QuerySourceSparql>);
+    queryBindings(operation: Algebra.Operation, context: IActionContext, options?: IQueryBindingsOptions): BindingsStream;
     operationToCountQuery(dataFactory: ComunicaDataFactory, algebraFactory: AlgebraFactory, operation: Algebra.Operation): Promise<string>;
     protected attachMetadata(target: AsyncIterator<any>, context: IActionContext, operationPromise: Promise<Algebra.Operation>): void;
     /** A count that reached the cap is an estimate, a lower bound, not an exact count. */

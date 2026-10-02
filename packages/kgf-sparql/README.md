@@ -307,7 +307,9 @@ Ubergraph and Wikidata cells query returned 1,000 rows in 21 s on one run and ti
 `KEY_SPARQL_COUNT_CAP_HOSTS`, `--count-cap`; default 1,000,000), timed only while the server
 has them, and reported with their request time, so that a bind join sending a request per row
 no longer costs the same as one sending a block of rows; a count at the cap is accepted
-without the ASK Comunica would confirm it with. The cells query now takes the block join on
+without the ASK Comunica would confirm it with. A probe that sends bindings as `VALUES` is
+not counted at all: nothing reads that count, and it doubled the requests of every block.
+The cells query now takes the block join on
 every run, 1,000 rows in 13 to 16 s and about 21 requests to QLever. `prokn/protein_disease`,
 whose plan had waited on host-wide slowdowns and timed-out counts, returned its 277 rows in
 6 s and 29 s in two runs; in a third, its SERVICE endpoint did not answer within the budget.

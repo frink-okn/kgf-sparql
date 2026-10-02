@@ -115,3 +115,17 @@ test('a COUNT is timed while the server has it, not while it waits its turn', as
   assert.equal(asks.length, 1, asks.map(request => request.pattern).join(', '));
   assert.equal(asks[0].pattern, counts[0].pattern, 'only the slow COUNT is confirmed with an ASK');
 });
+
+test('bindings sent as VALUES are selected, not counted', async() => {
+  // Comunica counted each block of bindings before selecting it, two requests a block, and
+  // no join read the count. KGF's five rows are bound here: the endpoint has more, and takes
+  // long enough over each request that one per row costs more than one per block.
+  const fake = endpoint(async request => {
+    await sleep(50);
+    return request.pattern === 'sameAs' ? 1_000 : 0;
+  });
+  assert.deepEqual(await run(fake), EXPECTED);
+  assert.ok(fake.requests.some(request => request.kind === 'select' && /VALUES/u.test(request.query)),
+    'the join sends its bindings to the endpoint');
+  assert.deepEqual(fake.requests.filter(request => request.kind === 'count' && request.values), []);
+});

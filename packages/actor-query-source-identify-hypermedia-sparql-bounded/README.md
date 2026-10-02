@@ -44,6 +44,16 @@ block of rows. Once counts were bounded, the two came out equal but for the bloc
 the per-row join won; with request time priced, the block join's estimate is 1,416 where
 the per-row join's is 296,652.
 
+## Bindings are not counted
+
+A bind join that sends rows to an endpoint as `VALUES` calls the source with those
+bindings, and Comunica counted each such call before selecting it, two requests for every
+block where one does. No join reads that count: the joins that send blocks, Comunica's and
+`kgf-sparql`'s, take their cardinality from their own entries, and a COUNT that carries a
+block never matches a cached one. A call with bindings reports an unknown cardinality, as
+Comunica's source does with count queries turned off, and sends only its SELECT. Counts
+for planning are unchanged.
+
 ## Source selection
 
 `ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded` replaces Comunica's
