@@ -194,6 +194,9 @@
           "@id": "urn:comunica:default:query-serialize/mediators#main"
         },
         "countCap": 1000000,
+        "countCapHosts": {
+          "*.wikidata.org": null
+        },
         "countDeadline": 30000
       }
     },

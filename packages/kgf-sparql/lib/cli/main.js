@@ -57,7 +57,8 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --max-rate <host=n>   Start at most n requests a second to a host (QLever's: 1 by default);
                             repeatable. Hosts that answer 429 without Retry-After are slowed anyway
       --count-cap <n>       Count at most n matches when planning against a SPARQL endpoint
-                            (default 1000000); repeatable, and host=n sets one host's cap
+                            (default 1000000, none for *.wikidata.org); repeatable, host=n sets
+                            one host's cap and *.domain=n a domain's, and none counts in full
   -h, --help
 
 Exit status: 0 complete; 1 query, source, or process error; 2 usage error;
@@ -218,22 +219,30 @@ function parseArguments(argv) {
         settings,
     };
 }
-/** `--count-cap` values: a bare number is the cap for every endpoint, `host=n` one host's. */
+/**
+ * `--count-cap` values: a bare number is the cap for every endpoint, `host=n` one host's, and
+ * `none` in place of a number sends an unbounded COUNT (`Infinity` to the engine).
+ */
 function countCapLimits(values) {
     const caps = { hosts: {} };
+    const cap = (name, value) => value === 'none' ? Number.POSITIVE_INFINITY : integer(name, value);
     for (const value of values ?? []) {
         const at = value.lastIndexOf('=');
         if (at < 0) {
-            caps.default = integer('--count-cap', value);
+            caps.default = cap('--count-cap', value);
         }
         else if (at === 0) {
             throw new UsageError(`--count-cap needs a host before '=', not '${value}'`);
         }
         else {
-            caps.hosts[value.slice(0, at)] = integer(`--count-cap ${value.slice(0, at)}`, value.slice(at + 1));
+            caps.hosts[value.slice(0, at)] = cap(`--count-cap ${value.slice(0, at)}`, value.slice(at + 1));
         }
     }
     return caps;
+}
+/** A count cap as the receipt records it: `none` for no cap, which JSON cannot write as a number. */
+function receiptCap(cap) {
+    return Number.isFinite(cap) ? cap : 'none';
 }
 /**
  * `--max-in-flight` values: a bare number is the cap for every host, `host=n` caps one host.
@@ -496,8 +505,9 @@ function receipt(parsed, sources, outcome, output, account, started, finished) {
                 .filter(([, limits]) => limits.inFlight !== undefined).map(([name, limits]) => [name, limits.inFlight])),
             max_rate_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)
                 .filter(([, limits]) => limits.perSecond !== undefined).map(([name, limits]) => [name, limits.perSecond])),
-            sparql_count_cap: parsed.countCaps.default ?? null,
-            sparql_count_cap_hosts: parsed.countCaps.hosts,
+            sparql_count_cap: parsed.countCaps.default === undefined ? null : receiptCap(parsed.countCaps.default),
+            sparql_count_cap_hosts: Object.fromEntries(Object.entries(parsed.countCaps.hosts)
+                .map(([name, cap]) => [name, receiptCap(cap)])),
         },
         engine: { kgf_sparql: packageJson.version, comunica: comunicaJson.version, node: process.version },
         started: started.toISOString(),

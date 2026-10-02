@@ -390,19 +390,20 @@ test('--max-in-flight, --max-rate and --count-cap set the limits, and the receip
   const ws = workspace(t);
   const run = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
     '--max-in-flight', '4', '--max-in-flight', 'qlever.dev=2', '--max-rate', 'qlever.dev=1', '--max-rate', 'example.org=0.5',
-    '--count-cap', '100000', '--count-cap', 'query.wikidata.org=10000' ]);
+    '--count-cap', '100000', '--count-cap', 'query.wikidata.org=10000', '--count-cap', 'example.org=none' ]);
   assert.equal(run.code, 0, run.stderr);
   const { budget } = readJson(ws.receipt);
   assert.equal(budget.max_in_flight, 4);
   assert.deepEqual(budget.max_in_flight_hosts, { 'qlever.dev': 2 });
   assert.deepEqual(budget.max_rate_hosts, { 'qlever.dev': 1, 'example.org': 0.5 });
   assert.equal(budget.sparql_count_cap, 100000);
-  assert.deepEqual(budget.sparql_count_cap_hosts, { 'query.wikidata.org': 10000 });
+  assert.deepEqual(budget.sparql_count_cap_hosts, { 'query.wikidata.org': 10000, 'example.org': 'none' });
   for (const [ flag, value, message ] of [
     [ '--max-in-flight', '=2', /needs a host/u ],
     [ '--max-rate', '2', /takes host=n/u ],
     [ '--max-rate', 'qlever.dev=0', /positive number/u ],
     [ '--count-cap', '=5', /needs a host/u ],
+    [ '--count-cap', 'example.org=all', /integer/u ],
   ]) {
     const usage = await spawnCli([ '-q', JOIN, '--source', source, '--out', ws.out, flag, value ]);
     assert.equal(usage.code, 2, `${flag} ${value}`);

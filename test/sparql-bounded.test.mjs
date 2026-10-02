@@ -12,7 +12,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
  * A SPARQL endpoint with two `urn:sameAs` statements and no `urn:p`, behind the mock KGF
  * graph's fetch. `countFor(query, n)` answers the n-th COUNT; it may wait first.
  */
-function endpoint(countFor) {
+function endpoint(countFor, host = 'sparql.test') {
   const kgf = server();
   const requests = [];
   let counts = 0;
@@ -21,7 +21,7 @@ function endpoint(countFor) {
   });
   const fetch = async(input, init = {}) => {
     const url = new URL(typeof input === 'string' ? input : input.url);
-    if (url.host !== 'sparql.test') {
+    if (url.host !== host) {
       return kgf.fetch(input, init);
     }
     const body = typeof init.body === 'string' ? init.body : init.body?.toString();
@@ -65,10 +65,10 @@ function endpoint(countFor) {
   return { fetch, requests };
 }
 
-async function run(fake, settings = {}) {
+async function run(fake, settings = {}, endpointUrl = ENDPOINT) {
   const engine = new QueryEngine();
   const bindings = await engine.queryBindings(QUERY, {
-    sources: [{ type: 'kgf', value: EP }, { type: 'sparql', value: ENDPOINT }],
+    sources: [{ type: 'kgf', value: EP }, { type: 'sparql', value: endpointUrl }],
     '@comunica/bus-http:fetch': fake.fetch,
     ...settings,
   });
@@ -128,4 +128,31 @@ test('bindings sent as VALUES are selected, not counted', async() => {
   assert.ok(fake.requests.some(request => request.kind === 'select' && /VALUES/u.test(request.query)),
     'the join sends its bindings to the endpoint');
   assert.deepEqual(fake.requests.filter(request => request.kind === 'count' && request.values), []);
+});
+
+test('Wikidata\'s query services are counted in full, unless the context caps them', async() => {
+  // Blazegraph counts a pattern from its indexes, and reads every row of a capped subquery:
+  // 0.12 s for every wdt:P921 statement against 10 s to count to a million.
+  const wdqs = 'https://query-scholarly.wikidata.org/sparql';
+  const full = endpoint(request => request.pattern === 'sameAs' ? 2 : 0, 'query-scholarly.wikidata.org');
+  assert.deepEqual(await run(full, {}, wdqs), EXPECTED);
+  const counts = full.requests.filter(request => request.kind === 'count' && !request.values);
+  assert.ok(counts.length >= 2);
+  assert.ok(counts.every(request => !/LIMIT/u.test(request.query)), counts.map(request => request.query).join('\n'));
+  const capped = endpoint(request => request.pattern === 'sameAs' ? 2 : 0, 'query-scholarly.wikidata.org');
+  assert.deepEqual(await run(capped, { [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'query-scholarly.wikidata.org': 10 } }, wdqs), EXPECTED);
+  assert.ok(capped.requests.filter(request => request.kind === 'count' && !request.values)
+    .every(request => /LIMIT\s+11\b/u.test(request.query)), 'the host\'s own cap comes before the group\'s default');
+});
+
+test('a cap keyed *.domain applies to the hosts in it, and null counts in full', async() => {
+  const grouped = endpoint(request => request.pattern === 'sameAs' ? 2 : 0, 'sparql.kgf.test');
+  assert.deepEqual(await run(grouped, { [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { '*.kgf.test': 10 } },
+    'https://sparql.kgf.test/sparql'), EXPECTED);
+  assert.ok(grouped.requests.filter(request => request.kind === 'count' && !request.values)
+    .every(request => /LIMIT\s+11\b/u.test(request.query)));
+  const uncapped = endpoint(request => request.pattern === 'sameAs' ? 2 : 0);
+  assert.deepEqual(await run(uncapped, { [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'sparql.test': null } }), EXPECTED);
+  assert.ok(uncapped.requests.filter(request => request.kind === 'count' && !request.values)
+    .every(request => !/LIMIT/u.test(request.query)));
 });

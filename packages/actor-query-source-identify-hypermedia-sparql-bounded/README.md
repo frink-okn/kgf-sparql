@@ -23,9 +23,15 @@ rather than cached by its own report.
 
 - `countCap` (default 1,000,000) in the config, or `KEY_SPARQL_COUNT_CAP` in the query
   context, for every endpoint.
-- `KEY_SPARQL_COUNT_CAP_HOSTS` gives endpoints their own cap, keyed by `host` or `hostname`:
-  a store that walks the matches to count them may want a lower one. `Infinity` sends
-  Comunica's unbounded COUNT.
+- `KEY_SPARQL_COUNT_CAP_HOSTS` gives endpoints their own cap, keyed by `host`, `hostname`,
+  or `*.` and a domain, the most particular first: a store that walks the matches to count
+  them may want a lower one. `Infinity` or `null` sends Comunica's unbounded COUNT.
+- `countCapHosts` in the config gives defaults of the same form, which the context
+  overrides. `kgf-sparql` counts `*.wikidata.org` in full. The cap suits a store that stops
+  at a `LIMIT`, as QLever does, and not one that counts a single pattern from its indexes
+  but reads every row of a subquery: Blazegraph, behind Wikidata's query services, counts
+  every `wdt:P921` statement (2,463,228) in 0.12 s, and takes 10 s to count them to a
+  million.
 
 ## Counts timed by the server
 
@@ -68,7 +74,8 @@ source.
 `kgf-sparql` installs both actors with overrides of Comunica's
 `urn:comunica:default:query-source-identify-hypermedia/actors#sparql` and
 `urn:comunica:default:optimize-query-operation/actors#prune-empty-source-operations`, and
-the command line's `--count-cap n` or `--count-cap host=n` sets the context keys.
+the command line's `--count-cap n` or `--count-cap host=n`, with `none` for no cap, sets the
+context keys.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), with these actors
 already installed.

@@ -205,14 +205,11 @@ export class ActorHttpThrottle extends ActorHttp {
 
   /**
    * The queue of the host, or of the group of hosts, with the limits the request's context and
-   * the actor give it. The most particular name either knows decides: the host with its port,
-   * then without, then `*.` and each shorter domain the host is in.
+   * the actor give it. The most particular name either knows decides.
    */
   private queueFor(url: URL, context: IActionContext): HostQueue {
     const given = context.get(KEY_HTTP_HOST_LIMITS);
-    const labels = url.hostname.split('.');
-    const names = [ url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`) ];
-    const name = names.find(candidate => given?.[candidate] ?? this.hosts[candidate]);
+    const name = hostNames(url).find(candidate => given?.[candidate] ?? this.hosts[candidate]);
     const own: IHostLimits = name === undefined ? {} : { ...this.hosts[name], ...given?.[name] };
     const key = name?.startsWith('*.') ? name : url.host;
     let queue = this.queues.get(key);
@@ -285,6 +282,16 @@ export interface IActorHttpThrottleArgs extends IActorHttpArgs {
   hosts: Record<string, IHostLimits>;
   /** The `User-Agent` of requests that have none, under Node. */
   userAgent?: string;
+}
+
+/**
+ * The names a limit for a URL's host may be given under, most particular first: the host with
+ * its port, then without, then `*.` and each shorter domain the host is in (`*.wikidata.org`
+ * for `query.wikidata.org`, never `*.org`).
+ */
+export function hostNames(url: URL): string[] {
+  const labels = url.hostname.split('.');
+  return [ url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`) ];
 }
 
 interface IWaiter {

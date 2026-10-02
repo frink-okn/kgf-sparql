@@ -89,10 +89,13 @@ export interface IReceipt {
         max_in_flight_hosts: Record<string, number>;
         /** Requests started per second the engine allowed per host, keyed as given on the command line. */
         max_rate_hosts: Record<string, number>;
-        /** The cap on planning COUNTs to SPARQL endpoints, when set; null is the engine's default (1,000,000). */
-        sparql_count_cap: number | null;
-        /** Per-host caps on planning COUNTs, keyed as given on the command line. */
-        sparql_count_cap_hosts: Record<string, number>;
+        /**
+         * The cap on planning COUNTs to SPARQL endpoints, when set; null is the engine's default
+         * (1,000,000, none for `*.wikidata.org`), and `none` counts in full.
+         */
+        sparql_count_cap: number | 'none' | null;
+        /** Per-host caps on planning COUNTs, keyed as given on the command line; `none` counts in full. */
+        sparql_count_cap_hosts: Record<string, number | 'none'>;
     };
     engine: {
         kgf_sparql: string;

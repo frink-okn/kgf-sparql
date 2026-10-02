@@ -71,8 +71,9 @@ kgf-sparql -f query.rq \
   `--no-void-statistics` set the context keys described below. `--http-retries N` retries
   429, 502, 503, and 504 responses up to N times; without it, 429 and 503 are retried up to
   5 times and the others not at all. Network errors are not retried. `--count-cap N`, or
-  `host=N` for one endpoint, caps the COUNT queries sent to SPARQL endpoints while planning
-  (default 1,000,000).
+  `host=N` for one endpoint and `'*.domain=N'` for a domain's, caps the COUNT queries sent
+  to SPARQL endpoints while planning (default 1,000,000, and none for `*.wikidata.org`); `none`
+  in place of N counts in full.
 - **Connections:** `--max-connections N` (default 32) caps concurrent connections per
   origin. `--max-in-flight N` (default: the connection cap) caps requests in flight per
   host, `--max-in-flight host=N`, repeatable, one host's, and `--max-in-flight
@@ -311,7 +312,9 @@ outlasts its 3 second timeout (4.4 s for every `rdfs:label` on QLever's Wikidata
 cardinality becomes unknown, and which counts came back in time decided the plan: the
 Ubergraph and Wikidata cells query returned 1,000 rows in 21 s on one run and timed out after
 375 requests on the next. Counts are bounded at a cap (`KEY_SPARQL_COUNT_CAP`, per host
-`KEY_SPARQL_COUNT_CAP_HOSTS`, `--count-cap`; default 1,000,000), timed only while the server
+`KEY_SPARQL_COUNT_CAP_HOSTS`, `--count-cap`; default 1,000,000, none for Wikidata's query
+services, whose Blazegraph counts a pattern from its indexes in 0.12 s and takes 10 s to count
+one to a million), timed only while the server
 has them, and reported with their request time, so that a bind join sending a request per row
 no longer costs the same as one sending a block of rows; a count at the cap is accepted
 without the ASK Comunica would confirm it with. A probe that sends bindings as `VALUES` is

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActorHttpThrottle = exports.KEY_HTTP_ATTEMPT_LISTENER = exports.KEY_HTTP_HOST_LIMITS = exports.KEY_HTTP_IN_FLIGHT = void 0;
+exports.hostNames = hostNames;
 const bus_http_1 = require("@comunica/bus-http");
 const context_entries_1 = require("@comunica/context-entries");
 const core_1 = require("@comunica/core");
@@ -168,14 +169,11 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
     }
     /**
      * The queue of the host, or of the group of hosts, with the limits the request's context and
-     * the actor give it. The most particular name either knows decides: the host with its port,
-     * then without, then `*.` and each shorter domain the host is in.
+     * the actor give it. The most particular name either knows decides.
      */
     queueFor(url, context) {
         const given = context.get(exports.KEY_HTTP_HOST_LIMITS);
-        const labels = url.hostname.split('.');
-        const names = [url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`)];
-        const name = names.find(candidate => given?.[candidate] ?? this.hosts[candidate]);
+        const name = hostNames(url).find(candidate => given?.[candidate] ?? this.hosts[candidate]);
         const own = name === undefined ? {} : { ...this.hosts[name], ...given?.[name] };
         const key = name?.startsWith('*.') ? name : url.host;
         let queue = this.queues.get(key);
@@ -218,6 +216,15 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
     }
 }
 exports.ActorHttpThrottle = ActorHttpThrottle;
+/**
+ * The names a limit for a URL's host may be given under, most particular first: the host with
+ * its port, then without, then `*.` and each shorter domain the host is in (`*.wikidata.org`
+ * for `query.wikidata.org`, never `*.org`).
+ */
+function hostNames(url) {
+    const labels = url.hostname.split('.');
+    return [url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`)];
+}
 /** One host's requests: at most `limit` in flight, starts spaced, waiters in order. */
 class HostQueue {
     active = 0;

@@ -95,8 +95,7 @@ export declare class ActorHttpThrottle extends ActorHttp {
     private identified;
     /**
      * The queue of the host, or of the group of hosts, with the limits the request's context and
-     * the actor give it. The most particular name either knows decides: the host with its port,
-     * then without, then `*.` and each shorter domain the host is in.
+     * the actor give it. The most particular name either knows decides.
      */
     private queueFor;
     /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */
@@ -133,4 +132,10 @@ export interface IActorHttpThrottleArgs extends IActorHttpArgs {
     /** The `User-Agent` of requests that have none, under Node. */
     userAgent?: string;
 }
+/**
+ * The names a limit for a URL's host may be given under, most particular first: the host with
+ * its port, then without, then `*.` and each shorter domain the host is in (`*.wikidata.org`
+ * for `query.wikidata.org`, never `*.org`).
+ */
+export declare function hostNames(url: URL): string[];
 //# sourceMappingURL=ActorHttpThrottle.d.ts.map
