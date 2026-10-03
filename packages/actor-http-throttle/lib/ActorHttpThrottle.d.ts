@@ -57,10 +57,13 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
  * holds its place until its response headers arrive; the body is read outside the queue. A
  * limit named `*.` and a domain is a queue the hosts in that domain share, for a service that
- * limits a client across its hosts: a request waits its turn in its host's queue, then in the
- * queue of each such group it is in, so a host's own limits hold within its group's, never in
- * place of them. Requests with other limits for the same host or group, as another query's
- * context gives, wait in a queue of their own, so each query's limits hold for its requests.
+ * limits a client across its hosts. A request waits in its host's queue, and starts only when
+ * its host and every such group it is in can all start it at that moment, so a host's own
+ * limits hold within its group's, never in place of them. (A request used to take its host's
+ * turn and then wait for the group's, and a group that held several back let them all start
+ * at once, past the host's rate.) Requests with other limits for the same host or group, as
+ * another query's context gives, wait in a queue of their own, so each query's limits hold for
+ * its requests; a queue no request holds is let go.
  *
  * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals,
  * which a host's or group's queues share, as they share the time of its last start. A 429 or
@@ -68,7 +71,8 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  * `httpRetryDelayLimit` at most, and teaches nothing else: the server said when to come back,
  * as KGF's admission gate does. One without `Retry-After` doubles the interval between starts,
  * from 250 ms up to 10 s, and every answer that is not a refusal takes a tenth off it, so the
- * host settles near the rate it accepts. Only a request started since the last change counts:
+ * host settles near the rate it accepts. An answer teaches before its request gives up its
+ * place, so the next request starts at the new pace. Only a request started since the last change counts:
  * the requests of one burst are refused together, and each doubling the interval again took
  * QLever to 10 s within seconds. A timeout or network failure changes nothing: it says nothing
  * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
@@ -103,8 +107,8 @@ export declare class ActorHttpThrottle extends ActorHttp {
     constructor(args: IActorHttpThrottleArgs);
     test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>>;
     run(action: IActionHttp): Promise<IActorHttpOutput>;
-    /** Waits for a place in each queue in turn, the host's first; gives back those it had if it stops waiting. */
-    private static enter;
+    /** Sends the request through its queues, again for each refusal or failure it may retry. */
+    private attempts;
     /** The action, with the actor's `User-Agent` if it has none and runs outside a browser. */
     private identified;
     /**
@@ -114,8 +118,11 @@ export declare class ActorHttpThrottle extends ActorHttp {
      */
     private queuesFor;
     /**
-     * The queue of a host or group for these limits. Each set of limits has its own, so that a
-     * query's limits hold whatever another query's say, and the name's queues share its pacing.
+     * The queue of a host or group for these limits, held for the caller until it calls
+     * `release`. Each set of limits has its own, so that a query's limits hold whatever another
+     * query's say, and the name's queues share its pacing. A queue no request holds is dropped,
+     * so the limits of past queries do not keep queues for good; the pacing stays, since the
+     * time of the host's last start and what refusals taught outlive any one queue.
      */
     private queue;
     /** Forgets what refusals taught about the URL's host and its groups, or about every host without one. */

@@ -17,7 +17,7 @@ function throttle(answer = () => new Response('ok'), { hold = 0, ...args } = {})
   const peak = {};
   const mediatorHttp = {
     async mediate(action) {
-      const url = new URL(action.input);
+      const url = new URL(typeof action.input === 'string' ? action.input : action.input.url);
       const call = { url: url.href, host: url.host, at: Date.now(), context: action.context, init: action.init };
       calls.push(call);
       open[url.host] = (open[url.host] ?? 0) + 1;
@@ -302,4 +302,56 @@ test('under Node a request is sent with the actor\'s user agent, unless it names
   const { calls: plain, fetch: fetchPlain } = throttle();
   await fetchPlain('https://a.example/x');
   assert.equal(plain[0].init.headers, undefined, 'without a userAgent the request is left alone');
+});
+
+test('a host\'s rate holds when its group holds its requests back, and they start when the group has room', async() => {
+  // Each request used to take its host's turn, stamping the host's last start, and then wait
+  // for its group's; when the group had room it let them all start at once, past the host's rate.
+  const { calls, fetch } = throttle(async url => {
+    if (url.host === 'other.wikidata.example') {
+      await sleep(250);
+    }
+    return new Response('ok');
+  });
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: {
+    '*.wikidata.example': { inFlight: 1 }, 'query.wikidata.example': { perSecond: 10 },
+  }};
+  const busy = fetch('https://other.wikidata.example/sparql', settings);
+  await sleep(10);
+  await Promise.all([ busy, ...Array.from({ length: 3 }, () => fetch('https://query.wikidata.example/sparql', settings)) ]);
+  const query = calls.filter(call => call.host === 'query.wikidata.example');
+  assert.equal(query.length, 3);
+  assert.ok(query[0].at - calls[0].at >= 245, 'the group held the first back');
+  assert.ok(gaps(query).every(gap => gap >= 95), `${gaps(query)} ms between starts at 10 a second`);
+});
+
+test('a refusal teaches before the refused request gives up its place', async() => {
+  // The place used to go first, and the request waiting for it started at the old pace.
+  const { calls, fetch } = throttle((_, call) => call === 0 ? refused(429) : new Response('ok'), { hold: 10 });
+  const settings = { [KEY_HTTP_IN_FLIGHT.name]: 1, [RETRY_COUNT]: 0 };
+  const [ first, second ] = await Promise.all([ fetch('https://q.example/sparql', settings), fetch('https://q.example/sparql', settings) ]);
+  assert.deepEqual([ first.status, second.status ], [ 429, 200 ]);
+  assert.ok(gaps(calls)[0] >= 245, `the next request started ${gaps(calls)[0]} ms after the refused one`);
+});
+
+test('a Request keeps its own headers when the user agent is added, and its own user agent', async() => {
+  // fetch sends a Request's headers only when the init gives none: an init with just a user
+  // agent dropped the rest.
+  const { calls, fetch } = throttle(undefined, { userAgent: 'kgf-sparql/test' });
+  await fetch(new Request('https://a.example/x', { headers: { accept: 'text/turtle' }}));
+  await fetch(new Request('https://a.example/x', { headers: { 'user-agent': 'kgfq/1' }}));
+  const sent = new Headers(calls[0].init.headers);
+  assert.equal(sent.get('accept'), 'text/turtle');
+  assert.equal(sent.get('user-agent'), 'kgf-sparql/test');
+  assert.equal(calls[1].init.headers, undefined, 'a Request that names itself is left alone');
+});
+
+test('a queue no request holds is let go, and the host\'s rate outlives it', async() => {
+  // Each set of limits a query gave a host made a queue that was kept for good.
+  const { actor, calls, fetch } = throttle();
+  for (let i = 0; i < 3; i++) {
+    await fetch('https://q.example/sparql', { [KEY_HTTP_HOST_LIMITS.name]: { 'q.example': { inFlight: i + 1, perSecond: 20 }}});
+  }
+  assert.equal(actor.queues.size, 0);
+  assert.ok(gaps(calls).every(gap => gap >= 45), `${gaps(calls)} ms between starts at 20 a second, across queues`);
 });

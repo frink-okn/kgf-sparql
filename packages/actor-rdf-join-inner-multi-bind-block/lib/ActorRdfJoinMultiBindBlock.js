@@ -20,8 +20,9 @@ const asynciterator_1 = require("asynciterator");
  *
  * ## The plan
  *
- * Starting from the smallest entry, the actor repeatedly picks the entry that shares the
- * most variables with what is bound so far (then the smallest) among those it can probe:
+ * Starting from the smallest entry whose size is known exactly (an estimate may be a lower
+ * bound, as a COUNT that reached its cap reports), the actor repeatedly picks the entry that
+ * shares the most variables with what is bound so far (then the smallest) among those it can probe:
  *
  * - an operation on one source that accepts `filterBindings` (KGF, brTPF) or
  *   `joinBindings` (a SPARQL endpoint, through `VALUES`);
@@ -38,18 +39,20 @@ const asynciterator_1 = require("asynciterator");
  * the entries in one pass needs no estimate of an intermediate result: a previous version
  * bound one entry at a time and handed the rest back to the planner, whose compounded
  * estimate of the intermediate (10^21 rows for a few dozen) then chose to scan a label
- * pattern whole. Entries that cannot be probed, or are smaller than the bound entry, are
- * joined afterwards through the join mediator.
+ * pattern whole. Entries that cannot be probed, or are known to be smaller than the bound
+ * entry, are joined afterwards through the join mediator.
  *
  * Up to `blocksInFlight` blocks are probed at once and each is emitted as soon as it is
- * joined. A value an earlier block already sent is answered from a per-join cache.
+ * joined, with up to `requestsInFlight` requests to each source. A value an earlier block
+ * already sent is answered from a per-join cache.
  *
  * ## Cost
  *
  * The coefficients are the stock bind join's formula over the probed entries, so the two
- * compare on equal terms, except that a probe request is charged per block instead of per
- * row (one request time per entry, paged or not, as the round-trip bind join charges it) and
- * one block of rows is held. Nothing counts as blocking: the join mediator penalises
+ * compare on equal terms, except that probe requests are charged per block instead of per
+ * row (one request time per source request a block sends to the entry, paged or not, as the
+ * round-trip bind join charges it: one for each branch of a union, and each input of a join)
+ * and one block of rows is held. Nothing counts as blocking: the join mediator penalises
  * blocking joins below a LIMIT, and this one only ever waits for a block, not its input.
  */
 class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
@@ -60,6 +63,13 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
     selectivityModifier;
     mediatorJoinEntriesSort;
     mediatorJoin;
+    /**
+     * The outputs of this actor's joins, which it does not take into a join again: it would bind
+     * the computed result into the entries it just left out. A context key, as Comunica's
+     * filter-bindings join marks its own, reached every join nested under the leftover one, and
+     * left a join of two leftover entries that this actor could bind to a per-row bind join.
+     */
+    outputs = new WeakSet();
     constructor(args) {
         super(args, {
             logicalType: 'inner',
@@ -78,8 +88,8 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         this.mediatorJoin = args.mediatorJoin;
     }
     async getJoinCoefficients(action, sideData) {
-        if (action.context.get(context_entries_1.KeysRdfJoin.lastPhysicalJoin) === this.physicalName) {
-            return (0, core_1.failTest)(`${this.name} can not be called recursively`);
+        if (action.entries.some(entry => entry.output.type === 'bindings' && this.outputs.has(entry.output))) {
+            return (0, core_1.failTest)(`${this.name} does not bind its own result again`);
         }
         const planned = await this.plan(action, sideData.metadatas);
         if (planned.isFailed()) {
@@ -104,8 +114,11 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             const stepRows = step.entry.metadata.cardinality.value;
             // An unknown entry size says nothing about what its probes return; one row per bound row is the guess.
             probed += Number.isFinite(stepRows) ? stepRows * selectivities[i] * this.selectivityModifier : 1;
-            // A probe is a new request whether or not the entry is paged, as the round-trip bind join charges it.
-            probeRequest += step.entry.metadata.requestTime ?? initial[i + 1];
+            // A probe is a new request whether or not the entry is paged, as the round-trip bind join
+            // charges it, and a block sends one to each source request of the entry: every branch of a
+            // union, and every input of a join.
+            const requests = step.parts.reduce((sum, part) => sum + part.leaves.length, 0);
+            probeRequest += requests * (step.entry.metadata.requestTime ?? initial[i + 1]);
             receive += item[i + 1];
         }
         // ...except that a probe request is sent per block instead of per row, and a block is held to join it.
@@ -127,18 +140,20 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         }
         const probes = {
             cache: new ProbeCache(this.probeCacheRows),
-            slots: new Slots(this.requestsInFlight),
+            slots: new Map(),
             readers: new Set(),
             stopped: false,
         };
         const bindingsStream = new BlockJoinIterator(new utils_iterator_1.ChunkedIterator(first.output.bindingsStream, this.blockSize, { autoStart: false }), async (rows, emit) => await this.joinBlock(rows, steps, first.metadata, dataFactory, action.context, probes, emit), () => ActorRdfJoinMultiBindBlock.stop(probes), this.blocksInFlight, this.blocksInFlight * this.blockSize);
         const bound = [first, ...steps.map(step => step.entry)];
+        const output = {
+            type: 'bindings',
+            bindingsStream,
+            metadata: async () => await this.constructResultMetadata(bound, bound.map(entry => entry.metadata), action.context),
+        };
+        this.outputs.add(output);
         const joined = {
-            output: {
-                type: 'bindings',
-                bindingsStream,
-                metadata: async () => await this.constructResultMetadata(bound, bound.map(entry => entry.metadata), action.context),
-            },
+            output,
             operation: algebraFactory.createJoin(bound.map(entry => entry.operation), false),
             operationModified: true,
         };
@@ -153,13 +168,9 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             return { result: joined.output, physicalPlanMetadata };
         }
         return {
-            result: await this.mediatorJoin.mediate({
-                type: action.type,
-                entries: [joined, ...remaining],
-                // Marked as Comunica's filter-bindings join marks its own, so this actor does not take
-                // the leftover join too: it would bind the computed result into entries it just left out.
-                context: action.context.set(context_entries_1.KeysRdfJoin.lastPhysicalJoin, this.physicalName),
-            }),
+            // This actor does not take a join with `joined` in it (see `outputs`), and may take
+            // any other join nested under this one.
+            result: await this.mediatorJoin.mediate({ type: action.type, entries: [joined, ...remaining], context: action.context }),
             physicalPlanMetadata,
         };
     }
@@ -185,13 +196,18 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         if (sortedTest.isFailed()) {
             return sortedTest;
         }
-        // An entry already computed locally cannot be probed, so it is the one to bind if there is one.
-        const sorted = [...sortedTest.get()]
-            .sort((left, right) => Number(Boolean(right.operationModified)) - Number(Boolean(left.operationModified)));
+        const sorted = sortedTest.get();
         // Of known size: an entry whose count failed or timed out, reported as an infinite
         // estimate, cannot be bound in blocks, but it can still be probed. Refusing whenever
         // such an entry came first let a slow COUNT hand the join to a per-row bind join.
-        const first = sorted.find(entry => Number.isFinite(entry.metadata.cardinality.value));
+        const finite = sorted.filter(entry => Number.isFinite(entry.metadata.cardinality.value));
+        // An entry already computed locally cannot be probed, so it is the one to bind if there is
+        // one. Otherwise the smallest exact size: an estimate may be a lower bound, as a COUNT that
+        // reached its cap reports cap+1 however many more there are, and of several entries at the
+        // cap the sort may put any first.
+        const first = finite.find(entry => entry.operationModified) ??
+            finite.find(entry => entry.metadata.cardinality.type === 'exact') ??
+            finite[0];
         const rows = first?.metadata.cardinality.value ?? Number.NaN;
         if (!first || rows <= 0) {
             return (0, core_1.failTest)(`${this.name} needs an entry of known, non-zero size`);
@@ -199,20 +215,30 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         const others = sorted.filter(entry => entry !== first);
         const known = new Set(first.metadata.variables.map(variable => variable.variable.value));
         const pool = others.filter(entry => !entry.operationModified &&
-            // An entry smaller than the bound one is cheaper to fetch whole and join afterwards.
-            !(Number.isFinite(entry.metadata.cardinality.value) && entry.metadata.cardinality.value < rows));
+            // An entry known to be smaller than the bound one is cheaper to fetch whole and join
+            // afterwards. One estimated smaller may be far larger, and is probed.
+            !(entry.metadata.cardinality.type === 'exact' && entry.metadata.cardinality.value < rows));
         const steps = [];
+        // Each source's shape is asked for once, and an entry's parts are worked out again only
+        // once a step binds one of its variables: nothing else changes how it can be probed.
+        const shapes = new Map();
+        const candidates = new Map();
         for (;;) {
             let best;
             for (const entry of pool) {
                 if (steps.some(step => step.entry === entry)) {
                     continue;
                 }
-                const parts = await this.probeParts(entry.operation, known, action.context);
+                let candidate = candidates.get(entry);
+                if (!candidate) {
+                    const parts = await this.probeParts(entry.operation, known, action.context, shapes);
+                    candidate = { parts, shared: parts ? new Set(parts.flatMap(part => part.shared)).size : 0 };
+                    candidates.set(entry, candidate);
+                }
+                const { parts, shared } = candidate;
                 if (!parts) {
                     continue;
                 }
-                const shared = new Set(parts.flatMap(part => part.shared)).size;
                 if (!best || shared > best.shared ||
                     (shared === best.shared && entry.metadata.cardinality.value < best.step.entry.metadata.cardinality.value)) {
                     best = { step: { entry, parts }, shared };
@@ -222,8 +248,16 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
                 break;
             }
             steps.push(best.step);
-            for (const variable of best.step.entry.metadata.variables) {
-                known.add(variable.variable.value);
+            const added = best.step.entry.metadata.variables
+                .map(variable => variable.variable.value)
+                .filter(name => !known.has(name));
+            for (const name of added) {
+                known.add(name);
+            }
+            for (const entry of candidates.keys()) {
+                if (ActorRdfJoinMultiBindBlock.variablesOf(entry.operation).some(name => added.includes(name))) {
+                    candidates.delete(entry);
+                }
             }
         }
         if (steps.length === 0) {
@@ -241,8 +275,8 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
      * How to probe an operation with rows binding the `known` variables, as separately
      * probed parts, or `undefined` when it cannot be probed.
      */
-    async probeParts(operation, known, context) {
-        const leaves = await this.probeLeaves(operation, known, context);
+    async probeParts(operation, known, context, shapes) {
+        const leaves = await this.probeLeaves(operation, known, context, shapes);
         if (leaves) {
             const variables = ActorRdfJoinMultiBindBlock.variablesOf(operation);
             const shared = variables.filter(name => known.has(name));
@@ -262,7 +296,7 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             while (pending.length > 0) {
                 let best;
                 for (const input of pending) {
-                    const inner = await this.probeParts(input, bound, context);
+                    const inner = await this.probeParts(input, bound, context, shapes);
                     const shared = inner ? new Set(inner.flatMap(part => part.shared)).size : 0;
                     if (inner && (!best || shared > best.shared)) {
                         best = { input, parts: inner, shared };
@@ -285,14 +319,19 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
      * The source requests one probe of an operation sends, or `undefined` when one of
      * them cannot take bindings or would not be restricted by them.
      */
-    async probeLeaves(operation, known, context) {
+    async probeLeaves(operation, known, context, shapes) {
         const source = (0, utils_query_operation_1.getOperationSource)(operation);
         if (source) {
             const shared = ActorRdfJoinMultiBindBlock.variablesOf(operation).filter(name => known.has(name));
             if (shared.length === 0) {
                 return undefined;
             }
-            const shape = await source.source.getSelectorShape(context);
+            let shapePromise = shapes.get(source.source);
+            if (!shapePromise) {
+                shapePromise = source.source.getSelectorShape(context);
+                shapes.set(source.source, shapePromise);
+            }
+            const shape = await shapePromise;
             const wildcardAcceptAllExtensionFunctions = context.get(context_entries_1.KeysInitQuery.extensionFunctionsAlwaysPushdown);
             for (const mode of ['filterBindings', 'joinBindings']) {
                 if ((0, utils_query_operation_1.doesShapeAcceptOperation)(shape, operation, { [mode]: true, wildcardAcceptAllExtensionFunctions })) {
@@ -304,7 +343,7 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         if (operation.type === utils_algebra_1.Algebra.Types.UNION) {
             const leaves = [];
             for (const input of operation.input) {
-                const inner = await this.probeLeaves(input, known, context);
+                const inner = await this.probeLeaves(input, known, context, shapes);
                 if (!inner) {
                     return undefined;
                 }
@@ -389,46 +428,112 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             check();
         }
     }
-    /** Join one batch to a part: index the batch, and stream each probe's rows past it. */
+    /**
+     * Join one batch to a part: index the batch, and stream each probe's rows past it. Rows that
+     * leave one of the part's variables unbound match its rows whatever their value there, so
+     * they are probed apart from the others, each set of values they do bind on its own, and
+     * joined only with what their own requests return. (They used to be indexed with the rest
+     * and joined only with what the other rows' values brought back, and a batch of nothing but
+     * such rows sent no request and joined nothing.)
+     */
     async probeBatch(batch, part, run, onJoined) {
+        const rows = [];
+        const keys = [];
+        const loose = [];
+        for (const [i, row] of batch.rows.entries()) {
+            const key = batch.keys[i];
+            if (key === undefined) {
+                loose.push(row);
+            }
+            else {
+                rows.push(row);
+                keys.push(key);
+            }
+        }
         // The batch's rows are keyed on the part's variables already; a leaf on the same ones reuses the keys.
-        const index = ActorRdfJoinMultiBindBlock.index(batch.rows, batch.keys);
+        const index = ActorRdfJoinMultiBindBlock.index(rows, keys);
         let joined = [];
         const pass = async () => {
             const chunk = joined;
             joined = [];
             await onJoined(chunk);
         };
+        const add = async (merged) => {
+            joined.push(merged);
+            if (joined.length >= CHUNK_ROWS) {
+                await pass();
+            }
+        };
         const onRows = async (probed) => {
             for (const row of probed) {
                 for (const match of ActorRdfJoinMultiBindBlock.matches(index, row, part.shared)) {
                     const merged = bus_rdf_join_1.ActorRdfJoin.joinBindings(match, row);
                     if (merged) {
-                        joined.push(merged);
-                        if (joined.length >= CHUNK_ROWS) {
-                            await pass();
-                        }
+                        await add(merged);
                     }
                 }
             }
             await yieldToEventLoop();
         };
         await Promise.all(part.leaves.map(async (leaf) => {
-            const keys = ActorRdfJoinMultiBindBlock.sameVariables(leaf.shared, part.shared) ? batch.keys : undefined;
-            await this.probe(leaf, batch.rows, keys, run, onRows);
+            const leafKeys = ActorRdfJoinMultiBindBlock.sameVariables(leaf.shared, part.shared) ? keys : undefined;
+            await Promise.all([
+                this.probe(leaf, rows, leafKeys, run, onRows),
+                this.probeLoose(leaf, loose, run, add),
+            ]);
         }));
         if (joined.length > 0) {
             await pass();
         }
     }
     /**
+     * Probe a leaf for rows that leave one of their part's variables unbound: one uncached
+     * request per set of values they bind, the unbound ones left out of its bindings (`UNDEF` in
+     * a `VALUES`, a wildcard to KGF), whose rows are joined with the rows that sent it alone.
+     */
+    async probeLoose(leaf, rows, run, add) {
+        if (rows.length === 0) {
+            return;
+        }
+        const groups = new Map();
+        for (const row of rows) {
+            const key = ActorRdfJoinMultiBindBlock.partialKeyOf(row, leaf.shared);
+            const group = groups.get(key);
+            if (group) {
+                group.push(row);
+            }
+            else {
+                groups.set(key, [row]);
+            }
+        }
+        const keep = new Set(leaf.shared);
+        const metadata = {
+            ...run.metadata,
+            variables: leaf.shared.map(name => ({ variable: run.dataFactory.variable(name), canBeUndef: true })),
+        };
+        await Promise.all([...groups].map(async ([key, members]) => {
+            const value = { key, bindings: members[0].filter((_, variable) => keep.has(variable.value)), answer: deferred() };
+            await this.request(leaf, [value], metadata, run, async (probed) => {
+                for (const row of probed) {
+                    for (const member of members) {
+                        const merged = bus_rdf_join_1.ActorRdfJoin.joinBindings(member, row);
+                        if (merged) {
+                            await add(merged);
+                        }
+                    }
+                }
+                await yieldToEventLoop();
+            }, false);
+        }));
+    }
+    /**
      * Hand `onRows` the leaf's rows that match some of the given rows, a chunk at a time.
      * Values an earlier block already sent are answered from the cache, or from the request
      * still carrying them, and not sent again; an answer too large to keep is sent for again.
      * New values go out in requests of at most `blockSize` values, at most `requestsInFlight`
-     * of them at once across the join: a step whose rows fan out to many values would
-     * otherwise send all its requests together. `keys`, when given, are the rows' keys on the
-     * leaf's variables.
+     * of them at once to the leaf's source across the join: a step whose rows fan out to many
+     * values would otherwise send all its requests together. `keys`, when given, are the rows'
+     * keys on the leaf's variables.
      */
     async probe(leaf, rows, keys, run, onRows) {
         const { cache } = run.probes;
@@ -487,7 +592,8 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
      * are settled as too large to keep, so blocks waiting on them send for them themselves.
      */
     async request(leaf, values, metadata, run, onRows, cacheable) {
-        const { cache, slots } = run.probes;
+        const { cache } = run.probes;
+        const slots = this.slotsOf(run.probes, leaf);
         let keeping = cacheable;
         let kept = 0;
         const byKey = new Map();
@@ -504,7 +610,9 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         // A slot is held while waiting on the source, never while rows move on: the next step's
         // probes need slots too, and holding one across `onRows` let every slot end up held by a
         // request waiting for a slot. That deadlock left a corpus query idle past its budget, with
-        // nothing in flight for the abort to cancel.
+        // nothing in flight for the abort to cancel. The slots are the source's: shared across
+        // sources, requests queued behind a host paced at one a second could hold them all, and
+        // the probes to every other source wait with them.
         let holding = false;
         // Once the join's output is closed, a request that gets its slot sends nothing, and one
         // that was reading ends there.
@@ -588,35 +696,37 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             }
         }
     }
-    /** The rows indexed by their keys, for streaming another side past them. */
+    /** The probe slots of the leaf's source in this join, made on first use. */
+    slotsOf(probes, leaf) {
+        let slots = probes.slots.get(leaf.source.source);
+        if (!slots) {
+            slots = new Slots(this.requestsInFlight);
+            probes.slots.set(leaf.source.source, slots);
+        }
+        return slots;
+    }
+    /** The rows, each bound on all of the variables `keys` were made on, indexed by their keys. */
     static index(rows, keys) {
         const byKey = new Map();
-        const loose = [];
         for (const [i, row] of rows.entries()) {
-            const key = keys[i];
-            if (key === undefined) {
-                loose.push(row);
+            const bucket = byKey.get(keys[i]);
+            if (bucket) {
+                bucket.push(row);
             }
             else {
-                const bucket = byKey.get(key);
-                if (bucket) {
-                    bucket.push(row);
-                }
-                else {
-                    byKey.set(key, [row]);
-                }
+                byKey.set(keys[i], [row]);
             }
         }
-        return { byKey, loose, all: rows };
+        return { byKey, all: rows };
     }
-    /** The indexed rows that may join with `row`; `joinBindings` makes the final check. */
+    /**
+     * The indexed rows that may join with `row`: those with its key, or all of them when `row`
+     * leaves one of the variables unbound, as a union branch without it does. `joinBindings`
+     * makes the final check.
+     */
     static matches(index, row, variables) {
         const key = ActorRdfJoinMultiBindBlock.keyOf(row, variables);
-        if (key === undefined) {
-            return index.all;
-        }
-        const bucket = index.byKey.get(key) ?? NO_ROWS;
-        return index.loose.length === 0 ? bucket : [...bucket, ...index.loose];
+        return key === undefined ? index.all : index.byKey.get(key) ?? NO_ROWS;
     }
     /**
      * A string identifying the values of the given variables, or `undefined` when one is unbound.
@@ -631,6 +741,15 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
                 return undefined;
             }
             key += termKey(term);
+        }
+        return key;
+    }
+    /** As `keyOf`, with a mark of its own for each variable that is unbound. */
+    static partialKeyOf(bindings, variables) {
+        let key = '';
+        for (const name of variables) {
+            const term = bindings.get(name);
+            key += term ? termKey(term) : '-';
         }
         return key;
     }

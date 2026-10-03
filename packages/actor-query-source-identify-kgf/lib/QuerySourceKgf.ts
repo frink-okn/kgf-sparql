@@ -149,6 +149,19 @@ export class QuerySourceKgf implements IQuerySource {
     } else {
       batches.push({ rows: [], offset: 0 });
     }
+    // A call that carries bindings is a bind join's probe, and no join reads its count: the
+    // joins that send blocks take their cardinality from their own entries. Counted, each block
+    // cost the server a /count and then a page, as the SPARQL source's VALUES probes cost a
+    // COUNT and a SELECT before it stopped counting them. Such a call reports an unknown
+    // cardinality, and reads its pages even when none match.
+    if (options?.filterBindings) {
+      const metadata: MetadataQuads = {
+        state: new MetadataValidationState(),
+        cardinality: { type: 'estimate', value: Number.POSITIVE_INFINITY },
+        pageSize,
+      };
+      return { client, service, pageSize, variables, rows, batches, metadata };
+    }
     const start = performance.now();
     let value = 0;
     let exact = true;

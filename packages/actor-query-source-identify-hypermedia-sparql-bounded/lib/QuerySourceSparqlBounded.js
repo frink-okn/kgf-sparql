@@ -16,8 +16,10 @@ const KEY_BOUND = new core_1.ActionContextKey('@kgf/actor-query-source-identify-
  *
  * `SELECT (COUNT(*) AS ?count) WHERE { SELECT * WHERE { … } LIMIT cap+1 }`, so the endpoint
  * can stop at the cap. A count under it is exact; one that reaches it is reported as an
- * estimate of cap+1, a lower bound. A planner needs to know which
- * side of a join is small, not how large a large side is: on QLever's Wikidata endpoint,
+ * estimate of cap+1, a lower bound. The cap is the one the call's context gives the endpoint:
+ * Comunica keeps an identified source for later queries, and a cap fixed when the source was
+ * identified held for every query after the first, whatever their contexts said. A planner
+ * needs to know which side of a join is small, not how large a large side is: on QLever's Wikidata endpoint,
  * counting every `rdfs:label` took 4.4 s, while counting up to 1,000,000 of them took 28 ms
  * and up to 10,000,000 took 79 ms.
  *
@@ -52,28 +54,54 @@ const KEY_BOUND = new core_1.ActionContextKey('@kgf/actor-query-source-identify-
  * unknown cardinality, as Comunica's source does with count queries turned off.
  */
 class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sparql_1.QuerySourceSparql {
-    cap;
+    capFor;
     attemptTimeout;
     endpoint;
+    countDataFactory;
+    countAlgebraFactory;
+    /** The cap for a COUNT built with no call's context: the one the source was identified with. */
+    identifiedCap;
+    /** Each COUNT's cap, by the copy of its operation that `attachMetadata` hands Comunica. */
+    caps = new WeakMap();
     /** Milliseconds this source's last COUNT spent with the server. */
     lastRequestTime;
-    constructor(cap, attemptTimeout, ...args) {
+    /**
+     * @param capFor The cap on a COUNT sent with the given context; `Infinity` for none.
+     * @param attemptTimeout Milliseconds a COUNT attempt may spend with the server.
+     * @param args Comunica's `QuerySourceSparql` arguments.
+     */
+    constructor(capFor, attemptTimeout, ...args) {
         super(...args);
-        this.cap = cap;
+        this.capFor = capFor;
         this.attemptTimeout = attemptTimeout;
         this.endpoint = args[0];
+        this.countDataFactory = args[6];
+        this.countAlgebraFactory = args[7];
+        this.identifiedCap = capFor(args[2]);
     }
     queryBindings(operation, context, options) {
         return super.queryBindings(operation, options?.joinBindings ? context.set(KEY_BOUND, true) : context, options);
     }
-    operationToCountQuery(dataFactory, algebraFactory, operation) {
-        if (!Number.isFinite(this.cap)) {
-            return super.operationToCountQuery(dataFactory, algebraFactory, operation);
+    /**
+     * The COUNT for an operation, bounded at its call's cap. A pattern's variables are renamed,
+     * as Comunica renames them, so that its count is cached whatever its variables are called;
+     * its graph is kept, which Comunica's drops, counting a `GRAPH` pattern in the default graph.
+     */
+    async operationToNormalizedCountQuery(operation) {
+        const cap = this.caps.get(operation) ?? this.identifiedCap;
+        const df = this.countDataFactory;
+        const af = this.countAlgebraFactory;
+        const normalized = (0, utils_algebra_1.isKnownOperation)(operation, utils_algebra_1.Algebra.Types.PATTERN) ?
+            af.createPattern(operation.subject.termType === 'Variable' ? df.variable('s') : operation.subject, operation.predicate.termType === 'Variable' ? df.variable('p') : operation.predicate, operation.object.termType === 'Variable' ? df.variable('o') : operation.object, operation.graph.termType === 'Variable' ? df.variable('g') : operation.graph) :
+            operation;
+        if (!Number.isFinite(cap)) {
+            return await this.operationToCountQuery(df, af, normalized);
         }
-        const bounded = algebraFactory.createSlice(algebraFactory.createProject(operation, utils_algebra_1.algebraUtils.inScopeVariables(operation)), 0, this.cap + 1);
-        return super.operationToCountQuery(dataFactory, algebraFactory, bounded);
+        const bounded = af.createSlice(af.createProject(normalized, utils_algebra_1.algebraUtils.inScopeVariables(normalized)), 0, cap + 1);
+        return await this.operationToCountQuery(df, af, bounded);
     }
     attachMetadata(target, context, operationPromise) {
+        const cap = this.capFor(context);
         let written = false;
         let timer;
         /** When the attempt with the server now was sent, if one is. */
@@ -91,7 +119,7 @@ class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sp
                     this.lastRequestTime = requestTime;
                 }
                 const time = requestTime ?? this.lastRequestTime;
-                target.setProperty('metadata', this.bound(time === undefined ? metadata : { ...metadata, requestTime: time }));
+                target.setProperty('metadata', QuerySourceSparqlBounded.bound(time === undefined ? metadata : { ...metadata, requestTime: time }, cap));
             }
         };
         // The cardinality is unknown, as Comunica reports a COUNT that timed out. It is written
@@ -151,12 +179,19 @@ class QuerySourceSparqlBounded extends actor_query_source_identify_hypermedia_sp
                 }
             },
         };
-        super.attachMetadata(metadataOnly, context.set(actor_http_throttle_1.KEY_HTTP_ATTEMPT_LISTENER, listener), operationPromise);
+        // Comunica builds the COUNT from the operation alone, so a copy of it, for this call only,
+        // carries the call's cap there. The copy keeps the prototype: a pattern is an RDF/JS quad.
+        const counted = operationPromise.then((operation) => {
+            const copy = Object.assign(Object.create(Object.getPrototypeOf(operation)), operation);
+            this.caps.set(copy, cap);
+            return copy;
+        });
+        super.attachMetadata(metadataOnly, context.set(actor_http_throttle_1.KEY_HTTP_ATTEMPT_LISTENER, listener), counted);
     }
     /** A count that reached the cap is an estimate, a lower bound, not an exact count. */
-    bound(metadata) {
+    static bound(metadata, cap) {
         const { cardinality } = metadata;
-        if (cardinality.type !== 'exact' || cardinality.value <= this.cap) {
+        if (cardinality.type !== 'exact' || cardinality.value <= cap) {
             return metadata;
         }
         return { ...metadata, cardinality: { ...cardinality, type: 'estimate' } };

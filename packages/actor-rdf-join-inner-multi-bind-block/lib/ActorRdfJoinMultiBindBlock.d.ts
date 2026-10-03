@@ -3,7 +3,7 @@ import { ActorRdfJoin } from '@comunica/bus-rdf-join';
 import type { MediatorRdfJoinEntriesSort } from '@comunica/bus-rdf-join-entries-sort';
 import type { TestResult } from '@comunica/core';
 import type { IMediatorTypeJoinCoefficients } from '@comunica/mediatortype-join-coefficients';
-import type { Bindings, ComunicaDataFactory, IActionContext, IJoinEntryWithMetadata, IQuerySourceWrapper, MetadataBindings } from '@comunica/types';
+import type { Bindings, ComunicaDataFactory, FragmentSelectorShape, IActionContext, IJoinEntryWithMetadata, IQuerySource, IQuerySourceWrapper, MetadataBindings } from '@comunica/types';
 import { Algebra } from '@comunica/utils-algebra';
 import type { AsyncIterator } from 'asynciterator';
 /**
@@ -18,8 +18,9 @@ import type { AsyncIterator } from 'asynciterator';
  *
  * ## The plan
  *
- * Starting from the smallest entry, the actor repeatedly picks the entry that shares the
- * most variables with what is bound so far (then the smallest) among those it can probe:
+ * Starting from the smallest entry whose size is known exactly (an estimate may be a lower
+ * bound, as a COUNT that reached its cap reports), the actor repeatedly picks the entry that
+ * shares the most variables with what is bound so far (then the smallest) among those it can probe:
  *
  * - an operation on one source that accepts `filterBindings` (KGF, brTPF) or
  *   `joinBindings` (a SPARQL endpoint, through `VALUES`);
@@ -36,18 +37,20 @@ import type { AsyncIterator } from 'asynciterator';
  * the entries in one pass needs no estimate of an intermediate result: a previous version
  * bound one entry at a time and handed the rest back to the planner, whose compounded
  * estimate of the intermediate (10^21 rows for a few dozen) then chose to scan a label
- * pattern whole. Entries that cannot be probed, or are smaller than the bound entry, are
- * joined afterwards through the join mediator.
+ * pattern whole. Entries that cannot be probed, or are known to be smaller than the bound
+ * entry, are joined afterwards through the join mediator.
  *
  * Up to `blocksInFlight` blocks are probed at once and each is emitted as soon as it is
- * joined. A value an earlier block already sent is answered from a per-join cache.
+ * joined, with up to `requestsInFlight` requests to each source. A value an earlier block
+ * already sent is answered from a per-join cache.
  *
  * ## Cost
  *
  * The coefficients are the stock bind join's formula over the probed entries, so the two
- * compare on equal terms, except that a probe request is charged per block instead of per
- * row (one request time per entry, paged or not, as the round-trip bind join charges it) and
- * one block of rows is held. Nothing counts as blocking: the join mediator penalises
+ * compare on equal terms, except that probe requests are charged per block instead of per
+ * row (one request time per source request a block sends to the entry, paged or not, as the
+ * round-trip bind join charges it: one for each branch of a union, and each input of a join)
+ * and one block of rows is held. Nothing counts as blocking: the join mediator penalises
  * blocking joins below a LIMIT, and this one only ever waits for a block, not its input.
  */
 export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiBindBlockTestSideData> {
@@ -58,6 +61,13 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
     readonly selectivityModifier: number;
     readonly mediatorJoinEntriesSort: MediatorRdfJoinEntriesSort;
     readonly mediatorJoin: MediatorRdfJoin;
+    /**
+     * The outputs of this actor's joins, which it does not take into a join again: it would bind
+     * the computed result into the entries it just left out. A context key, as Comunica's
+     * filter-bindings join marks its own, reached every join nested under the leftover one, and
+     * left a join of two leftover entries that this actor could bind to a per-row bind join.
+     */
+    private readonly outputs;
     constructor(args: IActorRdfJoinMultiBindBlockArgs);
     getJoinCoefficients(action: IActionRdfJoin, sideData: IActorRdfJoinTestSideData): Promise<TestResult<IMediatorTypeJoinCoefficients, IActorRdfJoinMultiBindBlockTestSideData>>;
     protected getOutput(action: IActionRdfJoin, sideData: IActorRdfJoinMultiBindBlockTestSideData): Promise<IActorRdfJoinOutputInner>;
@@ -76,12 +86,12 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * How to probe an operation with rows binding the `known` variables, as separately
      * probed parts, or `undefined` when it cannot be probed.
      */
-    protected probeParts(operation: Algebra.Operation, known: Set<string>, context: IActionContext): Promise<IProbePart[] | undefined>;
+    protected probeParts(operation: Algebra.Operation, known: Set<string>, context: IActionContext, shapes: SelectorShapes): Promise<IProbePart[] | undefined>;
     /**
      * The source requests one probe of an operation sends, or `undefined` when one of
      * them cannot take bindings or would not be restricted by them.
      */
-    protected probeLeaves(operation: Algebra.Operation, known: Set<string>, context: IActionContext): Promise<IProbeLeaf[] | undefined>;
+    protected probeLeaves(operation: Algebra.Operation, known: Set<string>, context: IActionContext, shapes: SelectorShapes): Promise<IProbeLeaf[] | undefined>;
     /**
      * Run one block through every step. Rows move on in chunks as soon as they are joined,
      * so neither a probe's results nor a step's joined rows are ever held whole: a value that
@@ -92,16 +102,29 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * minutes, past the run's own timeout and its SIGTERM handler, at 9.4 GB.
      */
     protected joinBlock(rows: Bindings[], steps: IBindStep[], metadata: MetadataBindings, dataFactory: ComunicaDataFactory, context: IActionContext, probes: IProbeRun, emit: (rows: Bindings[]) => Promise<void>): Promise<void>;
-    /** Join one batch to a part: index the batch, and stream each probe's rows past it. */
+    /**
+     * Join one batch to a part: index the batch, and stream each probe's rows past it. Rows that
+     * leave one of the part's variables unbound match its rows whatever their value there, so
+     * they are probed apart from the others, each set of values they do bind on its own, and
+     * joined only with what their own requests return. (They used to be indexed with the rest
+     * and joined only with what the other rows' values brought back, and a batch of nothing but
+     * such rows sent no request and joined nothing.)
+     */
     private probeBatch;
+    /**
+     * Probe a leaf for rows that leave one of their part's variables unbound: one uncached
+     * request per set of values they bind, the unbound ones left out of its bindings (`UNDEF` in
+     * a `VALUES`, a wildcard to KGF), whose rows are joined with the rows that sent it alone.
+     */
+    private probeLoose;
     /**
      * Hand `onRows` the leaf's rows that match some of the given rows, a chunk at a time.
      * Values an earlier block already sent are answered from the cache, or from the request
      * still carrying them, and not sent again; an answer too large to keep is sent for again.
      * New values go out in requests of at most `blockSize` values, at most `requestsInFlight`
-     * of them at once across the join: a step whose rows fan out to many values would
-     * otherwise send all its requests together. `keys`, when given, are the rows' keys on the
-     * leaf's variables.
+     * of them at once to the leaf's source across the join: a step whose rows fan out to many
+     * values would otherwise send all its requests together. `keys`, when given, are the rows'
+     * keys on the leaf's variables.
      */
     protected probe(leaf: IProbeLeaf, rows: Bindings[], keys: (string | undefined)[] | undefined, run: IBlockRun, onRows: (rows: Bindings[]) => Promise<void>): Promise<void>;
     /**
@@ -111,9 +134,15 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * are settled as too large to keep, so blocks waiting on them send for them themselves.
      */
     protected request(leaf: IProbeLeaf, values: IProbeValue[], metadata: MetadataBindings, run: IBlockRun, onRows: (rows: Bindings[]) => Promise<void>, cacheable: boolean): Promise<void>;
-    /** The rows indexed by their keys, for streaming another side past them. */
+    /** The probe slots of the leaf's source in this join, made on first use. */
+    private slotsOf;
+    /** The rows, each bound on all of the variables `keys` were made on, indexed by their keys. */
     private static index;
-    /** The indexed rows that may join with `row`; `joinBindings` makes the final check. */
+    /**
+     * The indexed rows that may join with `row`: those with its key, or all of them when `row`
+     * leaves one of the variables unbound, as a union branch without it does. `joinBindings`
+     * makes the final check.
+     */
     private static matches;
     /**
      * A string identifying the values of the given variables, or `undefined` when one is unbound.
@@ -121,6 +150,8 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * values: a probe sends each key once.
      */
     static keyOf(bindings: Bindings, variables: string[]): string | undefined;
+    /** As `keyOf`, with a mark of its own for each variable that is unbound. */
+    private static partialKeyOf;
     private static sameVariables;
     private static variablesOf;
 }
@@ -168,7 +199,8 @@ export interface IActorRdfJoinMultiBindBlockArgs extends IActorRdfJoinArgs<IActo
      */
     blocksInFlight?: number;
     /**
-     * Probe requests in flight at once across the join, whatever the blocks and steps they serve.
+     * Probe requests in flight at once to each source across the join, whatever the blocks and
+     * steps they serve.
      * @range {integer}
      * @default {8}
      */
@@ -199,7 +231,8 @@ export interface IActorRdfJoinMultiBindBlockArgs extends IActorRdfJoinArgs<IActo
 /** What the probes of one join share: answers already fetched, and places for requests in flight. */
 interface IProbeRun {
     cache: ProbeCache;
-    slots: Slots;
+    /** Places for requests in flight, per source. */
+    slots: Map<IQuerySource, Slots>;
     /** The requests reading their sources now, to cancel once the output is closed. */
     readers: Set<ChunkReader<Bindings>>;
     /** Whether the output is closed, after which no request is sent. */
@@ -214,6 +247,8 @@ interface IBlockRun {
     /** Hands joined rows out of the actor; waits while the reader is behind, and throws `STOPPED` once it is gone. */
     emit: (rows: Bindings[]) => Promise<void>;
 }
+/** Selector shapes per source, asked for once while planning. */
+type SelectorShapes = Map<IQuerySource, Promise<FragmentSelectorShape>>;
 /**
  * Reads a stream a chunk at a time: whatever is ready now, or the first items to arrive.
  * Its listeners stay attached for the stream's life, and it waits for an event only when the

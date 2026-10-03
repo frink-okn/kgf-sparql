@@ -9,7 +9,9 @@ Dataset `/latest/fragment` aliases are also accepted and pinned to the current
 release through the dataset descriptor, without fetching a fragment page.
 The actor identifies sources without network access. Query planning then discovers
 service limits and requests `/count`; fragment pages remain lazy. Filter bindings
-use QUERY, with POST fallback on HTTP 405/501, and follow opaque cursors.
+use QUERY, with POST fallback on HTTP 405/501, and follow opaque cursors. A call with
+filter bindings is a bind join's probe: it is not counted, and reports an unknown
+cardinality.
 
 Pages default to 1,000 rows. Bindings default to the advertised `max_bindings`
 (200 if absent), subject to the request-byte limit; Comunica may supply smaller

@@ -24,9 +24,11 @@ place until its response headers arrive; the body is read outside the queue.
 - `KEY_HTTP_HOST_LIMITS` gives hosts their own `{ inFlight, perSecond }`, keyed by `host`
   (`example.org:8080`) or else `hostname`. A key of `*.` and a domain is a queue the hosts
   in that domain share: `*.wikidata.org` caps `query.wikidata.org` and
-  `query-scholarly.wikidata.org` together. A request waits its turn in its host's queue,
-  then in each such group's, so a host's own limits hold within its group's: a rate for
-  `query.wikidata.org` does not take it out of a cap on `*.wikidata.org`.
+  `query-scholarly.wikidata.org` together. A request waits in its host's queue and starts
+  only when its host and each such group can all start it then, so a host's own limits hold
+  within its group's: a rate for `query.wikidata.org` does not take it out of a cap on
+  `*.wikidata.org`, and a cap on the group that holds the host's requests back does not let
+  them all start at once when it has room, past the host's rate.
 - The actor's `hosts` are limits of the same form that hold unless the context overrides
   them, field by field. `kgf-sparql` starts at most one request a second to QLever's hosts
   (`qlever.dev`, `qlever.cs.uni-freiburg.de`), about the rate its Wikidata endpoint was
@@ -55,6 +57,8 @@ host and each group it is in.
   answer that is not a refusal takes a tenth off it, so the host settles near the rate it
   accepts. Only requests started since the last change count: the requests of one burst are
   refused together, and each doubling the interval again took QLever to 10 s within seconds.
+  A refusal teaches before the refused request gives up its place, so the request started
+  in its place goes at the new pace.
 - A timeout or a network failure changes nothing.
 - Invalidating the HTTP cache (`engine.invalidateHttpCache()`, for a URL or for all)
   forgets the pause and the interval, as it clears Comunica's retry actor's delays.
@@ -89,8 +93,9 @@ the server alone: `kgf-sparql`'s bounded SPARQL source times its COUNT queries t
 `hosts` and `userAgent` above. Queues and learned intervals belong to the actor, so one
 engine shares them across its queries, as a page that keeps one engine does. Queries that
 give a host the same limits share its queue; a query that gives it others waits in a queue
-of its own, so that each query's limits hold for its requests. What refusals taught is
-shared either way, as the server sees all of them.
+of its own, so that each query's limits hold for its requests, and a queue no request holds
+is let go. What refusals taught, and when the host last started a request, is shared either
+way, as the server sees all of them.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), where the command
 line's `--max-in-flight` and `--max-rate` set these keys.

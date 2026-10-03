@@ -1,11 +1,5 @@
-export * from './QueryEngine';
+export * from './index-browser';
 export * from './QueryEngineFactory';
-export { KEY_KGF_PAGE_SIZE, KEY_KGF_BINDINGS_SIZE, KEY_KGF_HTTP_METHOD, KEY_KGF_VOID_STATISTICS, } from '@kgf/actor-query-source-identify-kgf';
-export { KEY_VOID_STATISTICS } from '@kgf/actor-rdf-join-selectivity-void';
-export { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kgf/actor-http-throttle';
-export type { IHostLimits } from '@kgf/actor-http-throttle';
-export { KEY_SPARQL_COUNT_CAP, KEY_SPARQL_COUNT_CAP_HOSTS, } from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded';
-export type { IVoidClassPartition, IVoidDatasetStatistics, IVoidPropertyPartition, VoidStatisticsRegistry, } from '@kgf/actor-rdf-join-selectivity-void';
 export { BudgetExceeded, RunAccount } from './cli/Budget';
 export type { BudgetName, IBudget } from './cli/Budget';
 export { RECEIPT_SCHEMA, writeReceipt } from './cli/Receipt';

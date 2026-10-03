@@ -173,7 +173,8 @@ command line in-process.
   batches default to the server's advertised **max_bindings** (200 if absent),
   and also respect its request-byte budget. Comunica may supply smaller batches.
 - Comunica's `filterBindings` interface maps to KGF's pattern-and-bindings JSON
-  body. Restricted queries use `QUERY /count` before `QUERY /fragment`.
+  body. Restricted queries go straight to `QUERY /fragment`: they are a bind join's
+  probes, which report an unknown cardinality rather than spend a `/count` on each block.
   Comunica supports the custom HTTP method through its HTTP mediator.
 - HTTP 405 or 501 on QUERY triggers a POST retry, remembered for the query.
   Other errors propagate. POST can also be explicitly selected.

@@ -420,3 +420,16 @@ test('--max-connections reaches the transport and bounds what the server sees at
   assert.equal(readJson(ws.receipt).budget.max_connections, 1);
   assert.equal(state.peak, 1, 'one connection means one request at a time');
 });
+
+test('the engine names itself to servers with the package\'s own version', () => {
+  // The User-Agent is written into the engine's config, apart from package.json, and a version
+  // bump that left it behind would name every request of the new release as the old one.
+  const root = new URL('../packages/kgf-sparql/', import.meta.url);
+  const { version } = readJson(new URL('package.json', root).pathname);
+  const config = readJson(new URL('config/config-default.json', root).pathname);
+  const agents = config['@graph']
+    .map(node => node.overrideParameters?.userAgent)
+    .filter(Boolean);
+  assert.equal(agents.length, 1);
+  assert.match(agents[0], new RegExp(`^kgf-sparql/${version.replaceAll('.', '\\.')} `, 'u'));
+});

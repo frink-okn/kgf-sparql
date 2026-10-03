@@ -57,23 +57,22 @@ test('empty matches, empty bindings, and named graphs never request result pages
   assert.equal(calls(mock, 'count').length, 1);
 });
 
-test('QUERY pushes bindings and counts first; overlap and duplicates are removed across batches and pages', async() => {
+test('QUERY pushes bindings without counting them; overlap and duplicates are removed across batches and pages', async() => {
+  // A call with bindings is a bind join's probe, and no join reads its count: counted, each
+  // batch cost a /count and then a page.
   const mock = server({ caps: { max_bindings: 1 } });
   const { source: kgf, context } = source(mock);
   const result = kgf.queryBindings(pattern(), context, filter([{ s: iri('a') }, { o: iri('b') }, { s: iri('a') }]));
   const meta = await metadata(result);
-  assert.equal(meta.cardinality.type, 'estimate');
-  assert.equal(calls(mock, 'fragment').length, 0);
+  assert.deepEqual(meta.cardinality, { type: 'estimate', value: Number.POSITIVE_INFINITY });
+  assert.equal(calls(mock, 'fragment').length, 0, 'the metadata opens no page');
   const rows = await result.toArray();
   assert.equal(rows.length, 4);
   assert.equal(new Set(bag(rows)).size, 4);
-  assert.equal(calls(mock, 'count').length, 2);
-  assert.ok(calls(mock, 'count').every(call => call.method === 'QUERY'));
+  assert.equal(calls(mock, 'count').length, 0);
   assert.ok(calls(mock, 'fragment').every(call => call.method === 'QUERY'));
   assert.ok(calls(mock, 'fragment').some(call => call.body.cursor));
-  const lastCount = mock.requests.findLastIndex(call => call.url.pathname.endsWith('/count'));
-  const firstPage = mock.requests.findIndex(call => call.url.pathname.endsWith('/fragment'));
-  assert.ok(lastCount < firstPage);
+  assert.ok(calls(mock, 'fragment').every(call => call.body.bindings.rows.length === 1), 'max_bindings is 1');
 });
 
 test('an unbound filter row matches all triples without multiplying results', async() => {
@@ -92,7 +91,7 @@ test('binding requests use the advertised limit unless a smaller override is set
     const mock = server({ caps: { max_bindings: limit } });
     const { source: kgf, context } = source(mock, override === undefined ? {} : { [KEY_KGF_BINDINGS_SIZE.name]: override });
     assert.equal((await kgf.queryBindings(pattern(), context, filter(bindings)).toArray()).length, 0);
-    assert.deepEqual(calls(mock, 'count').map(call => call.body.bindings.rows.length), expected);
+    assert.deepEqual(calls(mock, 'fragment').map(call => call.body.bindings.rows.length), expected);
   }
 });
 
@@ -102,7 +101,9 @@ test('QUERY falls back only for unsupported methods and POST can be forced', asy
     const { source: kgf, context } = source(mock, forced ? { [KEY_KGF_HTTP_METHOD.name]: 'POST' } : {});
     assert.equal((await kgf.queryBindings(pattern(), context, filter([{ s: iri('a') }])).toArray()).length, 2);
     assert.equal(mock.requests.filter(call => call.method === 'QUERY').length, forced ? 0 : 1);
-    assert.ok(calls(mock, 'fragment').every(call => call.method === 'POST'));
+    // The one QUERY, refused, was the first page's; it went again as POST, and so did the rest.
+    assert.ok(calls(mock, 'fragment').filter(call => call.method !== 'QUERY').every(call => call.method === 'POST'));
+    assert.ok(calls(mock, 'fragment').some(call => call.method === 'POST'));
   }
   const mock = server({ queryFailure: true });
   const { source: kgf, context } = source(mock);
@@ -115,7 +116,8 @@ test('concurrent QUERY requests both retry when the server only supports POST', 
   const { source: kgf, context } = source(mock);
   const results = await Promise.all(['a', 'b'].map(s => kgf.queryBindings(pattern(), context, filter([{ s: iri(s) }])).toArray()));
   assert.deepEqual(results.map(rows => rows.length), [2, 2]);
-  assert.ok(calls(mock, 'fragment').every(call => call.method === 'POST'));
+  assert.ok(calls(mock, 'fragment').filter(call => call.method !== 'QUERY').every(call => call.method === 'POST'));
+  assert.ok(mock.requests.filter(call => call.method === 'QUERY').length <= 2, 'each refused QUERY went again as POST');
 });
 
 test('byte limits split binding requests independently of the row cap', async() => {
@@ -123,7 +125,7 @@ test('byte limits split binding requests independently of the row cap', async() 
   const { source: kgf, context } = source(mock);
   const rows = Array.from({ length: 9 }, (_, i) => ({ s: iri(`absent-${i}-${'ü'.repeat(50)}`) }));
   assert.equal((await kgf.queryBindings(pattern(), context, filter(rows)).toArray()).length, 0);
-  const batches = calls(mock, 'count').map(call => call.body);
+  const batches = calls(mock, 'fragment').map(call => call.body);
   assert.ok(batches.length > 1);
   // Every batch is as full as the budget allows: each fits, and the next batch's first row
   // would not have. The sizes are counted as the body grows, so they must match it exactly.

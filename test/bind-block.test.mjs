@@ -23,6 +23,7 @@ const context = () => new ActionContext({ [KeysInitQuery.dataFactory.name]: df }
  */
 function source(name, triples, mode, { delayMs = 0 } = {}) {
   const calls = [];
+  const shapes = { asked: 0 };
   const shape = mode === 'joinBindings' ?
       { type: 'operation', operation: { operationType: 'wildcard' }, joinBindings: true } :
       { type: 'operation', operation: { operationType: 'pattern', pattern: af.createPattern(v('s'), v('p'), v('o')) },
@@ -40,9 +41,13 @@ function source(name, triples, mode, { delayMs = 0 } = {}) {
   });
   return {
     calls,
+    shapes,
     wrapper: { source: {
       referenceValue: `urn:source:${name}`,
-      getSelectorShape: async() => shape,
+      getSelectorShape: async() => {
+        shapes.asked++;
+        return shape;
+      },
       queryBindings(operation, _context, options) {
         return wrap((async() => {
           const rows = match(operation);
@@ -53,10 +58,12 @@ function source(name, triples, mode, { delayMs = 0 } = {}) {
             return lazy(rows);
           }
           const bindings = await bound.bindings.toArray();
-          calls.push({ bindings, variables: bound.metadata.variables.map(variable => variable.variable.value) });
+          const call = { bindings, variables: bound.metadata.variables.map(variable => variable.variable.value), at: Date.now() };
+          calls.push(call);
           if (delayMs > 0) {
             await new Promise(resolve => setTimeout(resolve, delayMs));
           }
+          call.done = Date.now();
           if (mode === 'joinBindings') {
             return lazy(bindings.flatMap(binding => rows.map(row => row.merge(binding)).filter(Boolean)));
           }
@@ -220,7 +227,8 @@ test('entries that are not bound go back to the join mediator with the bound res
     type: 'operation', operation: { operationType: 'pattern', pattern: af.createPattern(v('s'), v('p'), v('o')) },
   }), queryBindings: () => new ArrayIterator([]) } };
   const other = entry(assignOperationSource(af.createPattern(v('cell'), n('label'), v('l')), tpf), 5_000, [ 'cell', 'l' ]);
-  const { rows } = await run(actor(2, mediatorJoin), [
+  const joinActor = actor(2, mediatorJoin);
+  const { rows } = await run(joinActor, [
     entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 1, [ 'cell' ], {}, [ row([ 'cell', 'c1' ]) ]),
     entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
     other,
@@ -228,8 +236,17 @@ test('entries that are not bound go back to the join mediator with the bound res
   assert.equal(handed.length, 2);
   assert.ok(handed[0].operationModified);
   assert.equal(handed[1].operation, other.operation);
-  assert.equal(handedContext.get(KeysRdfJoin.lastPhysicalJoin), 'multi-bind-block',
-    'the leftover join is marked, so that this actor does not take it as well');
+  const again = await joinActor.test({ type: 'inner', entries: handed, context: handedContext });
+  assert.match(again.isFailed() ? again.getFailMessage() : '', /own result/u,
+    'this actor does not take the leftover join as well');
+  // The context is not marked, as it used to be: the mark reached every join nested under the
+  // leftover one, and one of two leftover entries went to a per-row bind join.
+  assert.equal(handedContext.get(KeysRdfJoin.lastPhysicalJoin), undefined);
+  const nested = await joinActor.test({ type: 'inner', context: handedContext, entries: [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 838, [ 'cell' ]),
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+  ] });
+  assert.ok(nested.isPassed(), 'a join nested under the leftover one, without its result, is this actor\'s to take');
   assert.deepEqual(sorted(rows), sorted([ row([ 'cell', 'c1' ], [ 'w', 'w1' ]) ]));
 });
 
@@ -283,7 +300,8 @@ test('it refuses what it cannot help with', async() => {
   };
   const cells = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 838, [ 'cell' ]);
   const target = entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]);
-  assert.match(await refusal([ cells, target ], context().set(KeysRdfJoin.lastPhysicalJoin, 'multi-bind-block')), /recursively/u);
+  assert.ok((await actor().test({ type: 'inner', entries: [ cells, target ],
+    context: context().set(KeysRdfJoin.lastPhysicalJoin, 'multi-bind-block') })).isPassed(), 'a join\'s mark does not stop it');
   assert.match(await refusal([ cells, entry(on(wikidata, v('w'), n('P921'), v('article')), 300_000, [ 'w', 'article' ]) ]),
     /common variable|found no entry/u, 'nothing to bind on');
   const computed = { ...entry(af.createJoin([]), 1_000, [ 'cell' ]), operationModified: true };
@@ -635,4 +653,94 @@ test('rows handed on a few at a time still reach the next step in full requests'
   ]);
   // 600 statements arrive one at a time; 256 distinct values per request makes three requests.
   assert.deepEqual(labels.calls.map(call => call.bindings.length), [ 256, 256, 88 ]);
+});
+
+test('it binds from an exact size before an estimate, which may be a lower bound', async() => {
+  // A SPARQL COUNT that reached its cap reports cap+1 as an estimate, however many more there
+  // are: the actor used to bind from it as the smallest entry, and fetch an exact one smaller
+  // than the estimate's real size whole.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const capped = entry(on(wikidata, v('w'), n('P921'), v('cell')), 1_000_001, [ 'w', 'cell' ]);
+  capped.output.metadata = async() => ({ ...await entry(capped.operation, 1_000_001, [ 'w', 'cell' ]).output.metadata(),
+    cardinality: { type: 'estimate', value: 1_000_001 } });
+  const exact = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 2_000_000, [ 'cell' ]);
+  const tested = await actor(256).test({ type: 'inner', entries: [ capped, exact ], context: context() });
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  const { plan } = tested.getSideData();
+  assert.equal(plan.firstIndex, 1, 'the exact entry is bound');
+  assert.deepEqual(plan.stepIndexes, [ 0 ], 'and the estimate, smaller only by its lower bound, is probed');
+});
+
+test('a block sends a probe to every branch of a union, and the cost charges each', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const qlever = source('qlever', [], 'joinBindings');
+  const wdqs = source('wdqs', [], 'joinBindings');
+  const entries = [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 600, [ 'cell' ], { requestTime: 10, pageSize: 1_000 }),
+    entry(af.createUnion([ on(qlever, v('w'), n('P7963'), v('cell')), on(wdqs, v('w'), n('P7963'), v('cell')) ]),
+      300_000, [ 'w', 'cell' ], { requestTime: 400 }),
+  ];
+  const tested = await actor(256).test({ type: 'inner', entries, context: context() });
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  const probed = 300_000 * 0.001 * 0.0001;
+  // Three blocks of 256, each sending two requests: it used to charge one.
+  assert.equal(tested.get().requestTime, 0 + 600 * (10 / 1_000) + 3 * 2 * 400 + 600 * probed * 0);
+});
+
+test('a row that leaves a shared variable unbound joins with every row it matches', async() => {
+  // An endpoint that leaves out a binding hands on such a row. It was joined only with the
+  // rows the other rows' values brought back, and a batch of nothing else sent no request.
+  for (const mode of [ 'joinBindings', 'filterBindings' ]) {
+    const ubergraph = source('ubergraph', [], 'filterBindings');
+    const wikidata = source('wikidata', [[ n('w1'), n('P7963'), n('c1') ], [ n('w2'), n('P7963'), n('c2') ]], mode);
+    const { rows } = await run(actor(2), [
+      entry(on(ubergraph, v('cell'), n('described'), v('x')), 2, [ 'cell', 'x' ], {}, [ row([ 'x', 'x1' ]), row([ 'cell', 'c1' ], [ 'x', 'x2' ]) ]),
+      entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+    ]);
+    assert.deepEqual(sorted(rows), sorted([
+      row([ 'x', 'x1' ], [ 'w', 'w1' ], [ 'cell', 'c1' ]),
+      row([ 'x', 'x1' ], [ 'w', 'w2' ], [ 'cell', 'c2' ]),
+      row([ 'cell', 'c1' ], [ 'x', 'x2' ], [ 'w', 'w1' ]),
+    ]), mode);
+  }
+  // A batch of nothing but such rows still probes.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [[ n('w1'), n('P7963'), n('c1') ]], 'joinBindings');
+  const { rows } = await run(actor(2), [
+    entry(on(ubergraph, v('cell'), n('described'), v('x')), 1, [ 'cell', 'x' ], {}, [ row([ 'x', 'x1' ]) ]),
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+  ]);
+  assert.deepEqual(sorted(rows), sorted([ row([ 'x', 'x1' ], [ 'w', 'w1' ], [ 'cell', 'c1' ]) ]));
+});
+
+test('each source has its own places for requests, so a slow one does not hold up the others', async() => {
+  // With one place across the join, probes to a host paced at one request a second could
+  // hold it, and the probes to every other source would wait with them.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const slow = source('slow', [[ n('w1'), n('P7963'), n('c1') ]], 'joinBindings', { delayMs: 80 });
+  const quick = source('quick', [[ n('w2'), n('P7963'), n('c1') ]], 'joinBindings', { delayMs: 80 });
+  const { rows } = await run(actor(2, undefined, { requestsInFlight: 1 }), [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 1, [ 'cell' ], {}, [ row([ 'cell', 'c1' ]) ]),
+    entry(af.createUnion([ on(slow, v('w'), n('P7963'), v('cell')), on(quick, v('w'), n('P7963'), v('cell')) ]),
+      300_000, [ 'w', 'cell' ]),
+  ]);
+  assert.equal(rows.length, 2);
+  const [ first ] = slow.calls;
+  const [ second ] = quick.calls;
+  assert.ok(first.at < second.done && second.at < first.done, 'the two sources were probed at once');
+});
+
+test('planning asks each source for its shape once', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const tested = await actor(256).test({ type: 'inner', context: context(), entries: [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 600, [ 'cell' ]),
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+    entry(on(wikidata, v('w'), n('label'), v('l')), 400_000, [ 'w', 'l' ]),
+    entry(on(wikidata, v('a'), n('P921'), v('w')), 500_000, [ 'a', 'w' ]),
+  ] });
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  assert.deepEqual(tested.getSideData().plan.stepIndexes, [ 1, 2, 3 ]);
+  assert.equal(wikidata.shapes.asked, 1, 'three entries on one source, over three rounds of choosing');
 });

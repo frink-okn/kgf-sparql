@@ -15,9 +15,11 @@ requests.
 
 ## The plan
 
-Starting from the smallest entry of known size, the actor repeatedly picks, among the
-entries it can probe, the one sharing the most variables with what is bound so far, then
-the smallest. An entry whose size is unknown, as a COUNT that failed or timed out leaves it,
+Starting from the smallest entry whose size is known exactly, the actor repeatedly picks,
+among the entries it can probe, the one sharing the most variables with what is bound so
+far, then the smallest. An estimate may be a lower bound: a COUNT that reached its cap
+reports cap+1 however many more there are, and of several entries at the cap any could sort
+first. The actor binds from an estimate only when no size is exact. An entry whose size is unknown, as a COUNT that failed or timed out leaves it,
 can still be probed; the actor used to refuse when such an entry sorted first, and a
 per-row bind join took the join over. The entries it can probe are:
 
@@ -39,7 +41,11 @@ Each block of the smallest entry then runs through those entries in that order. 
 probe carries the values of the variables it shares with the rows joined so far, projected
 and deduplicated, so either kind of source returns the entry's own rows that match some
 row; those are joined locally, and a block that empties stops. Entries that cannot be
-probed, or are smaller than the bound entry, go to the join mediator with the result.
+probed, or are known to be smaller than the bound entry, go to the join mediator with the
+result. The actor does not take a join with its own result in it, but may take any other
+join nested under that one: a join of two of the entries left over. (It used to mark the
+leftover join's context, as Comunica's filter-bindings join does, and the mark reached every
+join nested under it.)
 
 Binding every entry in one pass needs no estimate of an intermediate result. An earlier
 version bound one entry at a time and handed the rest back to the planner, whose
@@ -74,10 +80,15 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
   `LIMIT` above it does, starts no further block and stops the probes under way: a request
   waiting for its turn is not sent, and one being read is closed. They used to go out after
   the `LIMIT` was met, and the rows they brought sent the next step's.
-- `requestsInFlight` (default 8; `kgf-sparql` sets 16) probe requests are sent at once
-  across the join. A step whose rows fan out to many values needs many requests, and
-  sending them all together put hundreds in flight against a server that runs 8 bindings
-  requests at a time and answered the overflow with 429.
+- `requestsInFlight` (default 8; `kgf-sparql` sets 16) probe requests are sent at once to
+  each source across the join. A step whose rows fan out to many values needs many
+  requests, and sending them all together put hundreds in flight against a server that runs
+  8 bindings requests at a time and answered the overflow with 429. The places are each
+  source's: shared across the join, requests queued behind a host paced at one a second
+  could hold them all, and the probes to every other source would wait.
+- A row that leaves one of a step's variables unbound matches the step's rows whatever their
+  value there. It is probed apart from the others, with the values it does bind (`UNDEF` in
+  a `VALUES`, a wildcard to KGF), and joined only with what that request returns.
 - A value an earlier block already sent is answered from a per-join cache, or from the
   request still carrying it, rather than sent again; the cache keeps up to
   `probeCacheRows` result rows (default 100,000), each value counting one more than its
@@ -89,16 +100,15 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
 ## Cost
 
 The coefficients are the stock bind join's formula over the probed entries, so the two
-compare on equal terms, except that a probe request is charged once per block instead of
-once per row, and one block of rows is held. Nothing counts as blocking: Comunica's join
+compare on equal terms, except that probe requests are charged once per block instead of
+once per row, one for each request a block sends to the entry (each branch of a union, each
+input of a join), and one block of rows is held. Nothing counts as blocking: Comunica's join
 mediator penalises blocking joins under a `LIMIT`, and this one only waits for a block. The
 actor is registered ahead of the stock join actors, because the mediator keeps the first
 candidate when its cost is `NaN`, which happens whenever a COUNT has timed out.
 
 ## Limits
 
-- A SPARQL endpoint answers each probe request with a COUNT first, and a native KGF source
-  counts before its first page, because both fetch metadata eagerly.
 - Comunica's SPARQL source reports no `requestTime`, so when every cost is finite the stock
   bind join prices its per-row requests at nothing and can win. `kgf-sparql`'s
   [bounded SPARQL source](../actor-query-source-identify-hypermedia-sparql-bounded/) reports

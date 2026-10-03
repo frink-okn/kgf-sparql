@@ -154,7 +154,7 @@ test('bindings that cannot be read still leave the probe a metadata', async() =>
   const unused = { mediate: async() => {
     throw new Error('not sent');
   } };
-  const source = new QuerySourceSparqlBounded(1_000, 3_000, ENDPOINT, ENDPOINT, new ActionContext(), unused, unused,
+  const source = new QuerySourceSparqlBounded(() => 1_000, 3_000, ENDPOINT, ENDPOINT, new ActionContext(), unused, unused,
     'values', df, af, new BindingsFactory(df), false, 0, 30_000, true, false, 600, false, {});
   const bindings = new BufferedIterator({ autoStart: false });
   bindings._read = () => bindings.destroy(new Error('no bindings'));
@@ -209,4 +209,27 @@ test('a cap keyed *.domain applies to the hosts in it, and null counts in full',
   assert.deepEqual(await run(uncapped, { [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'sparql.test': null } }), EXPECTED);
   assert.ok(uncapped.requests.filter(request => request.kind === 'count' && !request.values)
     .every(request => !/LIMIT/u.test(request.query)));
+});
+
+test('each query\'s cap holds for its COUNTs, though the engine keeps the source it identified', async() => {
+  // Comunica keeps an identified source for the engine's later queries, and the cap used to be
+  // fixed when it was identified: a second query's own cap was ignored.
+  const fake = endpoint(request => request.pattern === 'sameAs' ? 2 : 0);
+  const engine = new QueryEngine();
+  const query = async settings => (await engine.queryBindings(QUERY, {
+    sources: [{ type: 'kgf', value: EP }, { type: 'sparql', value: ENDPOINT }],
+    '@comunica/bus-http:fetch': fake.fetch,
+    ...settings,
+  })).toArray();
+  const planning = () => fake.requests.filter(request => request.kind === 'count' && !request.values);
+  await query({});
+  assert.ok(planning().every(request => /LIMIT\s+1000001\b/u.test(request.query)));
+  fake.requests.length = 0;
+  await query({ [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'sparql.test': 10 } });
+  const capped = planning();
+  assert.ok(capped.length >= 1, 'the second query counts with its own cap');
+  assert.ok(capped.every(request => /LIMIT\s+11\b/u.test(request.query)), capped.map(request => request.query).join('\n'));
+  fake.requests.length = 0;
+  await query({ [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'sparql.test': null } });
+  assert.ok(planning().every(request => !/LIMIT/u.test(request.query)), 'and a third counts in full');
 });

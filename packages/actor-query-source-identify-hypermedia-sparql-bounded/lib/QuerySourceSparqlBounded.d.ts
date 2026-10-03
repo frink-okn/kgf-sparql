@@ -1,6 +1,6 @@
 import { QuerySourceSparql } from '@comunica/actor-query-source-identify-hypermedia-sparql';
-import type { BindingsStream, ComunicaDataFactory, IActionContext, IQueryBindingsOptions } from '@comunica/types';
-import type { AlgebraFactory, Algebra } from '@comunica/utils-algebra';
+import type { BindingsStream, IActionContext, IQueryBindingsOptions } from '@comunica/types';
+import { Algebra } from '@comunica/utils-algebra';
 import type { AsyncIterator } from 'asynciterator';
 /**
  * Comunica's SPARQL endpoint source, with two changes to the COUNT query it sends for each
@@ -10,8 +10,10 @@ import type { AsyncIterator } from 'asynciterator';
  *
  * `SELECT (COUNT(*) AS ?count) WHERE { SELECT * WHERE { … } LIMIT cap+1 }`, so the endpoint
  * can stop at the cap. A count under it is exact; one that reaches it is reported as an
- * estimate of cap+1, a lower bound. A planner needs to know which
- * side of a join is small, not how large a large side is: on QLever's Wikidata endpoint,
+ * estimate of cap+1, a lower bound. The cap is the one the call's context gives the endpoint:
+ * Comunica keeps an identified source for later queries, and a cap fixed when the source was
+ * identified held for every query after the first, whatever their contexts said. A planner
+ * needs to know which side of a join is small, not how large a large side is: on QLever's Wikidata endpoint,
  * counting every `rdfs:label` took 4.4 s, while counting up to 1,000,000 of them took 28 ms
  * and up to 10,000,000 took 79 ms.
  *
@@ -46,16 +48,32 @@ import type { AsyncIterator } from 'asynciterator';
  * unknown cardinality, as Comunica's source does with count queries turned off.
  */
 export declare class QuerySourceSparqlBounded extends QuerySourceSparql {
-    private readonly cap;
+    private readonly capFor;
     private readonly attemptTimeout;
     private readonly endpoint;
+    private readonly countDataFactory;
+    private readonly countAlgebraFactory;
+    /** The cap for a COUNT built with no call's context: the one the source was identified with. */
+    private readonly identifiedCap;
+    /** Each COUNT's cap, by the copy of its operation that `attachMetadata` hands Comunica. */
+    private readonly caps;
     /** Milliseconds this source's last COUNT spent with the server. */
     private lastRequestTime?;
-    constructor(cap: number, attemptTimeout: number, ...args: ConstructorParameters<typeof QuerySourceSparql>);
+    /**
+     * @param capFor The cap on a COUNT sent with the given context; `Infinity` for none.
+     * @param attemptTimeout Milliseconds a COUNT attempt may spend with the server.
+     * @param args Comunica's `QuerySourceSparql` arguments.
+     */
+    constructor(capFor: (context: IActionContext) => number, attemptTimeout: number, ...args: ConstructorParameters<typeof QuerySourceSparql>);
     queryBindings(operation: Algebra.Operation, context: IActionContext, options?: IQueryBindingsOptions): BindingsStream;
-    operationToCountQuery(dataFactory: ComunicaDataFactory, algebraFactory: AlgebraFactory, operation: Algebra.Operation): Promise<string>;
+    /**
+     * The COUNT for an operation, bounded at its call's cap. A pattern's variables are renamed,
+     * as Comunica renames them, so that its count is cached whatever its variables are called;
+     * its graph is kept, which Comunica's drops, counting a `GRAPH` pattern in the default graph.
+     */
+    operationToNormalizedCountQuery(operation: Algebra.Operation): Promise<string>;
     protected attachMetadata(target: AsyncIterator<any>, context: IActionContext, operationPromise: Promise<Algebra.Operation>): void;
     /** A count that reached the cap is an estimate, a lower bound, not an exact count. */
-    private bound;
+    private static bound;
 }
 //# sourceMappingURL=QuerySourceSparqlBounded.d.ts.map

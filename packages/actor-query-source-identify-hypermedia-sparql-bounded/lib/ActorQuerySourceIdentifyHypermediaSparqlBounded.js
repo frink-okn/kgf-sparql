@@ -49,7 +49,9 @@ class ActorQuerySourceIdentifyHypermediaSparqlBounded extends actor_query_source
         const dataFactory = action.context.getSafe(context_entries_1.KeysInitQuery.dataFactory);
         const algebraFactory = new utils_algebra_1.AlgebraFactory(dataFactory);
         const isSingularSource = action.context.get(context_entries_1.KeysQueryOperation.querySources)?.length === 1;
-        const source = new QuerySourceSparqlBounded_1.QuerySourceSparqlBounded(this.capFor(endpoint, action.context), this.countTimeout, endpoint, 
+        const source = new QuerySourceSparqlBounded_1.QuerySourceSparqlBounded(
+        // Each COUNT's cap is the one its query's context gives: Comunica keeps the source for later queries.
+        context => this.capFor(endpoint, context), this.countTimeout, endpoint, 
         // The original URL is the backup, as some endpoints misconfigure their service description.
         action.url, action.context, this.mediatorHttp, this.mediatorQuerySerialize, this.bindMethod, dataFactory, algebraFactory, await utils_bindings_factory_1.BindingsFactory.create(this.mediatorMergeBindingsContext, action.context, dataFactory), this.forceHttpGet, this.cacheSize, this.countDeadline, 
         // A single source's cardinalities do not matter, so it is not asked for them.
