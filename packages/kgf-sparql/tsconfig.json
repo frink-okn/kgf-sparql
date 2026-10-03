@@ -12,7 +12,7 @@
       "path": "../actor-rdf-join-selectivity-void"
     },
     {
-      "path": "../actor-rdf-join-inner-multi-bind-round-trip"
+      "path": "../actor-rdf-join-multi-bind-round-trip"
     }
   ]
 }

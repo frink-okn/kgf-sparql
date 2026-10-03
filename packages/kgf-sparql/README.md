@@ -270,7 +270,7 @@ exact cardinalities, 888 probes on one query were priced at a few milliseconds, 
 per-row binding beat pushing the bindings in blocks by two orders of magnitude, at 1,791
 requests instead of 22. The engine config replaces the stock bind join in place, through a
 Components.js `Override`, with
-[`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip),
+[`@frink-okn/actor-rdf-join-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-round-trip),
 which adds one request per probe per paged entry to the stock formula and changes nothing
 else; the `OPTIONAL` bind join, whose formula has the same zero, is replaced the same way.
 That query then takes 45 requests. Comunica's own defaults, weights, and refusals are
@@ -350,7 +350,7 @@ configurations:
 | [`@frink-okn/actor-rdf-join-selectivity-void`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-void) | join selectivity from VoID statistics |
 | [`@frink-okn/actor-rdf-join-selectivity-bound`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-bound) | an upper bound on any join-size estimate |
 | [`@frink-okn/actor-rdf-join-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-block) | block bind joins: inner, through every entry that takes bindings, and `OPTIONAL` |
-| [`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip) | Comunica's bind joins, charging a request per probe |
+| [`@frink-okn/actor-rdf-join-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-round-trip) | Comunica's bind joins, charging a request per probe |
 | [`@frink-okn/actor-http-throttle`](https://www.npmjs.com/package/@frink-okn/actor-http-throttle) | per-host pacing, and retries of refused requests |
 | [`@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded) | Comunica's SPARQL source with bounded, server-timed COUNTs |
 

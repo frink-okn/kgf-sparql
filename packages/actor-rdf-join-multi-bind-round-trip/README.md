@@ -1,4 +1,4 @@
-# @frink-okn/actor-rdf-join-inner-multi-bind-round-trip
+# @frink-okn/actor-rdf-join-multi-bind-round-trip
 
 [Comunica](https://comunica.dev/)'s inner and `OPTIONAL` bind joins, with each bound probe
 against a paged source charged one request.

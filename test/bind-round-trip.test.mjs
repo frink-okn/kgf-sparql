@@ -7,7 +7,7 @@ import { MetadataValidationState } from '@comunica/utils-metadata';
 import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
 import { ActorRdfJoinOptionalBind } from '@comunica/actor-rdf-join-optional-bind';
-import { ActorRdfJoinMultiBindRoundTrip, ActorRdfJoinOptionalBindRoundTrip } from '@frink-okn/actor-rdf-join-inner-multi-bind-round-trip';
+import { ActorRdfJoinMultiBindRoundTrip, ActorRdfJoinOptionalBindRoundTrip } from '@frink-okn/actor-rdf-join-multi-bind-round-trip';
 
 const df = new DataFactory();
 const af = new AlgebraFactory(df);

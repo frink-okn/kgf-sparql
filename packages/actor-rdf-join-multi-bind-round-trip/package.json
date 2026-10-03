@@ -1,5 +1,5 @@
 {
-  "name": "@frink-okn/actor-rdf-join-inner-multi-bind-round-trip",
+  "name": "@frink-okn/actor-rdf-join-multi-bind-round-trip",
   "version": "0.1.0",
   "description": "Comunica's inner and OPTIONAL bind joins with each bound probe against a paged source charged one request",
   "license": "MIT",
@@ -39,6 +39,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frink-okn/kgf-sparql.git",
-    "directory": "packages/actor-rdf-join-inner-multi-bind-round-trip"
+    "directory": "packages/actor-rdf-join-multi-bind-round-trip"
   }
 }
