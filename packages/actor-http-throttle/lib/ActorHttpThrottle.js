@@ -46,39 +46,45 @@ const SHORTEST_INTERVAL_MS = 10;
  *
  * ## What it does
  *
- * Each host has a queue. A request starts when the host has fewer than its limit in flight
- * (the host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`,
- * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
- * holds its place until its response headers arrive; the body is read outside the queue. A
- * limit named `*.` and a domain is a queue the hosts in that domain share, for a service that
- * limits a client across its hosts. A request waits in its host's queue, and starts only when
- * its host and every such group it is in can all start it at that moment, so a host's own
- * limits hold within its group's, never in place of them. (A request used to take its host's
- * turn and then wait for the group's, and a group that held several back let them all start
- * at once, past the host's rate.) A group starts its hosts' requests in the order they
- * arrived. Requests with other limits for the same host or group, as
- * another query's context gives, wait in a queue of their own, so each query's limits hold for
- * its requests; a queue no request holds is let go.
+ * Each host has a queue. A request starts when the host has fewer than its limit in flight (the
+ * host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`, else
+ * `inFlight`), and no sooner after the previous start than the host's spacing allows. It holds
+ * its place until its response headers arrive; the body is read outside the queue. A limit named
+ * `*.` and a domain is a queue the hosts in that domain share, for a service that limits a client
+ * across its hosts. A request waits in its host's queue, and starts only when its host and every
+ * such group it is in can all start it at that moment, so a host's own limits hold within its
+ * group's, never in place of them. (A request used to take its host's turn and then wait for the
+ * group's, and a group that held several back let them all start at once, past the host's rate.)
+ * A group starts its hosts' requests in the order they arrived. Requests with other limits for
+ * the same host or group, as another query's context gives, wait in a queue of their own, so each
+ * query's limits hold for its requests; a queue no request holds is let go. A host's or group's
+ * queues start their requests in the order they arrived, too.
  *
- * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals,
- * which a host's or group's queues share, as they share the time of its last start. A 429 or
- * 503 with `Retry-After` pauses the host and its groups until then, or for the context's
- * `httpRetryDelayLimit` at most, and teaches nothing else: the server said when to come back,
- * as KGF's admission gate does. One without `Retry-After` doubles the interval between starts,
- * from 250 ms up to 10 s, and every answer that is not a refusal takes a tenth off it, so the
- * host settles near the rate it accepts. An answer teaches before its request gives up its
- * place, so the next request starts at the new pace. Only a request started since the last change counts:
- * the requests of one burst are refused together, and each doubling the interval again took
- * QLever to 10 s within seconds. A timeout or network failure changes nothing: it says nothing
- * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
- * refusals taught, as it clears Comunica's retry actor's delays.
+ * A configured rate (`perSecond`) spaces the starts of the requests given it, counted from the
+ * last of them, whichever queue it was in: a query's rate holds for its requests, and outlives
+ * its queue. (Counted from the host's last start of any request, each request of a query allowed
+ * 50 a second put off those of one allowed 10 again, until the other query was done.) The
+ * interval learned from refusals, and a pause, hold for all of a host's or group's requests,
+ * counted from its last start, since the server sees all of them. A 429 or 503 with `Retry-After`
+ * pauses the host and its groups until then, or for the context's `httpRetryDelayLimit` at most,
+ * and teaches nothing else: the server said when to come back, as KGF's admission gate does. One
+ * without `Retry-After` doubles the interval between starts, from 250 ms up to 10 s, and every
+ * answer that is not a refusal takes a tenth off it, so the host settles near the rate it
+ * accepts. An answer teaches before its request gives up its place, so the next request starts at
+ * the new pace. Only a request started since the last change counts: the requests of one burst
+ * are refused together, and each doubling the interval again took QLever to 10 s within seconds.
+ * A timeout or network failure changes nothing: it says nothing about the host's rate.
+ * Invalidating the HTTP cache, for a URL or for all, forgets what refusals taught, as it clears
+ * Comunica's retry actor's delays.
  *
- * A refused request is retried through the queue, ahead of requests that arrived after it, up to the
- * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
- * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a
- * status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run
- * out, the last response is returned as it is, rather than a bare "Request failed", so the
- * caller reports the status. A request whose body is a stream is not retried.
+ * A refused request is retried through the queue, ahead of requests that arrived after it, up to
+ * the context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
+ * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a status
+ * in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run out, the
+ * last response is returned as it is, rather than a bare "Request failed", so the caller reports
+ * the status. A request whose body is a stream is not retried; a Request whose own body is sent
+ * is sent a copy of it each attempt. A Request's own signal aborts it while it waits, as the
+ * init's does.
  *
  * ## Who is asking
  *
@@ -131,14 +137,20 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
     }
     /** Sends the request through its queues, again for each refusal or failure it may retry. */
     async attempts(action, url, queues) {
-        const signal = action.init?.signal ?? undefined;
+        const request = requestOf(action.input);
+        // The signal fetch heeds: the init's when it gives one, else the Request's own.
+        const signal = action.init?.signal === undefined ? request?.signal : action.init.signal ?? undefined;
         const retryCount = action.context.get(context_entries_1.KeysHttp.httpRetryCount);
         const refusalRetries = retryCount ?? this.retries;
         const failureRetries = retryCount ?? 0;
         const forced = action.context.get(context_entries_1.KeysHttp.httpRetryStatusCodes) ?? [];
         const fallbackDelay = action.context.get(context_entries_1.KeysHttp.httpRetryDelayFallback) ?? 0;
         const delayLimit = action.context.get(context_entries_1.KeysHttp.httpRetryDelayLimit);
-        const replayable = ActorHttpThrottle.replayable(action.init?.body);
+        // fetch sends the init's body when it gives one, and else the Request's, which is read once:
+        // each attempt is then sent a copy, and the Request stays unread for the next.
+        const own = action.init?.body == null ? request : undefined;
+        const copied = own?.body && !own.bodyUsed ? own : undefined;
+        const replayable = copied !== undefined || (!own?.body && ActorHttpThrottle.replayable(action.init?.body));
         const listener = action.context.get(exports.KEY_HTTP_ATTEMPT_LISTENER);
         const context = action.context.set(KEY_WRAPPED, true).set(KEY_STOCK_RETRY_WRAPPED, true);
         // A retry keeps the request's place in arrival order, ahead of those that came after it.
@@ -155,7 +167,7 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
             listener?.sent();
             let response;
             try {
-                response = await this.mediatorHttp.mediate({ ...action, context });
+                response = await this.mediatorHttp.mediate({ ...action, ...(copied ? { input: copied.clone() } : {}), context });
             }
             catch (error) {
                 leave();
@@ -209,9 +221,7 @@ class ActorHttpThrottle extends bus_http_1.ActorHttp {
         }
         // fetch sends a Request's own headers only when the init gives none, and replaces them all
         // when it does: the headers to keep are the init's, or else the Request's.
-        const input = action.input;
-        const request = typeof input === 'object' && input !== null && 'headers' in input ? input : undefined;
-        const headers = new Headers(action.init?.headers ?? request?.headers);
+        const headers = new Headers(action.init?.headers ?? requestOf(action.input)?.headers);
         if (headers.has('user-agent')) {
             return action;
         }
@@ -334,9 +344,16 @@ function hostNames(url) {
     const labels = url.hostname.split('.');
     return [url.host, url.hostname, ...labels.slice(1, -1).map((_, i) => `*.${labels.slice(i + 1).join('.')}`)];
 }
+/** The input as a Request, when it is one rather than a URL. */
+function requestOf(input) {
+    return typeof input === 'object' && input !== null && 'headers' in input ? input : undefined;
+}
 /**
- * What one host's or group's refusals taught, and when it last started a request: shared by
- * every queue of the name, since the server sees all of them.
+ * When one host or group may start a request, shared by every queue of the name. What refusals
+ * taught, and a pause, hold for all of its requests, counted from its last start, since the
+ * server sees all of them. A configured rate holds for the requests given it, counted from the
+ * last of them: counted from any start, each request of a query allowed 50 a second put off
+ * those of one allowed 10 again, and they waited until the other query was done.
  */
 class Pacing {
     /** Milliseconds between starts learned from refusals without `Retry-After`. */
@@ -344,10 +361,14 @@ class Pacing {
     /** No request starts before this time, which a `Retry-After` set. */
     until = 0;
     lastStart = Number.NEGATIVE_INFINITY;
+    /** The last start of the requests given each configured spacing. */
+    starts = new Map();
     /** When `learned` last grew. Requests started before then were sent at the old rate. */
     raisedAt = Number.NEGATIVE_INFINITY;
-    /** The name's queues, to wake when a pause is forgotten. */
+    /** The name's queues, pumped together in the order their requests arrived. */
     queues = new Set();
+    timer;
+    timerAt = 0;
     /** A refusal without `Retry-After` of a request started at `started`: start less often. */
     refused(started) {
         if (started < this.raisedAt) {
@@ -369,15 +390,63 @@ class Pacing {
             }
         }
     }
+    /** When a request given `spacing` may next start. */
+    earliest(spacing) {
+        return Math.max((this.starts.get(spacing) ?? Number.NEGATIVE_INFINITY) + spacing, this.lastStart + this.learned, this.until);
+    }
+    /** A request given `spacing` starts `at`. */
+    started(spacing, at) {
+        this.lastStart = at;
+        this.starts.set(spacing, at);
+    }
+    /**
+     * Pumps the name's queues, the one whose next request arrived first going first. (Each queue
+     * had a timer of its own, and the one that set it first started its next request first and
+     * set its timer first again: another query's requests waited behind all of its.)
+     */
+    pump() {
+        for (const queue of [...this.queues].sort(byNextArrival)) {
+            queue.pump();
+        }
+    }
+    /** Pumps the name's queues, and those they hold back, at `at`, unless an earlier wake is set. */
+    wake(at) {
+        if (this.timer !== undefined) {
+            if (this.timerAt <= at) {
+                return;
+            }
+            clearTimeout(this.timer);
+        }
+        this.timerAt = at;
+        this.timer = setTimeout(() => {
+            this.timer = undefined;
+            this.unblock();
+        }, at - Date.now());
+    }
+    /** Drops the wake: no queue of the name is left to pump, or a pause it was set for is forgotten. */
+    unwake() {
+        clearTimeout(this.timer);
+        this.timer = undefined;
+    }
     /** Forgets the learned interval and any pause, and lets the queues waiting on them go on. */
     reset() {
         this.learned = 0;
         this.until = 0;
         this.raisedAt = Number.NEGATIVE_INFINITY;
-        for (const queue of this.queues) {
-            queue.unblock();
+        this.unwake();
+        this.unblock();
+    }
+    /** Pumps the name's queues, and then the host queues they hold back. */
+    unblock() {
+        this.pump();
+        for (const queue of [...this.queues]) {
+            queue.pumpBlocked();
         }
     }
+}
+/** Orders queues by when the request waiting first in each arrived. */
+function byNextArrival(left, right) {
+    return (left.nextArrival() - right.nextArrival()) || 0;
 }
 /**
  * Requests to one host or group with one set of limits: at most `limit` in flight, starts
@@ -395,12 +464,10 @@ class HostQueue {
     waiting = [];
     /** Host queues whose next waiter this queue holds back, to pump when it may start one. */
     blocked = new Set();
-    timer;
-    timerAt = 0;
     /**
      * @param limit Requests in flight at most.
      * @param spacing Milliseconds between starts that a configured rate asks for.
-     * @param pacing What the host's or group's refusals taught, shared with its other queues.
+     * @param pacing When the host or group may start a request, shared with its other queues.
      * @param idle Called once no request holds the queue any longer.
      */
     constructor(limit, spacing, pacing, idle) {
@@ -420,9 +487,10 @@ class HostQueue {
     /** The request is done with the queue; once none holds it, it is let go. */
     release() {
         if (--this.holders === 0) {
-            clearTimeout(this.timer);
-            this.timer = undefined;
             this.pacing.queues.delete(this);
+            if (this.pacing.queues.size === 0) {
+                this.pacing.unwake();
+            }
             this.idle();
         }
     }
@@ -441,7 +509,7 @@ class HostQueue {
                 }
                 reject(signal.reason);
                 // The waiter may have held back the ones behind it.
-                this.pump();
+                this.pacing.pump();
             };
             const waiter = {
                 queues,
@@ -461,34 +529,36 @@ class HostQueue {
             else {
                 this.waiting.splice(later, 0, waiter);
             }
-            this.pump();
+            this.pacing.pump();
         });
     }
     leave() {
         this.active--;
         this.unblock();
     }
-    /**
-     * Pumps this queue, and then the host queues whose waiters it held back, the one whose next
-     * request arrived first going first. (In the order they were held back, a host whose next
-     * request was held back again went first again: one host with requests to send kept every
-     * place in its group from another host's request that had waited longer.)
-     */
+    /** Pumps the queues of this one's name, and then the host queues it held back. */
     unblock() {
-        this.pump();
-        const blocked = [...this.blocked].sort((left, right) => (left.nextArrival() - right.nextArrival()) || 0);
+        this.pacing.pump();
+        this.pumpBlocked();
+    }
+    /**
+     * Pumps the host queues whose waiters this one held back, the one whose next request arrived
+     * first going first. (In the order they were held back, a host whose next request was held
+     * back again went first again: one host with requests to send kept every place in its group
+     * from another host's request that had waited longer.)
+     */
+    pumpBlocked() {
+        const blocked = [...this.blocked].sort(byNextArrival);
         this.blocked.clear();
         for (const queue of blocked) {
-            queue.pump();
+            queue.pacing.pump();
         }
     }
     /**
      * Admits the waiters that may start now in every one of their queues, and arranges to look
-     * again for the next one that may not: a timer for a spacing or a pause, or a word from the
-     * queue that is full. A group that holds a waiter back sets the timer itself, so that its
-     * hosts' waiters start in the order they arrived. Admission takes a place in all of a
-     * request's queues at once, and stamps each one's last start, so that each queue's rate
-     * counts from the actual start.
+     * again for the next one that may not: a wake of the name whose time it waits for, or a word
+     * from the queue that is full. Admission takes a place in all of a request's queues at once,
+     * and stamps each one's start, so that each queue's rate counts from the actual start.
      */
     pump() {
         while (this.waiting.length > 0) {
@@ -506,59 +576,33 @@ class HostQueue {
             if (start > now) {
                 if (holder !== this) {
                     holder.blocked.add(this);
-                    this.unwake();
-                    if (Number.isFinite(start)) {
-                        holder.wake(start - now);
-                    }
                 }
-                else if (Number.isFinite(start)) {
-                    this.wake(start - now);
-                }
-                else {
-                    // Full: the queue that is full pumps this one when it has room.
-                    this.unwake();
+                // A spacing or a pause: the name that holds the waiter back pumps its queues, and those
+                // they hold back, in the order their requests arrived. Full: the full queue pumps them
+                // when it has room.
+                if (Number.isFinite(start)) {
+                    holder.pacing.wake(start);
                 }
                 return;
             }
             this.waiting.shift();
             for (const queue of waiter.queues) {
                 queue.active++;
-                queue.pacing.lastStart = now;
+                queue.pacing.started(queue.spacing, now);
             }
             waiter.admit();
         }
-        // Nothing waits on a timer now: a pause forgotten early must not leave one set for its end.
-        this.unwake();
+    }
+    /** When the request waiting first in this queue arrived, if one waits. */
+    nextArrival() {
+        return this.waiting[0]?.arrival ?? Number.POSITIVE_INFINITY;
     }
     /** When this queue could next start a request, or never while it is full. */
     earliest() {
         if (this.active >= this.limit) {
             return Number.POSITIVE_INFINITY;
         }
-        return Math.max(this.pacing.lastStart + this.interval, this.pacing.until);
-    }
-    /** When the request waiting first in this queue arrived, if one waits. */
-    nextArrival() {
-        return this.waiting[0]?.arrival ?? Number.POSITIVE_INFINITY;
-    }
-    /** Pumps again, with the queues held back, after `delay`, unless an earlier wake is already set. */
-    wake(delay) {
-        const at = Date.now() + delay;
-        if (this.timer !== undefined) {
-            if (this.timerAt <= at) {
-                return;
-            }
-            clearTimeout(this.timer);
-        }
-        this.timerAt = at;
-        this.timer = setTimeout(() => {
-            this.timer = undefined;
-            this.unblock();
-        }, delay);
-    }
-    unwake() {
-        clearTimeout(this.timer);
-        this.timer = undefined;
+        return this.pacing.earliest(this.spacing);
     }
 }
 async function sleep(milliseconds, signal) {

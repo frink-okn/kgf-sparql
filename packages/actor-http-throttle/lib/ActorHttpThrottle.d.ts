@@ -52,39 +52,45 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  *
  * ## What it does
  *
- * Each host has a queue. A request starts when the host has fewer than its limit in flight
- * (the host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`,
- * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
- * holds its place until its response headers arrive; the body is read outside the queue. A
- * limit named `*.` and a domain is a queue the hosts in that domain share, for a service that
- * limits a client across its hosts. A request waits in its host's queue, and starts only when
- * its host and every such group it is in can all start it at that moment, so a host's own
- * limits hold within its group's, never in place of them. (A request used to take its host's
- * turn and then wait for the group's, and a group that held several back let them all start
- * at once, past the host's rate.) A group starts its hosts' requests in the order they
- * arrived. Requests with other limits for the same host or group, as
- * another query's context gives, wait in a queue of their own, so each query's limits hold for
- * its requests; a queue no request holds is let go.
+ * Each host has a queue. A request starts when the host has fewer than its limit in flight (the
+ * host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`, else
+ * `inFlight`), and no sooner after the previous start than the host's spacing allows. It holds
+ * its place until its response headers arrive; the body is read outside the queue. A limit named
+ * `*.` and a domain is a queue the hosts in that domain share, for a service that limits a client
+ * across its hosts. A request waits in its host's queue, and starts only when its host and every
+ * such group it is in can all start it at that moment, so a host's own limits hold within its
+ * group's, never in place of them. (A request used to take its host's turn and then wait for the
+ * group's, and a group that held several back let them all start at once, past the host's rate.)
+ * A group starts its hosts' requests in the order they arrived. Requests with other limits for
+ * the same host or group, as another query's context gives, wait in a queue of their own, so each
+ * query's limits hold for its requests; a queue no request holds is let go. A host's or group's
+ * queues start their requests in the order they arrived, too.
  *
- * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals,
- * which a host's or group's queues share, as they share the time of its last start. A 429 or
- * 503 with `Retry-After` pauses the host and its groups until then, or for the context's
- * `httpRetryDelayLimit` at most, and teaches nothing else: the server said when to come back,
- * as KGF's admission gate does. One without `Retry-After` doubles the interval between starts,
- * from 250 ms up to 10 s, and every answer that is not a refusal takes a tenth off it, so the
- * host settles near the rate it accepts. An answer teaches before its request gives up its
- * place, so the next request starts at the new pace. Only a request started since the last change counts:
- * the requests of one burst are refused together, and each doubling the interval again took
- * QLever to 10 s within seconds. A timeout or network failure changes nothing: it says nothing
- * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
- * refusals taught, as it clears Comunica's retry actor's delays.
+ * A configured rate (`perSecond`) spaces the starts of the requests given it, counted from the
+ * last of them, whichever queue it was in: a query's rate holds for its requests, and outlives
+ * its queue. (Counted from the host's last start of any request, each request of a query allowed
+ * 50 a second put off those of one allowed 10 again, until the other query was done.) The
+ * interval learned from refusals, and a pause, hold for all of a host's or group's requests,
+ * counted from its last start, since the server sees all of them. A 429 or 503 with `Retry-After`
+ * pauses the host and its groups until then, or for the context's `httpRetryDelayLimit` at most,
+ * and teaches nothing else: the server said when to come back, as KGF's admission gate does. One
+ * without `Retry-After` doubles the interval between starts, from 250 ms up to 10 s, and every
+ * answer that is not a refusal takes a tenth off it, so the host settles near the rate it
+ * accepts. An answer teaches before its request gives up its place, so the next request starts at
+ * the new pace. Only a request started since the last change counts: the requests of one burst
+ * are refused together, and each doubling the interval again took QLever to 10 s within seconds.
+ * A timeout or network failure changes nothing: it says nothing about the host's rate.
+ * Invalidating the HTTP cache, for a URL or for all, forgets what refusals taught, as it clears
+ * Comunica's retry actor's delays.
  *
- * A refused request is retried through the queue, ahead of requests that arrived after it, up to the
- * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
- * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a
- * status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run
- * out, the last response is returned as it is, rather than a bare "Request failed", so the
- * caller reports the status. A request whose body is a stream is not retried.
+ * A refused request is retried through the queue, ahead of requests that arrived after it, up to
+ * the context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
+ * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a status
+ * in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run out, the
+ * last response is returned as it is, rather than a bare "Request failed", so the caller reports
+ * the status. A request whose body is a stream is not retried; a Request whose own body is sent
+ * is sent a copy of it each attempt. A Request's own signal aborts it while it waits, as the
+ * init's does.
  *
  * ## Who is asking
  *

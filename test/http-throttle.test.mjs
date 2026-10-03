@@ -407,3 +407,73 @@ test('Retry-After in seconds may have a fraction, and only a date is read as a d
   assert.equal((await fetch('https://rate.example/x')).status, 200);
   assert.ok(gaps(calls)[0] >= 290, `retried after ${gaps(calls)[0]} ms`);
 });
+
+test('a query\'s rate for a host holds for its requests, and another query\'s faster one does not starve them', async() => {
+  // The queues of two queries' limits shared the host's last start, so each request of the
+  // query allowed 50 a second put off the one allowed 10 again: it waited until the other was done.
+  const { calls, fetch } = throttle();
+  const slow = { [KEY_HTTP_HOST_LIMITS.name]: { 'a.example': { perSecond: 10 }}};
+  const fast = { [KEY_HTTP_HOST_LIMITS.name]: { 'a.example': { perSecond: 50 }}};
+  const until = Date.now() + 500;
+  const busy = (async() => {
+    while (Date.now() < until) {
+      await fetch('https://a.example/fast', fast);
+    }
+  })();
+  await sleep(30);
+  const issued = Date.now();
+  await fetch('https://a.example/slow', slow);
+  const waited = Date.now() - issued;
+  await busy;
+  assert.ok(waited < 150, `the slow query's request waited ${waited} ms`);
+  const fastCalls = calls.filter(call => call.url.endsWith('/fast'));
+  assert.ok(gaps(fastCalls).every(gap => gap >= 15), `the fast query keeps its own rate: ${gaps(fastCalls)}`);
+});
+
+test('queues for one host with the same rate start their requests in the order they arrived', async() => {
+  // Two queries with other caps in flight, and the same rate: whichever queue's timer was set
+  // first started its next request first, and set its timer first again.
+  const { calls, fetch } = throttle();
+  const one = { [KEY_HTTP_HOST_LIMITS.name]: { 'a.example': { inFlight: 1, perSecond: 50 }}};
+  const two = { [KEY_HTTP_HOST_LIMITS.name]: { 'a.example': { inFlight: 2, perSecond: 50 }}};
+  const urls = [ 'one/1', 'two/1', 'one/2', 'two/2', 'one/3', 'two/3' ];
+  await Promise.all(urls.map(path => fetch(`https://a.example/${path}`, path.startsWith('one') ? one : two)));
+  assert.deepEqual(calls.map(call => new URL(call.url).pathname.slice(1)), urls);
+});
+
+test('a Request\'s own signal aborts it while it waits', async() => {
+  let release;
+  const held = new Promise(resolve => {
+    release = resolve;
+  });
+  const { fetch } = throttle(async(_, call) => {
+    if (call === 0) {
+      await held;
+    }
+    return new Response('ok');
+  });
+  const settings = { [KEY_HTTP_IN_FLIGHT.name]: 1 };
+  const first = fetch('https://a.example/x', settings);
+  const controller = new AbortController();
+  const second = fetch(new Request('https://a.example/x', { signal: controller.signal }), settings);
+  controller.abort(new Error('stopped'));
+  const outcome = await Promise.race([ second.then(() => 'sent', () => 'aborted'), sleep(200).then(() => 'waiting') ]);
+  release();
+  await first;
+  assert.equal(outcome, 'aborted');
+});
+
+test('a Request with a body is sent again whole when it is retried', async() => {
+  const bodies = [];
+  const mediatorHttp = {
+    async mediate(action) {
+      bodies.push(await (action.init?.body ?? action.input.text()));
+      return bodies.length === 1 ? refused(503) : new Response('ok');
+    },
+  };
+  const actor = new ActorHttpThrottle({ name: 'throttle', bus: new Bus({ name: 'test' }), mediatorHttp });
+  const request = new Request('https://a.example/sparql', { method: 'POST', body: 'query=ASK{}' });
+  const response = await actor.run({ input: request, init: {}, context: new ActionContext() });
+  assert.equal(response.status, 200);
+  assert.deepEqual(bodies, [ 'query=ASK{}', 'query=ASK{}' ]);
+});

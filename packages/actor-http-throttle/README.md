@@ -31,6 +31,11 @@ place until its response headers arrive; the body is read outside the queue.
   them all start at once when it has room, past the host's rate. A group starts its hosts'
   requests in the order they arrived: one host with requests always waiting does not keep
   the group's places from another host's request that has waited longer.
+- Queries whose contexts give a host other limits each have a queue of their own, so each
+  query's limits hold for its requests. A rate spaces the requests given it, counted from the
+  last of them, so another query's faster rate does not hold them back; a rate also outlives
+  the queue, for the next query given it. The host's queues start their requests in the order
+  they arrived, as a group's hosts do.
 - The actor's `hosts` are limits of the same form that hold unless the context overrides
   them, field by field. `kgf-sparql` starts at most one request a second to QLever's hosts
   (`qlever.dev`, `qlever.cs.uni-freiburg.de`), about the rate its Wikidata endpoint was
@@ -72,7 +77,9 @@ Comunica's retry actor is told to stand aside, since its retries would bypass th
 multiply this actor's, and this actor keeps its other duties: with `httpRetryCount` set, a
 504 or a status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When
 retries run out the last response is returned as it is, not a bare "Request failed", so the
-caller reports its status. A request whose body is a stream is sent once.
+caller reports its status. A request whose body is a stream is sent once; a `Request` whose
+own body is sent is sent a copy of it each attempt. A `Request`'s own signal aborts it while it
+waits, as the init's does.
 
 ## User agent
 
