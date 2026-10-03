@@ -2,18 +2,18 @@ import * as fs from 'node:fs';
 import { parseArgs } from 'node:util';
 import { KeysHttp } from '@comunica/context-entries';
 import type { IActionContext, QueryType } from '@comunica/types';
-import type { IHostLimits } from '@kgf/actor-http-throttle';
-import { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kgf/actor-http-throttle';
+import type { IHostLimits } from '@frink-okn/actor-http-throttle';
+import { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@frink-okn/actor-http-throttle';
 import {
   KEY_SPARQL_COUNT_CAP,
   KEY_SPARQL_COUNT_CAP_HOSTS,
-} from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded';
+} from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded';
 import {
   KEY_KGF_BINDINGS_SIZE,
   KEY_KGF_HTTP_METHOD,
   KEY_KGF_PAGE_SIZE,
   KEY_KGF_VOID_STATISTICS,
-} from '@kgf/actor-query-source-identify-kgf';
+} from '@frink-okn/actor-query-source-identify-kgf';
 import { QueryEngine } from '../QueryEngine';
 import type { IBudget } from './Budget';
 import { RunAccount } from './Budget';

@@ -1,5 +1,5 @@
 {
-  "name": "@kgf/actor-rdf-join-inner-multi-bind-block",
+  "name": "@frink-okn/actor-rdf-join-inner-multi-bind-block",
   "version": "0.1.0",
   "description": "A Comunica bind join that sends the smallest entry in blocks to one other entry: a source that takes bindings, a union of such, or a join of such",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dependencies": {
     "@comunica/bus-rdf-join": "^5.3.0",
@@ -37,9 +38,12 @@
     "componentsjs-generator": "^4.2.0",
     "typescript": "^5.9.0"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "url": "git+https://github.com/frink-okn/kgf-sparql.git",
     "directory": "packages/actor-rdf-join-inner-multi-bind-block"
   }
 }

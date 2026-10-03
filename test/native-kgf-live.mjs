@@ -9,9 +9,9 @@ import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
 import { termToString } from 'rdf-string-ttl';
 import { QueryEngine as StockQueryEngine } from '@comunica/query-sparql';
-import { QueryEngine, KEY_KGF_PAGE_SIZE, KEY_KGF_VOID_STATISTICS } from 'kgf-sparql';
+import { QueryEngine, KEY_KGF_PAGE_SIZE, KEY_KGF_VOID_STATISTICS } from '@frink-okn/kgf-sparql';
 import { QuerySourceKgf } from '../packages/actor-query-source-identify-kgf/lib/QuerySourceKgf.js';
-import { VOID_STATISTICS_PROVIDER } from '@kgf/actor-rdf-join-selectivity-void';
+import { VOID_STATISTICS_PROVIDER } from '@frink-okn/actor-rdf-join-selectivity-void';
 
 const root = new URL(process.env.KGF_ROOT ?? 'https://apps.okn.us/kgf/');
 const fetchBounded = (url, init = {}) => fetch(url, {

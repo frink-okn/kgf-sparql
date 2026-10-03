@@ -8,9 +8,9 @@ import { MetadataValidationState } from '@comunica/utils-metadata';
 import { ArrayIterator } from 'asynciterator';
 import { QueryEngine as StockQueryEngine } from '@comunica/query-sparql';
 import { QueryEngine, QueryEngineFactory, KEY_KGF_PAGE_SIZE, KEY_KGF_BINDINGS_SIZE, KEY_KGF_HTTP_METHOD, KEY_KGF_VOID_STATISTICS,
-  KEY_VOID_STATISTICS } from 'kgf-sparql';
+  KEY_VOID_STATISTICS } from '@frink-okn/kgf-sparql';
 import { QuerySourceKgf } from '../packages/actor-query-source-identify-kgf/lib/QuerySourceKgf.js';
-import { ActorRdfJoinSelectivityVoid, VOID_STATISTICS_PROVIDER } from '@kgf/actor-rdf-join-selectivity-void';
+import { ActorRdfJoinSelectivityVoid, VOID_STATISTICS_PROVIDER } from '@frink-okn/actor-rdf-join-selectivity-void';
 import { Bus } from '@comunica/core';
 import { assignOperationSource } from '@comunica/utils-query-operation';
 import { df, iri, triples, wire, server, EP, ROOT } from './helpers/mock-kgf.mjs';

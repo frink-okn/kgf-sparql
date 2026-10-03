@@ -4,7 +4,7 @@ import { ActionContext, Bus, failTest, passTest } from '@comunica/core';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { assignOperationSource } from '@comunica/utils-query-operation';
 import { DataFactory } from 'rdf-data-factory';
-import { ActorRdfJoinSelectivityBound, KEY_SELECTIVITY_BOUND_DELEGATING } from '@kgf/actor-rdf-join-selectivity-bound';
+import { ActorRdfJoinSelectivityBound, KEY_SELECTIVITY_BOUND_DELEGATING } from '@frink-okn/actor-rdf-join-selectivity-bound';
 
 const df = new DataFactory();
 const af = new AlgebraFactory(df);

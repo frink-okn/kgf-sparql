@@ -1,5 +1,5 @@
 {
-  "name": "kgf-sparql",
+  "name": "@frink-okn/kgf-sparql",
   "version": "0.1.0",
   "description": "Comunica SPARQL engine tuned for Knowledge Graph Fragments endpoints",
   "license": "MIT",
@@ -23,7 +23,8 @@
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -b . && comunica-compile-config config/config-default.json > engine-default.js",
@@ -37,22 +38,25 @@
     "@comunica/runner": "^5.3.0",
     "@comunica/runner-cli": "^5.3.0",
     "@comunica/types": "^5.3.0",
-    "@kgf/actor-http-throttle": "^0.1.0",
-    "@kgf/actor-query-source-identify-hypermedia-sparql-bounded": "^0.1.0",
-    "@kgf/actor-query-source-identify-kgf": "^0.1.0",
-    "@kgf/actor-rdf-join-inner-multi-bind-block": "^0.1.0",
-    "@kgf/actor-rdf-join-inner-multi-bind-round-trip": "^0.1.0",
-    "@kgf/actor-rdf-join-selectivity-bound": "^0.1.0",
-    "@kgf/actor-rdf-join-selectivity-void": "^0.1.0",
+    "@frink-okn/actor-http-throttle": "^0.1.0",
+    "@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded": "^0.1.0",
+    "@frink-okn/actor-query-source-identify-kgf": "^0.1.0",
+    "@frink-okn/actor-rdf-join-inner-multi-bind-block": "^0.1.0",
+    "@frink-okn/actor-rdf-join-inner-multi-bind-round-trip": "^0.1.0",
+    "@frink-okn/actor-rdf-join-selectivity-bound": "^0.1.0",
+    "@frink-okn/actor-rdf-join-selectivity-void": "^0.1.0",
     "asynciterator": "^3.9.0",
     "undici": "^8.10.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"
   },
+  "engines": {
+    "node": ">=22.19.0"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "url": "git+https://github.com/frink-okn/kgf-sparql.git",
     "directory": "packages/kgf-sparql"
   }
 }

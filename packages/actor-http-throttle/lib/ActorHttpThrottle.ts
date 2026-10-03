@@ -19,14 +19,14 @@ export interface IHostLimits {
 }
 
 /** Requests in flight per host, for every host without a limit of its own. */
-export const KEY_HTTP_IN_FLIGHT = new ActionContextKey<number>('@kgf/actor-http-throttle:inFlight');
+export const KEY_HTTP_IN_FLIGHT = new ActionContextKey<number>('@frink-okn/actor-http-throttle:inFlight');
 
 /**
  * Limits for particular hosts, keyed by `URL.host`, `URL.hostname`, or `*.` and a domain. They
  * take precedence, field by field, over the actor's own `hosts`.
  */
 export const KEY_HTTP_HOST_LIMITS = new ActionContextKey<Record<string, IHostLimits>>(
-  '@kgf/actor-http-throttle:hosts',
+  '@frink-okn/actor-http-throttle:hosts',
 );
 
 /**
@@ -44,11 +44,11 @@ export interface IHttpAttemptListener {
 
 /** An `IHttpAttemptListener` for the request this context goes with. */
 export const KEY_HTTP_ATTEMPT_LISTENER = new ActionContextKey<IHttpAttemptListener>(
-  '@kgf/actor-http-throttle:attemptListener',
+  '@frink-okn/actor-http-throttle:attemptListener',
 );
 
 /** Set on the requests this actor sends on, so that it paces each request once. */
-const KEY_WRAPPED = new ActionContextKey<boolean>('@kgf/actor-http-throttle:wrapped');
+const KEY_WRAPPED = new ActionContextKey<boolean>('@frink-okn/actor-http-throttle:wrapped');
 
 /**
  * Comunica's retry actor's marker for a request it has wrapped (`ActorHttpRetry.keyWrapped`),

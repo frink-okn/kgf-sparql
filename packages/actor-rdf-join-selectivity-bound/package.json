@@ -1,5 +1,5 @@
 {
-  "name": "@kgf/actor-rdf-join-selectivity-bound",
+  "name": "@frink-okn/actor-rdf-join-selectivity-bound",
   "version": "0.1.0",
   "description": "A Comunica join-selectivity actor that caps any other estimate with an upper bound on the join size",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dependencies": {
     "@comunica/bus-rdf-join-selectivity": "^5.3.0",
@@ -33,9 +34,12 @@
     "componentsjs-generator": "^4.2.0",
     "typescript": "^5.9.0"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "url": "git+https://github.com/frink-okn/kgf-sparql.git",
     "directory": "packages/actor-rdf-join-selectivity-bound"
   }
 }

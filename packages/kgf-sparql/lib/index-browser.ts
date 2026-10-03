@@ -7,17 +7,17 @@ export {
   KEY_KGF_BINDINGS_SIZE,
   KEY_KGF_HTTP_METHOD,
   KEY_KGF_VOID_STATISTICS,
-} from '@kgf/actor-query-source-identify-kgf';
-export { KEY_VOID_STATISTICS } from '@kgf/actor-rdf-join-selectivity-void';
-export { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kgf/actor-http-throttle';
-export type { IHostLimits } from '@kgf/actor-http-throttle';
+} from '@frink-okn/actor-query-source-identify-kgf';
+export { KEY_VOID_STATISTICS } from '@frink-okn/actor-rdf-join-selectivity-void';
+export { KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@frink-okn/actor-http-throttle';
+export type { IHostLimits } from '@frink-okn/actor-http-throttle';
 export {
   KEY_SPARQL_COUNT_CAP,
   KEY_SPARQL_COUNT_CAP_HOSTS,
-} from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded';
+} from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded';
 export type {
   IVoidClassPartition,
   IVoidDatasetStatistics,
   IVoidPropertyPartition,
   VoidStatisticsRegistry,
-} from '@kgf/actor-rdf-join-selectivity-void';
+} from '@frink-okn/actor-rdf-join-selectivity-void';

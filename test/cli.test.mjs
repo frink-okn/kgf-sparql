@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { Parser } from 'n3';
-import { RunAccount, createPooledFetch, runCli } from 'kgf-sparql';
+import { RunAccount, createPooledFetch, runCli } from '@frink-okn/kgf-sparql';
 import { server, triples, EP } from './helpers/mock-kgf.mjs';
 
 const BIN = new URL('../packages/kgf-sparql/bin/kgf-sparql.js', import.meta.url).pathname;

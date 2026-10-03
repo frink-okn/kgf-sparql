@@ -11,12 +11,12 @@ import { ActionContextKey } from '@comunica/core';
 import type { IActionContext } from '@comunica/types';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
-import { hostNames } from '@kgf/actor-http-throttle';
+import { hostNames } from '@frink-okn/actor-http-throttle';
 import { QuerySourceSparqlBounded } from './QuerySourceSparqlBounded';
 
 /** The cap on the COUNT queries sent to every SPARQL endpoint without a cap of its own. */
 export const KEY_SPARQL_COUNT_CAP = new ActionContextKey<number>(
-  '@kgf/actor-query-source-identify-hypermedia-sparql-bounded:countCap',
+  '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded:countCap',
 );
 
 /**
@@ -26,7 +26,7 @@ export const KEY_SPARQL_COUNT_CAP = new ActionContextKey<number>(
  * precedence over the actor's own `countCapHosts`.
  */
 export const KEY_SPARQL_COUNT_CAP_HOSTS = new ActionContextKey<Record<string, number | null>>(
-  '@kgf/actor-query-source-identify-hypermedia-sparql-bounded:countCapHosts',
+  '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded:countCapHosts',
 );
 
 /**

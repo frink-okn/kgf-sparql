@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ActionContext, Bus } from '@comunica/core';
-import { ActorHttpThrottle, KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kgf/actor-http-throttle';
+import { ActorHttpThrottle, KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@frink-okn/actor-http-throttle';
 
 const RETRY_COUNT = '@comunica/bus-http:http-retry-count';
 const RETRY_STATUS_CODES = '@comunica/bus-http:http-retry-status-codes';
@@ -186,12 +186,12 @@ test('an attempt listener hears when each attempt is sent and settled, not while
   const { calls, fetch } = throttle((_, call) => call === 0 ? refused(429) : new Response('ok'), { hold: 20 });
   const events = [];
   const listener = { sent: () => events.push([ 'sent', Date.now() ]), settled: () => events.push([ 'settled', Date.now() ]) };
-  await fetch('https://q.example/sparql', { '@kgf/actor-http-throttle:attemptListener': listener });
+  await fetch('https://q.example/sparql', { '@frink-okn/actor-http-throttle:attemptListener': listener });
   assert.deepEqual(events.map(([ name ]) => name), [ 'sent', 'settled', 'sent', 'settled' ]);
   const retrying = [];
   const told = { sent: () => retrying.push('sent'), settled: () => retrying.push('settled'), retrying: () => retrying.push('retrying') };
   const again = throttle((_, call) => call === 0 ? refused(429) : new Response('ok'));
-  await again.fetch('https://q.example/sparql', { '@kgf/actor-http-throttle:attemptListener': told });
+  await again.fetch('https://q.example/sparql', { '@frink-okn/actor-http-throttle:attemptListener': told });
   assert.deepEqual(retrying, [ 'sent', 'settled', 'retrying', 'sent', 'settled' ], 'told when an attempt is let go for another');
   assert.equal(calls.length, 2);
   // The retry waits for the interval learned from the refusal, counted from the first start.

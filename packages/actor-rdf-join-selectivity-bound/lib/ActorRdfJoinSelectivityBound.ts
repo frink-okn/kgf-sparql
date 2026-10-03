@@ -16,7 +16,7 @@ import { getOperationSource } from '@comunica/utils-query-operation';
  * nested mediation reaches the actor that would otherwise have answered.
  */
 export const KEY_SELECTIVITY_BOUND_DELEGATING = new ActionContextKey<boolean>(
-  '@kgf/actor-rdf-join-selectivity-bound:delegating',
+  '@frink-okn/actor-rdf-join-selectivity-bound:delegating',
 );
 
 /**

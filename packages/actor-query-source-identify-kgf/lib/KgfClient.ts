@@ -1,6 +1,6 @@
 import type { MediatorHttp } from '@comunica/bus-http';
 import type { IActionContext } from '@comunica/types';
-import type { IVoidDatasetStatistics, IVoidPropertyPartition } from '@kgf/actor-rdf-join-selectivity-void';
+import type { IVoidDatasetStatistics, IVoidPropertyPartition } from '@frink-okn/actor-rdf-join-selectivity-void';
 import { KEY_KGF_HTTP_METHOD } from './Context';
 
 export interface KgfCount { value: number; exact: boolean }

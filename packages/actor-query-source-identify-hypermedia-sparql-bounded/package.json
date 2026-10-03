@@ -1,5 +1,5 @@
 {
-  "name": "@kgf/actor-query-source-identify-hypermedia-sparql-bounded",
+  "name": "@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded",
   "version": "0.1.0",
   "description": "Comunica's SPARQL endpoint source with bounded COUNT queries, timed by the server, and source selection that accepts a bounded count without an ASK",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dependencies": {
     "@comunica/actor-optimize-query-operation-prune-empty-source-operations": "~5.3.0",
@@ -33,7 +34,7 @@
     "@comunica/utils-bindings-factory": "^5.3.0",
     "@comunica/utils-metadata": "^5.3.0",
     "@comunica/utils-query-operation": "~5.3.0",
-    "@kgf/actor-http-throttle": "^0.1.0",
+    "@frink-okn/actor-http-throttle": "^0.1.0",
     "asynciterator": "^3.9.0"
   },
   "scripts": {
@@ -44,9 +45,12 @@
     "componentsjs-generator": "^4.2.0",
     "typescript": "^5.9.0"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "url": "git+https://github.com/frink-okn/kgf-sparql.git",
     "directory": "packages/actor-query-source-identify-hypermedia-sparql-bounded"
   }
 }

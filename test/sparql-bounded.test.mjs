@@ -6,10 +6,10 @@ import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import {
   QuerySourceSparqlBounded,
-} from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
+} from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
 import { BufferedIterator } from 'asynciterator';
-import { ActorHttpThrottle } from '@kgf/actor-http-throttle';
-import { KEY_HTTP_HOST_LIMITS, KEY_SPARQL_COUNT_CAP_HOSTS, QueryEngine } from 'kgf-sparql';
+import { ActorHttpThrottle } from '@frink-okn/actor-http-throttle';
+import { KEY_HTTP_HOST_LIMITS, KEY_SPARQL_COUNT_CAP_HOSTS, QueryEngine } from '@frink-okn/kgf-sparql';
 import { DataFactory } from 'rdf-data-factory';
 import { EP, server } from './helpers/mock-kgf.mjs';
 

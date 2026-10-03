@@ -1,5 +1,5 @@
 {
-  "name": "@kgf/actor-http-throttle",
+  "name": "@frink-okn/actor-http-throttle",
   "version": "0.1.0",
   "description": "A Comunica HTTP actor that paces requests per host: requests in flight, requests per second, and backoff learned from 429 and 503 responses",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dependencies": {
     "@comunica/bus-http": "~5.3.0",
@@ -33,9 +34,12 @@
     "componentsjs-generator": "^4.2.0",
     "typescript": "^5.9.0"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frink-okn/kgf-sparql.git",
+    "url": "git+https://github.com/frink-okn/kgf-sparql.git",
     "directory": "packages/actor-http-throttle"
   }
 }

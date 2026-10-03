@@ -8,7 +8,7 @@ import type {
 import { Algebra, AlgebraFactory } from '@comunica/utils-algebra';
 import type { BindingsFactory } from '@comunica/utils-bindings-factory';
 import { MetadataValidationState } from '@comunica/utils-metadata';
-import { VOID_STATISTICS_PROVIDER } from '@kgf/actor-rdf-join-selectivity-void';
+import { VOID_STATISTICS_PROVIDER } from '@frink-okn/actor-rdf-join-selectivity-void';
 import type * as RDF from '@rdfjs/types';
 import type { AsyncIterator } from 'asynciterator';
 import { termToString } from 'rdf-string-ttl';

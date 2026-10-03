@@ -10,12 +10,12 @@ import type {
 import type { AlgebraFactory } from '@comunica/utils-algebra';
 import { Algebra, algebraUtils, isKnownOperation } from '@comunica/utils-algebra';
 import { MetadataValidationState } from '@comunica/utils-metadata';
-import type { IHttpAttemptListener } from '@kgf/actor-http-throttle';
-import { KEY_HTTP_ATTEMPT_LISTENER } from '@kgf/actor-http-throttle';
+import type { IHttpAttemptListener } from '@frink-okn/actor-http-throttle';
+import { KEY_HTTP_ATTEMPT_LISTENER } from '@frink-okn/actor-http-throttle';
 import type { AsyncIterator } from 'asynciterator';
 
 /** Set on the context of a call that carries bindings, whose cardinality is not counted. */
-const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identify-hypermedia-sparql-bounded:bound');
+const KEY_BOUND = new ActionContextKey<boolean>('@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded:bound');
 
 /**
  * Comunica's SPARQL endpoint source, with two changes to the COUNT query it sends for each
@@ -38,7 +38,7 @@ const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identif
  * cardinality as unknown (an infinite estimate), which made one query's plan differ from run
  * to run: time spent queued behind a host's other requests, or waiting to retry a refusal,
  * counted against the server. Here the timeout runs only while an attempt is with the server,
- * from when `@kgf/actor-http-throttle` sends it until its count arrives, body included, and
+ * from when `@frink-okn/actor-http-throttle` sends it until its count arrives, body included, and
  * restarts with each attempt; the time a refused attempt waits to be sent again does not
  * count. `deadline` bounds the whole wait, queue included. (An earlier version stopped the
  * timer when the response headers arrived, and a server that sends them before it has counted

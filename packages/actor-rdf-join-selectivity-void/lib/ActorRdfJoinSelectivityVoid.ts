@@ -19,7 +19,7 @@ const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
  * only sound way to attach statistics to a source.
  */
 export const KEY_VOID_STATISTICS = new ActionContextKey<VoidStatisticsRegistry>(
-  '@kgf/actor-rdf-join-selectivity-void:statistics',
+  '@frink-okn/actor-rdf-join-selectivity-void:statistics',
 );
 
 /**
