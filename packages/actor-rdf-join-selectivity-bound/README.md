@@ -1,7 +1,7 @@
 # @frink-okn/actor-rdf-join-selectivity-bound
 
 A [Comunica](https://comunica.dev/) join-selectivity actor that caps any other estimate
-with an upper bound on the join's size.
+with an upper bound on the join's size, and gives a cross product its exact size.
 
 An entry whose variables all occur in the other entries cannot make the join larger than
 the join of those others: each of their rows fixes every variable of the entry, and a set
@@ -20,6 +20,12 @@ look like the smaller side, and the plan bound the large side into the small one
   by the entries that remain. A union of `k` branches multiplies the bound by `k`;
   operations whose multiplicity it cannot tell (VALUES, extensions, subqueries) are never
   removed.
+- A join whose entries share no variable is a cross product, and its size is the product
+  of theirs, exactly: the actor answers a selectivity of 1 without asking the bus. It is
+  the one estimate it raises. The heuristic gives such a join about 0.07 of the product,
+  and on Comunica 5.4, which had already put 7,053 providers at 1,463, joining them with
+  a one-row pattern left 108, few enough that a per-row `OPTIONAL` join sent 7,053
+  probes where reading the pattern took 9 pages.
 
 ## Limits
 

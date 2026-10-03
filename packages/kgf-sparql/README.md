@@ -283,7 +283,7 @@ caps whatever join-size estimate the selectivity bus gives with an upper bound: 
 whose variables all occur in the others cannot make the join larger, so `?cell
 rdfs:subClassOf cell:` joined with `?cell part_of: abdomen:` has at most 838 rows where the
 shape heuristic estimated 7.4 million. It never raises an estimate, so its error can only
-shrink.
+shrink, except a cross product's, which it sets to the product, as that size is exact.
 [`@frink-okn/actor-rdf-join-inner-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-block)
 sends the smallest entry in blocks through every entry that accepts bindings, a SPARQL
 endpoint through `VALUES` and a union across sources included, in one pass, as FedX's bound

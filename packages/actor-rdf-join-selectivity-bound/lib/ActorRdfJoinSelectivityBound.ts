@@ -20,7 +20,8 @@ export const KEY_SELECTIVITY_BOUND_DELEGATING = new ActionContextKey<boolean>(
 );
 
 /**
- * Caps any other join-selectivity estimate with an upper bound on the join's size.
+ * Caps any other join-selectivity estimate with an upper bound on the join's size, and gives
+ * a cross product its exact size.
  *
  * ## The bound
  *
@@ -45,11 +46,22 @@ export const KEY_SELECTIVITY_BOUND_DELEGATING = new ActionContextKey<boolean>(
  * so removing it multiplies the bound by `k`; entries whose multiplicity is unknown are never
  * removed.
  *
+ * ## Cross products
+ *
+ * A join whose entries share no variable pairs every row of each with every row of the
+ * others, so its size is exactly the product of theirs: the selectivity is 1, and no other
+ * actor is asked. This is the one case where the actor raises an estimate, since nothing is
+ * estimated. The shape-only heuristic gives such a join about 0.07 of the product, which
+ * compounds with any underestimate of its entries: joining a one-row pattern to 7,053
+ * providers that Comunica 5.4 had already estimated at 1,463 left 108, and a per-row
+ * `OPTIONAL` join priced at 108 probes sent 7,053 of them.
+ *
  * ## How it composes
  *
  * The selectivity bus answers through the single most accurate actor. This one declares
  * the highest accuracy, asks the bus again with `KEY_SELECTIVITY_BOUND_DELEGATING` set
- * (which makes its own test fail), and returns the smaller of that answer and the bound.
+ * (which makes its own test fail), and returns the smaller of that answer and the bound,
+ * or 1 for a cross product without asking.
  * The VoID actor, the shipped heuristic, or anything else registered keeps doing the
  * estimating; this actor only stops it from exceeding what the join can produce.
  *
@@ -81,9 +93,12 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
   }
 
   public async run(action: IActionRdfJoinSelectivity): Promise<IActorRdfJoinSelectivityOutput> {
-    const delegated = await this.delegate(action);
     // Cardinality is memoized by ActorRdfJoin, so reading it costs no HTTP.
     const metadatas = await Promise.all(action.entries.map(async entry => entry.output.metadata()));
+    if (ActorRdfJoinSelectivityBound.crossProduct(metadatas)) {
+      return { selectivity: 1 };
+    }
+    const delegated = await this.delegate(action);
     const cardinalities = metadatas.map(metadata => metadata.cardinality.value);
     const product = cardinalities.reduce((acc, value) => acc * value, 1);
     if (!Number.isFinite(product) || product <= 0) {
@@ -113,6 +128,24 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
       context: action.context.set(KEY_SELECTIVITY_BOUND_DELEGATING, true),
     });
     return delegated.isPassed() ? delegated.get().selectivity : 1;
+  }
+
+  /**
+   * Whether no variable occurs in more than one entry, so that the join pairs every row of
+   * each entry with every row of the others. An unbound variable changes nothing then.
+   */
+  public static crossProduct(metadatas: MetadataBindings[]): boolean {
+    const seen = new Set<string>();
+    for (const metadata of metadatas) {
+      const names = new Set(metadata.variables.map(variable => variable.variable.value));
+      if ([ ...names ].some(name => seen.has(name))) {
+        return false;
+      }
+      for (const name of names) {
+        seen.add(name);
+      }
+    }
+    return true;
   }
 
   /**

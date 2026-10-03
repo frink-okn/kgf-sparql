@@ -72,6 +72,21 @@ test('entries that each bring a variable of their own are not bounded', async() 
   assert.equal((await bound.run({ entries, context: new ActionContext() })).selectivity, 0.25);
 });
 
+test('a join whose entries share no variable is a cross product, the product exactly', async() => {
+  // The shape-only heuristic gave the providers joined with MHS_TELE's one name 0.0739.
+  const { actor: bound, asked } = actor(0.0739);
+  const providers = entry(pattern(v('provider'), n('name'), v('providerName')), 1_463, [ 'provider', 'providerName' ]);
+  const service = entry(pattern(n('MHS_TELE'), n('name'), v('serviceName')), 1, [ 'serviceName' ]);
+  assert.equal((await bound.run({ entries: [ providers, service ], context: new ActionContext() })).selectivity, 1);
+  const unbound = entry(pattern(v('x'), n('p'), v('y')), 20, [ 'x', 'y' ], [ 'y' ]);
+  assert.equal((await bound.run({ entries: [ providers, service, unbound ], context: new ActionContext() })).selectivity, 1,
+    'a variable that may be unbound joins nothing when no other entry has it');
+  assert.deepEqual(asked, [], 'nothing is estimated, so no other actor is asked');
+  const located = entry(pattern(v('provider'), n('serviceLocation'), v('l')), 8_114, [ 'provider', 'l' ]);
+  assert.equal((await bound.run({ entries: [ providers, service, located ], context: new ActionContext() })).selectivity, 0.0739,
+    'one shared variable anywhere leaves the estimate to the others');
+});
+
 test('a filter among several entries removes only itself, largest filter first', async() => {
   const entries = [
     entry(pattern(v('a'), n('p'), v('b')), 50, [ 'a', 'b' ]),
