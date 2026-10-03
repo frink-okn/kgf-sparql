@@ -274,12 +274,32 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     // estimate, cannot be bound in blocks, but it can still be probed. Refusing whenever
     // such an entry came first let a slow COUNT hand the join to a per-row bind join.
     const finite = sorted.filter(entry => Number.isFinite(entry.metadata.cardinality.value));
+    // Each source's shape is asked for once, and an entry's parts are worked out again only
+    // once a step binds one of its variables: nothing else changes how it can be probed.
+    const shapes: SelectorShapes = new Map();
     // An entry already computed locally cannot be probed, so it is the one to bind if there is
     // one. Otherwise the smallest exact size: an estimate may be a lower bound, as a COUNT that
     // reached its cap reports cap+1 however many more there are, and of several entries at the
-    // cap the sort may put any first.
+    // cap the sort may put any first. An entry no source takes bindings for, such as an
+    // OPTIONAL's result, is bound instead when it is no larger, since it could otherwise only be
+    // joined with the block's result afterwards, whole: bound from a 2.6-million-row pattern,
+    // the block's result met a 6,337-row OPTIONAL in a hash join, and the query read its byte
+    // budget away. A larger one is left to be joined afterwards; binding its rows would cost
+    // more probes than the smaller entry's.
+    let unprobeable: IJoinEntryWithMetadata | undefined;
+    for (const entry of finite) {
+      const variables = ActorRdfJoinMultiBindBlock.variablesOf(entry.operation);
+      if (variables.length > 0 &&
+        !await this.probeParts(entry.operation, new Set(variables), action.context, shapes)) {
+        unprobeable = entry;
+        break;
+      }
+    }
+    const exact = finite.find(entry => entry.metadata.cardinality.type === 'exact');
     const first = finite.find(entry => entry.operationModified) ??
-      finite.find(entry => entry.metadata.cardinality.type === 'exact') ??
+      (unprobeable && (!exact || unprobeable.metadata.cardinality.value <= exact.metadata.cardinality.value) ?
+        unprobeable :
+        exact) ??
       finite[0];
     const rows = first?.metadata.cardinality.value ?? Number.NaN;
     if (!first || rows <= 0) {
@@ -293,9 +313,6 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
       // afterwards. One estimated smaller may be far larger, and is probed.
       !(entry.metadata.cardinality.type === 'exact' && entry.metadata.cardinality.value < rows));
     const steps: IBindStep[] = [];
-    // Each source's shape is asked for once, and an entry's parts are worked out again only
-    // once a step binds one of its variables: nothing else changes how it can be probed.
-    const shapes: SelectorShapes = new Map();
     const candidates = new Map<IJoinEntryWithMetadata, { parts?: IProbePart[]; shared: number }>();
     for (;;) {
       let best: { step: IBindStep; shared: number } | undefined;

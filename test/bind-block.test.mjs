@@ -290,6 +290,22 @@ test('the cost is the stock bind join\'s, with requests charged per block instea
   assert.equal(blockingItems, 0, 'only a block, never the input, so a LIMIT above is not penalised');
 });
 
+test('an entry no source can probe is the one bound, however its size was estimated', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const optional = af.createLeftJoin(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), on(ubergraph, v('cell'), n('label'), v('l')));
+  const typed = entry(on(ubergraph, v('cell'), n('type'), n('Cell')), 838, [ 'cell' ]);
+  const tested = await actor(256).test({ type: 'inner', context: context(), entries: [
+    entry(optional, 3, [ 'cell', 'l' ], { cardinality: { type: 'estimate', value: 3 }}),
+    typed,
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+  ] });
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  const { plan } = tested.getSideData();
+  assert.equal(plan.first.operation, optional, 'joined afterwards, it would meet the block\'s result whole');
+  assert.ok(plan.steps.some(step => step.entry.operation === typed.operation), 'the exact pattern is probed instead');
+});
+
 test('each step is priced against the entry it joins, not the first', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [], 'joinBindings');

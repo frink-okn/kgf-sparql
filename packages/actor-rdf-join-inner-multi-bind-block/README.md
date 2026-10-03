@@ -19,7 +19,11 @@ Starting from the smallest entry whose size is known exactly, the actor repeated
 among the entries it can probe, the one sharing the most variables with what is bound so
 far, then the smallest. An estimate may be a lower bound: a COUNT that reached its cap
 reports cap+1 however many more there are, and of several entries at the cap any could sort
-first. The actor binds from an estimate only when no size is exact. An entry whose size is unknown, as a COUNT that failed or timed out leaves it,
+first. The actor binds from an estimate only when no size is exact, or when the entry is
+one it cannot probe, such as an `OPTIONAL`'s result, and is no larger than the smallest
+exact entry: it could otherwise only be joined with the result afterwards, whole, and a
+query whose block join bound from a 2.6-million-row pattern beside a 6,337-row `OPTIONAL`
+read its byte budget away; bound from the `OPTIONAL`, it takes 796 requests. An entry whose size is unknown, as a COUNT that failed or timed out leaves it,
 can still be probed; the actor used to refuse when such an entry sorted first, and a
 per-row bind join took the join over. The entries it can probe are:
 
