@@ -5,9 +5,6 @@ lib/**/*.map
 *.tsbuildinfo
 packages/*/components/
 packages/kgf-sparql/engine-default.js
-test/void-stats.json
-test/cfg-mod-*.json
-test/config-nofudge.json
-test/corpus.log
 handoff/
-__pycache__/
+scratch/
+.DS_Store

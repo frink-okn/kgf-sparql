@@ -344,11 +344,6 @@ and pagination, then runs the command line on a small graph and asserts a comple
 receipt with request ids and a budget abort. Set `KGF_ROOT` and `KGF_DATASET` to test
 another deployment.
 
-`python3 test/registry-corpus-cli.py` runs the okn-registry query corpus through the
-command line with budgets and receipts, and compares the outcome with the earlier brTPF
-run in `test/registry-query-results-20260827.json`. `test/registry-corpus.py` is that
-earlier runner.
-
 ```text
 packages/actor-query-source-identify-kgf/          Native JSON source and HTTP transport
 packages/actor-rdf-join-selectivity-void/          Generic VoID join-selectivity actor
