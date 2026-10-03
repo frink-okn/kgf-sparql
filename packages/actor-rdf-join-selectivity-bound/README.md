@@ -1,4 +1,4 @@
-# @kgf/actor-rdf-join-selectivity-bound
+# @frink-okn/actor-rdf-join-selectivity-bound
 
 A [Comunica](https://comunica.dev/) join-selectivity actor that caps any other estimate
 with an upper bound on the join's size.
@@ -44,7 +44,7 @@ When no other selectivity actor answers, the bound is taken against the product 
 input sizes. One that fails while answering fails the estimate, as it would without this
 actor.
 
-Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
+Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), which is Comunica
 with this actor already registered.
 
 ## License

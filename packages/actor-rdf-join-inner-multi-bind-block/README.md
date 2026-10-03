@@ -1,4 +1,4 @@
-# @kgf/actor-rdf-join-inner-multi-bind-block
+# @frink-okn/actor-rdf-join-inner-multi-bind-block
 
 A [Comunica](https://comunica.dev/) bind join that sends the smallest entry's rows in
 blocks through every other entry that can take bindings, one after another, as FedX's
@@ -10,7 +10,7 @@ accepts `filterBindings` (`multi-smallest-filter-bindings`). A federated join ra
 either condition. The fallback binds one row at a time, and against a SPARQL endpoint each
 row also costs a COUNT. On one query over Ubergraph (KGF) and QLever's Wikidata endpoint
 that plan produced no results in four minutes; with this actor and
-`@kgf/actor-rdf-join-selectivity-bound` the same query returns all 3,332 rows in 56
+`@frink-okn/actor-rdf-join-selectivity-bound` the same query returns all 3,332 rows in 56
 requests.
 
 ## The plan
@@ -49,7 +49,7 @@ join nested under it.)
 
 Binding every entry in one pass needs no estimate of an intermediate result. An earlier
 version bound one entry at a time and handed the rest back to the planner, whose
-compounded estimate for one registry query's intermediate (10^21 rows, for a few dozen)
+compounded estimate for one query's intermediate (10^21 rows, for a few dozen)
 made it read a label pattern whole: 455 pages and 106 MB in 19 s. In one pass the query
 takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 5.2 s.
 
@@ -70,7 +70,7 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
 - Each step collects the rows reaching it until they carry `blockSize` distinct values, or
   4,096 rows, before sending, so its requests stay full however finely the step before it
   hands rows on; up to four such batches per step and block are out at once. Sending each
-  arriving piece on its own took one registry query from 287 requests to 1,545, the same
+  arriving piece on its own took one query from 287 requests to 1,545, the same
   bytes in requests a seventh the size.
 - `blocksInFlight` (default 4; `kgf-sparql` sets 16) blocks are probed at once, and joined
   rows leave as soon as they exist. Once `blocksInFlight` times `blockSize` joined rows wait
@@ -111,11 +111,11 @@ candidate when its cost is `NaN`, which happens whenever a COUNT has timed out.
 
 - Comunica's SPARQL source reports no `requestTime`, so when every cost is finite the stock
   bind join prices its per-row requests at nothing and can win. `kgf-sparql`'s
-  [bounded SPARQL source](../actor-query-source-identify-hypermedia-sparql-bounded/) reports
+  [bounded SPARQL source](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded) reports
   the time its requests take.
 - Entries with possibly unbound variables are left to other actors.
 
-Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
+Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), which is Comunica
 with this actor already registered.
 
 ## License

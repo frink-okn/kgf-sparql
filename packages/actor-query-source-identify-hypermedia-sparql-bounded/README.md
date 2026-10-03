@@ -1,4 +1,4 @@
-# @kgf/actor-query-source-identify-hypermedia-sparql-bounded
+# @frink-okn/actor-query-source-identify-hypermedia-sparql-bounded
 
 [Comunica](https://comunica.dev/)'s SPARQL endpoint source, changed so that query plans
 over a SPARQL endpoint come out the same from run to run, and cost the endpoint less.
@@ -35,7 +35,7 @@ rather than cached by its own report.
 
 ## Counts timed by the server
 
-With [`@kgf/actor-http-throttle`](../actor-http-throttle/) pacing requests, a COUNT's
+With [`@frink-okn/actor-http-throttle`](https://www.npmjs.com/package/@frink-okn/actor-http-throttle) pacing requests, a COUNT's
 `countTimeout` (3 s) runs only while an attempt is with the server: from when the throttle
 sends it until its count arrives, restarting with each attempt. The headers do not stop it,
 since a server may send them before it has counted, and the wait of a refused attempt for
@@ -81,7 +81,7 @@ source.
 the command line's `--count-cap n` or `--count-cap host=n`, with `none` for no cap, sets the
 context keys.
 
-Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), with these actors
+Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), with these actors
 already installed.
 
 ## License

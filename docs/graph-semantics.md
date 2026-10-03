@@ -75,7 +75,7 @@ reads, `sd:defaultDataset [ sd:defaultGraph <urn:x-kgf:union> ]`: for a bare pat
 it requests `graph=urn:x-kgf:union` and gets each triple once, tagged with that IRI;
 for `GRAPH ?g` it requests with `graph` absent (`qpf`) or `graph=?g` (`brtpf`) and
 discards the untagged quads the server sends for unnamed-graph memberships;
-`GRAPH <G>` and an explicit `GRAPH <urn:x-kgf:union>` pass through. The corpus harness
+`GRAPH <G>` and an explicit `GRAPH <urn:x-kgf:union>` pass through. A brTPF source
 needs no configuration change beyond pointing at a graphs-bearing dataset.
 
 ## Tests to add when the server lands

@@ -1,7 +1,7 @@
-# @kgf/actor-query-source-identify-kgf
+# @frink-okn/actor-query-source-identify-kgf
 
 A native KGF JSON triple source for Comunica 5. Most users should use the
-[`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql) engine, which registers
+[`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql) engine, which registers
 this actor alongside Comunica's standard source types.
 
 Configure sources as `{ type: 'kgf', value: datasetOrVersionedFragmentUrl }`.
@@ -29,5 +29,7 @@ To register the actor in another Components.js configuration, provide
 `mediatorHttp` and `mediatorMergeBindingsContext`, and put it before the generic
 hypermedia identification actor via `beforeActors`. See the engine's
 `config/config-default.json` for a complete configuration.
+
+## License
 
 MIT

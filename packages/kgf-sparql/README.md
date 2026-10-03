@@ -1,17 +1,25 @@
 # kgf-sparql
 
 A [Comunica](https://comunica.dev/) SPARQL engine with a native
-[Knowledge Graph Fragments (KGF)](https://apps.okn.us/kgf/) triple source.
+[Knowledge Graph Fragments (KGF)](https://apps.okn.us/kgf/) triple source, join actors for
+federated queries over KGF and SPARQL endpoints, per-host request pacing, and a command line
+that runs a query under budgets and accounts for every request it made.
 
 Use `type: 'kgf'` to query KGF's JSON API. The source gets cardinalities from
 `/count` before opening fragment pages, passes bindings using HTTP `QUERY`, and
 follows opaque cursors. Standard Comunica sources, including brTPF, RDF/JS stores,
 files, and SPARQL endpoints, remain available.
 
+```bash
+npm install @frink-okn/kgf-sparql
+```
+
+The library and the command line need Node.js 22.19 or later.
+
 ## Use as a library
 
 ```js
-import { QueryEngine } from 'kgf-sparql';
+import { QueryEngine } from '@frink-okn/kgf-sparql';
 
 const engine = new QueryEngine();
 const bindings = await engine.queryBindings(`
@@ -41,7 +49,7 @@ The engine also runs in a browser. Bundlers that honour the package's `browser` 
 Vite and esbuild do, take `lib/index-browser.js`, which leaves out the command line and its
 Node-only transport. The public KGF server allows any origin, and the `QUERY` method that
 bindings requests use. Requests are paced per host in the engine, so a page gets the same
-caps and retries as the command line (see `@kgf/actor-http-throttle` below).
+caps and retries as the command line (see [Request pacing](#request-pacing)).
 
 ## Use as a CLI
 
@@ -92,10 +100,10 @@ kgf-sparql -f query.rq \
 
 ### Budgets
 
-Comunica has no plan-level budget: in the public-deployment evaluation, every task that
-never finished died in the client, at a timeout or with an 8 GB heap exhausted after
-receiving between 68 MB and 514 MB. Each budget is optional and unlimited when absent, so a
-run without budgets behaves as the engine does.
+Comunica has no plan-level budget: a query whose plan goes wrong runs until something
+outside it stops the process, a timeout or an exhausted heap, and a heap of several
+gigabytes can be exhausted after receiving a few hundred megabytes. Each budget is optional
+and unlimited when absent, so a run without budgets behaves as the engine does.
 
 | flag | checked | counts |
 |---|---|---|
@@ -148,8 +156,7 @@ if a budget had already ended the run.
   `error` (with `error`). Nothing in between: no partial result is ever labelled complete.
   `rows` is how many rows were written before the run ended.
 - `sources[]` for a KGF source carries the dataset, the pinned version, and the release's
-  `content_digest` from one request to its dataset descriptor, the same identity every
-  `kgfq` receipt carries, so the two join.
+  `content_digest` from one request to its dataset descriptor.
 - `requests[]` is every request, in order, as the engine's HTTP actor saw it: the server's
   `KGF-Request-Id`, which joins the entry to the server's access log; `bytes` the engine
   received, with `bytes_wire` beside it when the server sent a `Content-Length`; whether the
@@ -190,6 +197,15 @@ command line in-process.
 Requests use Comunica's HTTP mediator, so its `fetch`, authentication, timeout,
 and logging settings apply. Destroying a result stream stops further pagination.
 
+## Named graphs
+
+A bare pattern reads a KGF dataset's union, and `GRAPH` reaches its named graphs and
+its unnamed graph through two reserved IRIs. This holds for the native `kgf` source
+and for a stock `brtpf` source pointed at a dataset's TPF route, with no engine
+configuration: do not set Comunica's `unionDefaultGraph` context key for either. The
+contract the native source must implement, and what it does today, is in
+[docs/graph-semantics.md](https://github.com/frink-okn/kgf-sparql/blob/main/docs/graph-semantics.md).
+
 ## VoID without preloading
 
 Automatic VoID join estimates are enabled for native KGF sources. No statistics
@@ -218,7 +234,7 @@ import {
   KEY_KGF_BINDINGS_SIZE,
   KEY_KGF_HTTP_METHOD,
   KEY_KGF_VOID_STATISTICS,
-} from 'kgf-sparql';
+} from '@frink-okn/kgf-sparql';
 
 const engine = new QueryEngine();
 const context = {
@@ -250,57 +266,52 @@ outbids Comunica's syntactic heuristic (0.5) when statistics are available.
 Comunica's bind join prices a bound probe against a paged source at a fraction of a
 request: it takes the source's per-request cost as already paid, which is true of the
 entry being planned and false of the probes the join will send. With the native source's
-exact cardinalities, 888 probes on one registry query were priced at a few milliseconds,
-and per-row binding beat pushing the bindings in blocks by two orders of magnitude, at
-1,791 requests instead of 22. The engine config replaces the stock bind join in place,
-through a Components.js `Override`, with
-[`@kgf/actor-rdf-join-inner-multi-bind-round-trip`](packages/actor-rdf-join-inner-multi-bind-round-trip/),
-which adds one request per probe per paged entry to the stock formula and changes
-nothing else; the `OPTIONAL` bind join, whose formula has the same zero, is replaced the same way. On the registry corpus that query drops to 45 requests, `ubergraph/adrenal-gland`
-from 79 to 9, and `sockg/fields_on_sites` from a 5,000-request abort to 119 and complete;
-over the corpus, requests fell by a fifth and no query that completed before fails.
-Comunica's own defaults, weights, and refusals are untouched; the override keeps the
-actor's identifier so the join actors' ordering still refers to it.
+exact cardinalities, 888 probes on one query were priced at a few milliseconds, and
+per-row binding beat pushing the bindings in blocks by two orders of magnitude, at 1,791
+requests instead of 22. The engine config replaces the stock bind join in place, through a
+Components.js `Override`, with
+[`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip),
+which adds one request per probe per paged entry to the stock formula and changes nothing
+else; the `OPTIONAL` bind join, whose formula has the same zero, is replaced the same way.
+That query then takes 45 requests. Comunica's own defaults, weights, and refusals are
+untouched; the override keeps the actor's identifier so the join actors' ordering still
+refers to it.
 
 Two further actors address federated joins.
-[`@kgf/actor-rdf-join-selectivity-bound`](packages/actor-rdf-join-selectivity-bound/) caps
-whatever join-size estimate the selectivity bus gives with an upper bound: an entry whose
-variables all occur in the others cannot make the join larger, so `?cell rdfs:subClassOf
-cell:` joined with `?cell part_of: abdomen:` has at most 838 rows where the shape heuristic
-estimated 7.4 million. It never raises an estimate, so its error can only shrink.
-[`@kgf/actor-rdf-join-inner-multi-bind-block`](packages/actor-rdf-join-inner-multi-bind-block/)
+[`@frink-okn/actor-rdf-join-selectivity-bound`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-bound)
+caps whatever join-size estimate the selectivity bus gives with an upper bound: an entry
+whose variables all occur in the others cannot make the join larger, so `?cell
+rdfs:subClassOf cell:` joined with `?cell part_of: abdomen:` has at most 838 rows where the
+shape heuristic estimated 7.4 million. It never raises an estimate, so its error can only
+shrink.
+[`@frink-okn/actor-rdf-join-inner-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-block)
 sends the smallest entry in blocks through every entry that accepts bindings, a SPARQL
 endpoint through `VALUES` and a union across sources included, in one pass, as FedX's bound
 joins do. A query joining Ubergraph with QLever's Wikidata endpoint, which stock Comunica had
-not finished after four minutes, returns its 3,332 rows in 56 requests. On the registry
-corpus (2026-10-01) 63 queries return results where 51 did, none is lost, and every
-single-answer query returns the same rows (one differs only in `GROUP_CONCAT` order); on
-the 58 queries complete in both runs, requests fell from 28,883 to 15,205, bytes from
-516 MB to 274 MB, and time from 115 s to 76 s. `frequent-sciencekeywords` went from 28.6 s
-and 227 MB to 2.9 s and 22 MB, `abdominal-cell-types` from 4,535 requests to 52.
+not finished after four minutes, returns its 3,332 rows in 56 requests.
 
-[`@kgf/actor-http-throttle`](packages/actor-http-throttle/) paces requests per host, in
-place of Comunica's rate limiter. A host has at most `KEY_HTTP_IN_FLIGHT` requests in
-flight (default 32); `KEY_HTTP_HOST_LIMITS` gives particular hosts their own `inFlight` and
-`perSecond`, and `*.domain` a cap the domain's hosts share, within which each host's own
-limits still hold. QLever's hosts start at most one request a second unless the context
-says otherwise: QLever publishes no limit, and learning it from refusals cost every run its
-first requests. Under Node, requests name
+## Request pacing
+
+[`@frink-okn/actor-http-throttle`](https://www.npmjs.com/package/@frink-okn/actor-http-throttle)
+paces requests per host, in place of Comunica's rate limiter. A host has at most
+`KEY_HTTP_IN_FLIGHT` requests in flight (default 32); `KEY_HTTP_HOST_LIMITS` gives
+particular hosts their own `inFlight` and `perSecond`, and `*.domain` a cap the domain's
+hosts share, within which each host's own limits still hold. QLever's hosts start at most
+one request a second unless the context says otherwise: QLever publishes no limit, and
+learning it from refusals cost every run its first requests. Under Node, requests name
 `kgf-sparql/<version> (+https://github.com/frink-okn/kgf-sparql)` as their user agent:
 Wikidata's query service asks clients to name themselves, and UniProt turned Comunica's
 default away. A 429 or 503 with `Retry-After`, as KGF's admission gate sends, pauses the host
 until then, or for the context's `httpRetryDelayLimit` at most; one without, as QLever
 sends, doubles the interval between the host's requests, and later answers shorten it again.
-Refused requests are retried through the same queue, up
-to 5 times unless the context sets `httpRetryCount`, and Comunica's retry actor stands
-aside, so retries are paced and never multiplied. Timeouts and network errors no longer
-slow a host: Comunica's limiter slowed a whole host after any failure, so a SPARQL endpoint
-on the KGF server's host that timed out on its service description held every KGF request
-to one every 1 to 3 seconds, and three corpus queries to 12 to 19 requests in 30 seconds.
-The same queries now reach 5,000.
+Refused requests are retried through the same queue, up to 5 times unless the context sets
+`httpRetryCount`, and Comunica's retry actor stands aside, so retries are paced and never
+multiplied. Timeouts and network errors do not slow a host: Comunica's limiter slowed a
+whole host after any failure, so a SPARQL endpoint that timed out on its service description
+held every other request to its host, a KGF server's included, to one every 1 to 3 seconds.
 
 ```js
-import { KEY_HTTP_HOST_LIMITS, QueryEngine } from 'kgf-sparql';
+import { KEY_HTTP_HOST_LIMITS, QueryEngine } from '@frink-okn/kgf-sparql';
 
 await new QueryEngine().queryBindings(query, {
   sources,
@@ -308,7 +319,9 @@ await new QueryEngine().queryBindings(query, {
 });
 ```
 
-[`@kgf/actor-query-source-identify-hypermedia-sparql-bounded`](packages/actor-query-source-identify-hypermedia-sparql-bounded/)
+## SPARQL endpoints
+
+[`@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded)
 makes plans over SPARQL endpoints come out the same from run to run. Comunica plans a
 federated query from a COUNT per pattern per endpoint; an exact count of a large pattern
 outlasts its 3 second timeout (4.4 s for every `rdfs:label` on QLever's Wikidata), the
@@ -317,52 +330,29 @@ Ubergraph and Wikidata cells query returned 1,000 rows in 21 s on one run and ti
 375 requests on the next. Counts are bounded at a cap (`KEY_SPARQL_COUNT_CAP`, per host
 `KEY_SPARQL_COUNT_CAP_HOSTS`, `--count-cap`; default 1,000,000, none for Wikidata's query
 services, whose Blazegraph counts a pattern from its indexes in 0.12 s and takes 10 s to count
-one to a million), timed only while the server
-has them, and reported with their request time, so that a bind join sending a request per row
-no longer costs the same as one sending a block of rows; a count at the cap is accepted
-without the ASK Comunica would confirm it with. A probe that sends bindings as `VALUES` is
-not counted at all: nothing reads that count, and it doubled the requests of every block.
-The cells query now takes the block join on
-every run, 1,000 rows in 13 to 16 s and about 21 requests to QLever. `prokn/protein_disease`,
-whose plan had waited on host-wide slowdowns and timed-out counts, returned its 277 rows in
-6 s and 29 s in two runs; in a third, its SERVICE endpoint did not answer within the budget.
+one to a million), timed only while the server has them, and reported with their request
+time, so that a bind join sending a request per row no longer costs the same as one sending
+a block of rows; a count at the cap is accepted without the ASK Comunica would confirm it
+with. A probe that sends bindings as `VALUES` is not counted at all: nothing reads that
+count, and it doubled the requests of every block. The cells query now takes the block join
+on every run, 1,000 rows in 13 to 16 s and about 21 requests to QLever.
 
-## Development
+## Packages
 
-```bash
-npm install --ignore-scripts
-npm test
-npm run test:live
-```
+The engine is assembled from these actors, each published on its own for other Comunica
+configurations:
 
-`--ignore-scripts` allows npm to link the workspaces before compiling their
-Components.js configurations. `npm test` builds all packages and runs deterministic
-protocol, SPARQL regression, and command-line tests against a mock KGF server, the
-latter through both the in-process entry point and the executable. `test:live` is an
-opt-in, bounded run against the public KGF server; it checks count-first QUERY bindings
-and pagination, then runs the command line on a small graph and asserts a complete
-receipt with request ids and a budget abort. Set `KGF_ROOT` and `KGF_DATASET` to test
-another deployment.
+| package | |
+|---|---|
+| [`@frink-okn/actor-query-source-identify-kgf`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-kgf) | the native KGF JSON source and its HTTP transport |
+| [`@frink-okn/actor-rdf-join-selectivity-void`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-void) | join selectivity from VoID statistics |
+| [`@frink-okn/actor-rdf-join-selectivity-bound`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-bound) | an upper bound on any join-size estimate |
+| [`@frink-okn/actor-rdf-join-inner-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-block) | a block bind join through every entry that takes bindings |
+| [`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip) | Comunica's bind joins, charging a request per probe |
+| [`@frink-okn/actor-http-throttle`](https://www.npmjs.com/package/@frink-okn/actor-http-throttle) | per-host pacing, and retries of refused requests |
+| [`@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded) | Comunica's SPARQL source with bounded, server-timed COUNTs |
 
-```text
-packages/actor-query-source-identify-kgf/          Native JSON source and HTTP transport
-packages/actor-rdf-join-selectivity-void/          Generic VoID join-selectivity actor
-packages/actor-rdf-join-inner-multi-bind-round-trip/  Bind join charging a request per probe
-packages/actor-rdf-join-selectivity-bound/        Upper bound on any join-size estimate
-packages/actor-rdf-join-inner-multi-bind-block/   Block bind join through every bindable entry
-packages/actor-http-throttle/                      Per-host pacing, and retries of refused requests
-packages/actor-query-source-identify-hypermedia-sparql-bounded/  SPARQL source with bounded, server-timed COUNTs
-packages/kgf-sparql/                              Engine configuration, library, and CLI
-```
-
-## Earlier brTPF benchmarks
-
-The original VoID-only engine rescued some expensive brTPF plans: one benchmark
-went from 14,928 requests to 59; across a 60-query corpus, totals fell from 82,186
-to 56,772, with most savings concentrated in one query. Some queries regressed
-because Comunica's join-cost modifiers were calibrated for its syntactic estimator.
-Those measurements describe the earlier brTPF integration, **not the native
-source**. Native throughput has not yet been benchmarked across that corpus.
+The engine's Components.js configuration is `config/config-default.json` in this package.
 
 ## License
 

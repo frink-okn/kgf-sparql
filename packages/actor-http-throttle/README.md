@@ -1,4 +1,4 @@
-# @kgf/actor-http-throttle
+# @frink-okn/actor-http-throttle
 
 A [Comunica](https://comunica.dev/) HTTP actor that paces the requests to each host, and
 retries the requests a host refuses as too many. It runs the same in Node and in a browser.
@@ -9,9 +9,9 @@ below it caps them: one connection carries any number. The public KGF server ref
 that ask too often, with 429 and no `Retry-After`. Comunica's own pacing does not help. Its
 retry actor waits a fixed delay unless the server sends `Retry-After`, so retries arrive as
 fast as the refusals; its rate limiter slows a whole host after any failure, a timeout
-included. Two SPARQL endpoints on the KGF server's host timed out on their service
-descriptions, every KGF request on that host then waited 1 to 3 seconds, and three registry
-queries made 12 to 19 requests in 30 seconds. With this actor they make 5,000.
+included. When two SPARQL endpoints on a KGF server's host timed out on their service
+descriptions, every KGF request on that host then waited 1 to 3 seconds, and queries that
+made 5,000 requests in 30 seconds with this actor made 12 to 19.
 
 ## Pacing
 
@@ -43,7 +43,7 @@ place until its response headers arrive; the body is read outside the queue.
   teach the actor the rate cost the first requests of every run.
 
 ```js
-import { KEY_HTTP_HOST_LIMITS, QueryEngine } from 'kgf-sparql';
+import { KEY_HTTP_HOST_LIMITS, QueryEngine } from '@frink-okn/kgf-sparql';
 
 await new QueryEngine().queryBindings(query, {
   sources,
@@ -107,7 +107,7 @@ of its own, so that each query's limits hold for its requests, and a queue no re
 is let go. What refusals taught, and when the host last started a request, is shared either
 way, as the server sees all of them.
 
-Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), where the command
+Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), where the command
 line's `--max-in-flight` and `--max-rate` set these keys.
 
 ## License

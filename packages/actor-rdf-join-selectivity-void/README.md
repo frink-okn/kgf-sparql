@@ -1,4 +1,4 @@
-# @kgf/actor-rdf-join-selectivity-void
+# @frink-okn/actor-rdf-join-selectivity-void
 
 A [Comunica](https://comunica.dev/) join-selectivity actor that estimates join cardinality
 from published **VoID** statistics rather than from the syntactic shape of the query.
@@ -22,7 +22,7 @@ This actor connects those statistics to the join-selectivity bus, where they cha
   memoize providers. Missing statistics or provider failures leave the default
   estimator available. The actor itself contains no HTTP transport.
 
-Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
+Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), which is Comunica
 with this actor already registered.
 
 ## Caveats
