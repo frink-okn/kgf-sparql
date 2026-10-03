@@ -5,6 +5,7 @@ import type { TestResult } from '@comunica/core';
 import type { IMediatorTypeJoinCoefficients } from '@comunica/mediatortype-join-coefficients';
 import type { Bindings, ComunicaDataFactory, IActionContext, IJoinEntryWithMetadata, IQuerySourceWrapper, MetadataBindings } from '@comunica/types';
 import { Algebra } from '@comunica/utils-algebra';
+import type { AsyncIterator } from 'asynciterator';
 /**
  * A bind join that sends the smallest entry's rows in blocks through every other entry
  * that can take bindings, one after another, as FedX's bound joins do.
@@ -61,6 +62,13 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
     getJoinCoefficients(action: IActionRdfJoin, sideData: IActorRdfJoinTestSideData): Promise<TestResult<IMediatorTypeJoinCoefficients, IActorRdfJoinMultiBindBlockTestSideData>>;
     protected getOutput(action: IActionRdfJoin, sideData: IActorRdfJoinMultiBindBlockTestSideData): Promise<IActorRdfJoinOutputInner>;
     /**
+     * Stops a join's probes once its output is closed: a request waiting for a slot sends
+     * nothing, and one waiting on its source stops reading it. Without this, the requests queued
+     * behind the slots all went out after a LIMIT above the join was met, and the rows they
+     * returned sent the next step's.
+     */
+    private static stop;
+    /**
      * Choose the entry to bind (the smallest) and, in order, the entries to probe with it.
      */
     protected plan(action: IActionRdfJoin, metadatas: MetadataBindings[]): Promise<TestResult<IBindBlockPlan>>;
@@ -92,9 +100,10 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * still carrying them, and not sent again; an answer too large to keep is sent for again.
      * New values go out in requests of at most `blockSize` values, at most `requestsInFlight`
      * of them at once across the join: a step whose rows fan out to many values would
-     * otherwise send all its requests together.
+     * otherwise send all its requests together. `keys`, when given, are the rows' keys on the
+     * leaf's variables.
      */
-    protected probe(leaf: IProbeLeaf, rows: Bindings[], run: IBlockRun, onRows: (rows: Bindings[]) => Promise<void>): Promise<void>;
+    protected probe(leaf: IProbeLeaf, rows: Bindings[], keys: (string | undefined)[] | undefined, run: IBlockRun, onRows: (rows: Bindings[]) => Promise<void>): Promise<void>;
     /**
      * One request carrying the given values. Its rows go to `onRows` a chunk at a time as
      * they arrive. While they stay few they are also kept per value, and settle each value's
@@ -102,14 +111,17 @@ export declare class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJo
      * are settled as too large to keep, so blocks waiting on them send for them themselves.
      */
     protected request(leaf: IProbeLeaf, values: IProbeValue[], metadata: MetadataBindings, run: IBlockRun, onRows: (rows: Bindings[]) => Promise<void>, cacheable: boolean): Promise<void>;
-    /** The rows indexed by the values of `variables`, for streaming another side past them. */
+    /** The rows indexed by their keys, for streaming another side past them. */
     private static index;
     /** The indexed rows that may join with `row`; `joinBindings` makes the final check. */
     private static matches;
-    /** Join two lists of solutions on the given variables, which every row is expected to bind. */
-    static hashJoin(left: Bindings[], right: Bindings[], variables: string[]): Bindings[];
-    /** A string identifying the values of the given variables, or `undefined` when one is unbound. */
+    /**
+     * A string identifying the values of the given variables, or `undefined` when one is unbound.
+     * Equal terms give equal keys and different ones different keys, so a key stands for its
+     * values: a probe sends each key once.
+     */
     static keyOf(bindings: Bindings, variables: string[]): string | undefined;
+    private static sameVariables;
     private static variablesOf;
 }
 /** One source request of a probe. */
@@ -163,7 +175,8 @@ export interface IActorRdfJoinMultiBindBlockArgs extends IActorRdfJoinArgs<IActo
     requestsInFlight?: number;
     /**
      * Probe result rows kept per join so that a value repeated in a later block is not sent
-     * again. Once the cache holds this many rows, new values are still probed but no longer kept.
+     * again. Each value kept counts one more than its rows, so values with no rows count too.
+     * Once the cache holds this many, new values are still probed but no longer kept.
      * @range {integer}
      * @default {100000}
      */
@@ -187,6 +200,10 @@ export interface IActorRdfJoinMultiBindBlockArgs extends IActorRdfJoinArgs<IActo
 interface IProbeRun {
     cache: ProbeCache;
     slots: Slots;
+    /** The requests reading their sources now, to cancel once the output is closed. */
+    readers: Set<ChunkReader<Bindings>>;
+    /** Whether the output is closed, after which no request is sent. */
+    stopped: boolean;
 }
 /** What one block's work needs as it moves through the steps. */
 interface IBlockRun {
@@ -196,6 +213,30 @@ interface IBlockRun {
     probes: IProbeRun;
     /** Hands joined rows out of the actor; waits while the reader is behind, and throws `STOPPED` once it is gone. */
     emit: (rows: Bindings[]) => Promise<void>;
+}
+/**
+ * Reads a stream a chunk at a time: whatever is ready now, or the first items to arrive.
+ * Its listeners stay attached for the stream's life, and it waits for an event only when the
+ * stream says it is not readable: a wrapping iterator that reports readable with nothing to
+ * read never announces `readable` again, and a read that waited for it stalled a query.
+ */
+declare class ChunkReader<T> {
+    private readonly stream;
+    private wake?;
+    private failure?;
+    private ended;
+    private cancelled;
+    constructor(stream: AsyncIterator<T>);
+    /**
+     * Stops reading: destroys the stream, and ends a read waiting on it. A stream destroyed
+     * without an error never announces its end, so such a read would wait for good.
+     */
+    cancel(): void;
+    /** Up to `size` items, or `undefined` once the stream has ended or the reader was cancelled. */
+    next(size: number): Promise<T[] | undefined>;
+    /** Waits for the stream's next event, or at most `milliseconds` when given. */
+    private event;
+    private notify;
 }
 interface IProbeValue {
     key: string;
@@ -210,16 +251,20 @@ interface IDeferred {
 }
 /**
  * Probe answers for one join, per source request and bound values. A value in flight is
- * shared by every block that needs it; answered values are kept until `limit` rows are held.
+ * shared by every block that needs it; answered values are kept until `limit` is held, each
+ * counting its rows and one more for itself.
  */
 declare class ProbeCache {
     private readonly limit;
     private readonly answers;
-    private rows;
+    private held;
     constructor(limit: number);
     get(leaf: IProbeLeaf, key: string): Promise<Bindings[] | undefined> | undefined;
     set(leaf: IProbeLeaf, key: string, answer: Promise<Bindings[] | undefined>): void;
-    /** Keep an answered value if there is room for its rows, else drop it. */
+    /**
+     * Keep an answered value if there is room for it, else drop it. The value itself counts
+     * one: counting rows alone kept every value with no rows, without limit.
+     */
     retain(leaf: IProbeLeaf, key: string, rows: number): void;
     forget(leaf: IProbeLeaf, key: string): void;
 }

@@ -5,6 +5,7 @@ import { ActorHttpThrottle, KEY_HTTP_HOST_LIMITS, KEY_HTTP_IN_FLIGHT } from '@kg
 
 const RETRY_COUNT = '@comunica/bus-http:http-retry-count';
 const RETRY_STATUS_CODES = '@comunica/bus-http:http-retry-status-codes';
+const RETRY_DELAY_LIMIT = '@comunica/bus-http:http-retry-delay-limit';
 const STOCK_RETRY_WRAPPED = 'urn:comunica:actor-http-retry#wrapped';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -187,6 +188,11 @@ test('an attempt listener hears when each attempt is sent and settled, not while
   const listener = { sent: () => events.push([ 'sent', Date.now() ]), settled: () => events.push([ 'settled', Date.now() ]) };
   await fetch('https://q.example/sparql', { '@kgf/actor-http-throttle:attemptListener': listener });
   assert.deepEqual(events.map(([ name ]) => name), [ 'sent', 'settled', 'sent', 'settled' ]);
+  const retrying = [];
+  const told = { sent: () => retrying.push('sent'), settled: () => retrying.push('settled'), retrying: () => retrying.push('retrying') };
+  const again = throttle((_, call) => call === 0 ? refused(429) : new Response('ok'));
+  await again.fetch('https://q.example/sparql', { '@kgf/actor-http-throttle:attemptListener': told });
+  assert.deepEqual(retrying, [ 'sent', 'settled', 'retrying', 'sent', 'settled' ], 'told when an attempt is let go for another');
   assert.equal(calls.length, 2);
   // The retry waits for the interval learned from the refusal, counted from the first start.
   assert.ok(events[2][1] - events[0][1] >= 245, 'the wait before the retry falls between settled and sent');
@@ -203,9 +209,11 @@ test('the actor\'s own host limits apply, and the context\'s override them field
   assert.ok(gaps(calls).every(gap => gap >= 45), 'the rate is still the actor\'s');
 });
 
-test('a limit on *.domain is shared by the hosts in it, and a host\'s own limit comes first', async() => {
+test('a limit on *.domain is shared by the hosts in it, and a host\'s own limit holds within it', async() => {
   const { peak, fetch } = throttle(undefined, { hold: 20 });
-  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { '*.wikidata.example': { inFlight: 2 }, 'own.wikidata.example': { inFlight: 3 }}};
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: {
+    '*.wikidata.example': { inFlight: 2 }, 'own.wikidata.example': { inFlight: 3 }, 'one.wikidata.example': { inFlight: 1 },
+  }};
   const started = Date.now();
   await Promise.all([
     ...Array.from({ length: 2 }, () => fetch('https://query.wikidata.example/sparql', settings)),
@@ -213,9 +221,70 @@ test('a limit on *.domain is shared by the hosts in it, and a host\'s own limit 
   ]);
   assert.ok(Date.now() - started >= 38, 'four requests to the group, two at a time, take two turns');
   await Promise.all(Array.from({ length: 3 }, () => fetch('https://own.wikidata.example/sparql', settings)));
-  assert.equal(peak['own.wikidata.example'], 3);
+  assert.equal(peak['own.wikidata.example'], 2, 'a host\'s own limit does not take it out of its group');
+  await Promise.all(Array.from({ length: 3 }, () => fetch('https://one.wikidata.example/sparql', settings)));
+  assert.equal(peak['one.wikidata.example'], 1, 'and a lower one holds within the group\'s');
   await Promise.all(Array.from({ length: 3 }, () => fetch('https://wikidata.example/sparql', settings)));
   assert.equal(peak['wikidata.example'], 3, 'the domain itself is not in the group');
+});
+
+test('a rate for one host keeps it in its group\'s cap, and the cap holds across the group', async() => {
+  // As `--max-in-flight '*.wikidata.org=2' --max-rate query.wikidata.org=50` asks: the rate
+  // used to give the host a queue of its own, with the default in flight instead of the group's.
+  const open = { count: 0, peak: 0 };
+  const { fetch } = throttle(async() => {
+    open.peak = Math.max(open.peak, ++open.count);
+    await sleep(30);
+    open.count--;
+    return new Response('ok');
+  });
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { '*.wikidata.example': { inFlight: 2 }, 'query.wikidata.example': { perSecond: 50 }}};
+  await Promise.all([
+    ...Array.from({ length: 4 }, () => fetch('https://query.wikidata.example/sparql', settings)),
+    ...Array.from({ length: 4 }, () => fetch('https://query-scholarly.wikidata.example/sparql', settings)),
+  ]);
+  assert.equal(open.peak, 2);
+});
+
+test('each query\'s limits for a host hold for its requests, whatever another query\'s say', async() => {
+  // One engine, two queries: the second's limit used to reconfigure the queue the first's waited in.
+  const { calls, fetch } = throttle(undefined, { hold: 20 });
+  const strict = { [KEY_HTTP_HOST_LIMITS.name]: { 'a.example': { inFlight: 1 }}, tag: 'strict' };
+  const loose = { [KEY_HTTP_IN_FLIGHT.name]: 32, tag: 'loose' };
+  await Promise.all([
+    ...Array.from({ length: 3 }, () => fetch('https://a.example/x', strict)),
+    ...Array.from({ length: 3 }, () => fetch('https://a.example/x', loose)),
+  ]);
+  const strictCalls = calls.filter(call => call.context.get({ name: 'tag' }) === 'strict');
+  assert.ok(gaps(strictCalls).every(gap => gap >= 15), `the strict query's requests one at a time: ${gaps(strictCalls)}`);
+});
+
+test('a pause asked by Retry-After lasts no longer than the context\'s httpRetryDelayLimit', async() => {
+  // A request whose wait is past the limit gives up; the host's other requests must not wait the whole hour either.
+  const { fetch } = throttle((_, call) => call === 0 ? refused(429, { 'retry-after': '3600' }) : new Response('ok'));
+  const settings = { [RETRY_DELAY_LIMIT]: 100 };
+  assert.equal((await fetch('https://a.example/x', settings)).status, 429, 'the refused request gives up');
+  const before = Date.now();
+  assert.equal((await fetch('https://a.example/x', settings)).status, 200);
+  const waited = Date.now() - before;
+  assert.ok(waited >= 90 && waited < 1_000, `the next request waited ${waited} ms`);
+});
+
+test('invalidating the HTTP cache forgets a pause and a learned interval', async() => {
+  const listeners = [];
+  const httpInvalidator = { addInvalidateListener: listener => listeners.push(listener) };
+  const { calls, fetch } = throttle((url, call) => url.pathname === '/paused' && call === 0 ?
+    refused(429, { 'retry-after': '3600' }) :
+    new Response('ok'), { httpInvalidator });
+  assert.equal((await fetch('https://a.example/paused', { [RETRY_COUNT]: 0 })).status, 429);
+  const waiting = fetch('https://a.example/x');
+  await sleep(20);
+  assert.equal(calls.length, 1, 'the host is paused');
+  for (const listener of listeners) {
+    listener({ url: 'https://a.example/paused', context: new ActionContext() });
+  }
+  assert.equal((await waiting).status, 200, 'and goes on once the cache is invalidated');
+  assert.equal(calls.length, 2);
 });
 
 test('under Node a request is sent with the actor\'s user agent, unless it names its own', async() => {

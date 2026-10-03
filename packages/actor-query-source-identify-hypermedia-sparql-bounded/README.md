@@ -37,8 +37,10 @@ rather than cached by its own report.
 
 With [`@kgf/actor-http-throttle`](../actor-http-throttle/) pacing requests, a COUNT's
 `countTimeout` (3 s) runs only while an attempt is with the server: from when the throttle
-sends it to when its response headers arrive, restarting with each attempt.
-`countDeadline` (default 30 s) bounds the whole wait, time queued and retries included.
+sends it until its count arrives, restarting with each attempt. The headers do not stop it,
+since a server may send them before it has counted, and the wait of a refused attempt for
+its retry does not count. `countDeadline` (default 30 s) bounds the whole wait, time queued
+and retries included.
 
 ## Request time
 

@@ -67,18 +67,21 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
   arriving piece on its own took one registry query from 287 requests to 1,545, the same
   bytes in requests a seventh the size.
 - `blocksInFlight` (default 4; `kgf-sparql` sets 16) blocks are probed at once, and joined
-  rows leave as soon as they exist. Once `blocksInFlight` times `blockSize` joined rows
-  wait unread, the blocks wait too, so a slow reader holds the probes back. Releasing blocks in order let one slow block hold the
-  rest back; probing only the block at the head of the queue held another query to about
-  two requests in flight. Destroying the stream, as a `LIMIT` above it does, starts no
-  further block.
+  rows leave as soon as they exist. Once `blocksInFlight` times `blockSize` joined rows wait
+  unread, the blocks wait too, so a slow reader holds the probes back. Releasing blocks in
+  order let one slow block hold the rest back; probing only the block at the head of the
+  queue held another query to about two requests in flight. Destroying the stream, as a
+  `LIMIT` above it does, starts no further block and stops the probes under way: a request
+  waiting for its turn is not sent, and one being read is closed. They used to go out after
+  the `LIMIT` was met, and the rows they brought sent the next step's.
 - `requestsInFlight` (default 8; `kgf-sparql` sets 16) probe requests are sent at once
   across the join. A step whose rows fan out to many values needs many requests, and
   sending them all together put hundreds in flight against a server that runs 8 bindings
   requests at a time and answered the overflow with 429.
 - A value an earlier block already sent is answered from a per-join cache, or from the
   request still carrying it, rather than sent again; the cache keeps up to
-  `probeCacheRows` result rows (default 100,000). Without it a value recurring across
+  `probeCacheRows` result rows (default 100,000), each value counting one more than its
+  rows, so values that matched nothing are bounded too. Without it a value recurring across
   blocks was fetched once per block. An answer is kept only while its request returns no
   more than 64 rows per value it could carry; a block waiting on a larger one sends for it
   itself.

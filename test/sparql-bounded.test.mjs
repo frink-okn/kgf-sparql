@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { ActionContext } from '@comunica/core';
+import { AlgebraFactory } from '@comunica/utils-algebra';
+import { BindingsFactory } from '@comunica/utils-bindings-factory';
+import {
+  QuerySourceSparqlBounded,
+} from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
+import { BufferedIterator } from 'asynciterator';
 import { KEY_HTTP_HOST_LIMITS, KEY_SPARQL_COUNT_CAP_HOSTS, QueryEngine } from 'kgf-sparql';
+import { DataFactory } from 'rdf-data-factory';
 import { EP, server } from './helpers/mock-kgf.mjs';
 
 const ENDPOINT = 'https://sparql.test/sparql';
@@ -10,7 +18,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * A SPARQL endpoint with two `urn:sameAs` statements and no `urn:p`, behind the mock KGF
- * graph's fetch. `countFor(query, n)` answers the n-th COUNT; it may wait first.
+ * graph's fetch. `countFor(query, n)` answers the n-th COUNT; it may wait first, or answer
+ * `{ value, bodyDelayMs }` to send the headers at once and the count that much later.
  */
 function endpoint(countFor, host = 'sparql.test') {
   const kgf = server();
@@ -33,8 +42,18 @@ function endpoint(countFor, host = 'sparql.test') {
     if (/COUNT/u.test(query)) {
       const request = { kind: 'count', pattern, query, values: /VALUES/u.test(query) };
       requests.push(request);
-      const count = request.values ? 2 : await countFor(request, counts++);
-      return sparql([{ count: { type: 'literal', value: String(count), datatype: XSD_INTEGER } }], [ 'count' ]);
+      const answer = request.values ? 2 : await countFor(request, counts++);
+      const { value: count, bodyDelayMs = 0 } = typeof answer === 'object' ? answer : { value: answer };
+      const response = sparql([{ count: { type: 'literal', value: String(count), datatype: XSD_INTEGER } }], [ 'count' ]);
+      if (bodyDelayMs === 0) {
+        return response;
+      }
+      const body = await response.arrayBuffer();
+      return new Response(new ReadableStream({ async start(controller) {
+        await sleep(bodyDelayMs);
+        controller.enqueue(new Uint8Array(body));
+        controller.close();
+      } }), { headers: response.headers });
     }
     if (/^\s*ASK/iu.test(query.replace(/^(PREFIX[^\n]*\n)*/u, ''))) {
       requests.push({ kind: 'ask', pattern, query });
@@ -114,6 +133,41 @@ test('a COUNT is timed while the server has it, not while it waits its turn', as
   const asks = fake.requests.filter(request => request.kind === 'ask');
   assert.equal(asks.length, 1, asks.map(request => request.pattern).join(', '));
   assert.equal(asks[0].pattern, counts[0].pattern, 'only the slow COUNT is confirmed with an ASK');
+});
+
+test('a COUNT whose server sends the headers before it has counted is still timed out', async() => {
+  // The timer used to stop when the headers arrived, so such a COUNT had the whole 30 s
+  // deadline: here it would have been answered after 3.5 s, exact, and planning waited for it.
+  const fake = endpoint((request, n) => ({ value: request.pattern === 'sameAs' ? 2 : 0, bodyDelayMs: n === 0 ? 3_500 : 0 }));
+  assert.deepEqual(await run(fake), EXPECTED);
+  const counts = fake.requests.filter(request => request.kind === 'count' && !request.values);
+  const asks = fake.requests.filter(request => request.kind === 'ask');
+  assert.equal(asks.length, 1, 'the slow COUNT is reported unknown after 3 s, and confirmed with an ASK');
+  assert.equal(asks[0].pattern, counts[0].pattern);
+});
+
+test('bindings that cannot be read still leave the probe a metadata', async() => {
+  // Comunica writes an unknown cardinality whatever happens; the bound path used to write
+  // nothing when its operation could not be built, and a wait on the metadata never ended.
+  const df = new DataFactory();
+  const af = new AlgebraFactory(df);
+  const unused = { mediate: async() => {
+    throw new Error('not sent');
+  } };
+  const source = new QuerySourceSparqlBounded(1_000, 3_000, ENDPOINT, ENDPOINT, new ActionContext(), unused, unused,
+    'values', df, af, new BindingsFactory(df), false, 0, 30_000, true, false, 600, false, {});
+  const bindings = new BufferedIterator({ autoStart: false });
+  bindings._read = () => bindings.destroy(new Error('no bindings'));
+  const pattern = af.createPattern(df.variable('o'), df.namedNode('urn:sameAs'), df.variable('x'));
+  const stream = source.queryBindings(pattern, new ActionContext(), {
+    joinBindings: { bindings, metadata: { variables: [{ variable: df.variable('o'), canBeUndef: false }] }},
+  });
+  const metadata = await Promise.race([
+    new Promise(resolve => stream.getProperty('metadata', resolve)),
+    sleep(1_000).then(() => undefined),
+  ]);
+  assert.ok(metadata, 'the metadata is written');
+  assert.equal(metadata.cardinality.value, Number.POSITIVE_INFINITY);
 });
 
 test('bindings sent as VALUES are selected, not counted', async() => {

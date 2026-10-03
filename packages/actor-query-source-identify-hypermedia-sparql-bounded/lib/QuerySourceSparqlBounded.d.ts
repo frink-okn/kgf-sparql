@@ -21,8 +21,11 @@ import type { AsyncIterator } from 'asynciterator';
  * cardinality as unknown (an infinite estimate), which made one query's plan differ from run
  * to run: time spent queued behind a host's other requests, or waiting to retry a refusal,
  * counted against the server. Here the timeout runs only while an attempt is with the server,
- * from when `@kgf/actor-http-throttle` sends it to when its response headers arrive, and
- * restarts with each attempt. `deadline` bounds the whole wait, queue included.
+ * from when `@kgf/actor-http-throttle` sends it until its count arrives, body included, and
+ * restarts with each attempt; the time a refused attempt waits to be sent again does not
+ * count. `deadline` bounds the whole wait, queue included. (An earlier version stopped the
+ * timer when the response headers arrived, and a server that sends them before it has counted
+ * then had the whole deadline.)
  *
  * ## The metadata says what a request costs
  *
@@ -31,8 +34,8 @@ import type { AsyncIterator } from 'asynciterator';
  * one that sends a block of rows at a time. With uncapped counts the difference was hidden by
  * accident, since large counts timed out to an unknown size; with every count answered, the
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
- * spent with the server is reported as the metadata's `requestTime`, or, for a count already
- * known, the time of this source's last request.
+ * spent with the server, until its count arrived or the timeout reported it unknown, is the
+ * metadata's `requestTime`, or, for a count already known, the time of this source's last.
  *
  * ## Bindings are not counted
  *

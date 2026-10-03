@@ -21,9 +21,9 @@ function actor(delegated = 0.2785) {
   };
   return { asked, actor: new ActorRdfJoinSelectivityBound({ name: 'bound', bus: new Bus({ name: 'test' }), mediatorJoinSelectivity }) };
 }
-function entry(operation, cardinality, names, undef = []) {
+function entry(operation, cardinality, names, undef = [], type = 'exact') {
   const metadata = {
-    cardinality: { type: 'exact', value: cardinality },
+    cardinality: { type, value: cardinality },
     variables: names.map(name => ({ variable: v(name), canBeUndef: undef.includes(name) })),
   };
   return { operation, output: { metadata: async() => metadata } };
@@ -115,4 +115,22 @@ test('the actor steps aside while it is delegating, and with a single entry', as
   const delegating = new ActionContext({ [KEY_SELECTIVITY_BOUND_DELEGATING.name]: true });
   assert.ok((await bound.test({ entries: two, context: delegating })).isFailed());
   assert.ok((await bound.test({ entries: two.slice(0, 1), context: new ActionContext() })).isFailed());
+});
+
+test('a size that is only estimated never bounds the join, but such an entry can still be removed', async() => {
+  // Two patterns on ?x whose COUNTs reached the cap at 1,000,001: the humans and their labels
+  // join to tens of millions, and the capped label count is not an upper bound on that.
+  const humans = entry(pattern(v('x'), n('P31'), n('Q5')), 1_000_001, [ 'x' ], [], 'estimate');
+  const labels = entry(pattern(v('x'), n('label'), v('l')), 1_000_001, [ 'x', 'l' ], [], 'estimate');
+  const capped = [ humans, labels ];
+  assert.equal(ActorRdfJoinSelectivityBound.upperBound(capped, await Promise.all(capped.map(e => e.output.metadata()))),
+    Number.POSITIVE_INFINITY);
+  const { actor: bound } = actor(0.5);
+  assert.equal((await bound.run({ entries: capped, context: new ActionContext() })).selectivity, 0.5);
+  // Each covers the other: the estimated one is removed though it is the smaller, and the exact one bounds the join.
+  const mixed = [
+    entry(pattern(v('x'), n('P31'), n('Q5')), 300, [ 'x' ], [], 'estimate'),
+    entry(pattern(v('x'), n('part_of'), n('abdomen')), 500, [ 'x' ]),
+  ];
+  assert.equal(ActorRdfJoinSelectivityBound.upperBound(mixed, await Promise.all(mixed.map(e => e.output.metadata()))), 500);
 });

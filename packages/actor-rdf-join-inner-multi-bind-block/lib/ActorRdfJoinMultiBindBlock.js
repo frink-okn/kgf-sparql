@@ -93,17 +93,17 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         const initial = bus_rdf_join_1.ActorRdfJoin.getRequestInitialTimes(metadatas);
         const item = bus_rdf_join_1.ActorRdfJoin.getRequestItemTimes(metadatas);
         // The stock bind join's formula over the probed entries, with its selectivity modifier...
+        const selectivities = await Promise.all(steps.map(async (step) => (await this.mediatorJoinSelectivity.mediate({
+            entries: [first, step.entry],
+            context: action.context,
+        })).selectivity));
         let probed = 0;
         let probeRequest = 0;
         let receive = 0;
         for (const [i, step] of steps.entries()) {
-            const { selectivity } = await this.mediatorJoinSelectivity.mediate({
-                entries: [first, step.entry],
-                context: action.context,
-            });
             const stepRows = step.entry.metadata.cardinality.value;
             // An unknown entry size says nothing about what its probes return; one row per bound row is the guess.
-            probed += Number.isFinite(stepRows) ? stepRows * selectivity * this.selectivityModifier : 1;
+            probed += Number.isFinite(stepRows) ? stepRows * selectivities[i] * this.selectivityModifier : 1;
             // A probe is a new request whether or not the entry is paged, as the round-trip bind join charges it.
             probeRequest += step.entry.metadata.requestTime ?? initial[i + 1];
             receive += item[i + 1];
@@ -125,8 +125,13 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         for (const step of steps) {
             step.entry.output.bindingsStream.destroy();
         }
-        const probes = { cache: new ProbeCache(this.probeCacheRows), slots: new Slots(this.requestsInFlight) };
-        const bindingsStream = new BlockJoinIterator(new utils_iterator_1.ChunkedIterator(first.output.bindingsStream, this.blockSize, { autoStart: false }), async (rows, emit) => await this.joinBlock(rows, steps, first.metadata, dataFactory, action.context, probes, emit), this.blocksInFlight, this.blocksInFlight * this.blockSize);
+        const probes = {
+            cache: new ProbeCache(this.probeCacheRows),
+            slots: new Slots(this.requestsInFlight),
+            readers: new Set(),
+            stopped: false,
+        };
+        const bindingsStream = new BlockJoinIterator(new utils_iterator_1.ChunkedIterator(first.output.bindingsStream, this.blockSize, { autoStart: false }), async (rows, emit) => await this.joinBlock(rows, steps, first.metadata, dataFactory, action.context, probes, emit), () => ActorRdfJoinMultiBindBlock.stop(probes), this.blocksInFlight, this.blocksInFlight * this.blockSize);
         const bound = [first, ...steps.map(step => step.entry)];
         const joined = {
             output: {
@@ -151,10 +156,24 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             result: await this.mediatorJoin.mediate({
                 type: action.type,
                 entries: [joined, ...remaining],
-                context: action.context,
+                // Marked as Comunica's filter-bindings join marks its own, so this actor does not take
+                // the leftover join too: it would bind the computed result into entries it just left out.
+                context: action.context.set(context_entries_1.KeysRdfJoin.lastPhysicalJoin, this.physicalName),
             }),
             physicalPlanMetadata,
         };
+    }
+    /**
+     * Stops a join's probes once its output is closed: a request waiting for a slot sends
+     * nothing, and one waiting on its source stops reading it. Without this, the requests queued
+     * behind the slots all went out after a LIMIT above the join was met, and the rows they
+     * returned sent the next step's.
+     */
+    static stop(probes) {
+        probes.stopped = true;
+        for (const reader of probes.readers) {
+            reader.cancel();
+        }
     }
     /**
      * Choose the entry to bind (the smallest) and, in order, the entries to probe with it.
@@ -322,6 +341,9 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             if (failure) {
                 throw failure.error;
             }
+            if (probes.stopped) {
+                throw STOPPED;
+            }
         };
         const feed = async (level, incoming) => {
             check();
@@ -332,8 +354,9 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
                 await run.emit(incoming);
                 return;
             }
+            const { shared } = parts[level];
             for (const row of incoming) {
-                const key = ActorRdfJoinMultiBindBlock.keyOf(row, parts[level].shared) ?? '';
+                const key = ActorRdfJoinMultiBindBlock.keyOf(row, shared);
                 if (batches[level].isFull(key, this.blockSize)) {
                     await send(level);
                 }
@@ -347,7 +370,7 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             }
             // Swapped out before any await, so rows arriving meanwhile start the next batch.
             batches = batches.map((current, i) => i === level ? new Batch() : current);
-            const joining = this.probeBatch(batch.rows, parts[level], run, async (joined) => await feed(level + 1, joined))
+            const joining = this.probeBatch(batch, parts[level], run, async (joined) => await feed(level + 1, joined))
                 .catch((error) => {
                 failure ??= { error };
             });
@@ -368,14 +391,15 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
     }
     /** Join one batch to a part: index the batch, and stream each probe's rows past it. */
     async probeBatch(batch, part, run, onJoined) {
-        const index = ActorRdfJoinMultiBindBlock.index(batch, part.shared);
+        // The batch's rows are keyed on the part's variables already; a leaf on the same ones reuses the keys.
+        const index = ActorRdfJoinMultiBindBlock.index(batch.rows, batch.keys);
         let joined = [];
         const pass = async () => {
             const chunk = joined;
             joined = [];
             await onJoined(chunk);
         };
-        await Promise.all(part.leaves.map(async (leaf) => await this.probe(leaf, batch, run, async (probed) => {
+        const onRows = async (probed) => {
             for (const row of probed) {
                 for (const match of ActorRdfJoinMultiBindBlock.matches(index, row, part.shared)) {
                     const merged = bus_rdf_join_1.ActorRdfJoin.joinBindings(match, row);
@@ -388,7 +412,11 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
                 }
             }
             await yieldToEventLoop();
-        })));
+        };
+        await Promise.all(part.leaves.map(async (leaf) => {
+            const keys = ActorRdfJoinMultiBindBlock.sameVariables(leaf.shared, part.shared) ? batch.keys : undefined;
+            await this.probe(leaf, batch.rows, keys, run, onRows);
+        }));
         if (joined.length > 0) {
             await pass();
         }
@@ -399,16 +427,17 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
      * still carrying them, and not sent again; an answer too large to keep is sent for again.
      * New values go out in requests of at most `blockSize` values, at most `requestsInFlight`
      * of them at once across the join: a step whose rows fan out to many values would
-     * otherwise send all its requests together.
+     * otherwise send all its requests together. `keys`, when given, are the rows' keys on the
+     * leaf's variables.
      */
-    async probe(leaf, rows, run, onRows) {
+    async probe(leaf, rows, keys, run, onRows) {
         const { cache } = run.probes;
         const keep = new Set(leaf.shared);
         const seen = new Set();
         const elsewhere = [];
         const send = [];
-        for (const row of rows) {
-            const key = ActorRdfJoinMultiBindBlock.keyOf(row, leaf.shared);
+        for (const [i, row] of rows.entries()) {
+            const key = keys ? keys[i] : ActorRdfJoinMultiBindBlock.keyOf(row, leaf.shared);
             // Each value's rows are handed on once; the local join pairs them with every row that carries it.
             if (key === undefined || seen.has(key)) {
                 continue;
@@ -471,27 +500,39 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             }
         };
         let stream;
+        let reader;
         // A slot is held while waiting on the source, never while rows move on: the next step's
         // probes need slots too, and holding one across `onRows` let every slot end up held by a
         // request waiting for a slot. That deadlock left a corpus query idle past its budget, with
         // nothing in flight for the abort to cancel.
         let holding = false;
+        // Once the join's output is closed, a request that gets its slot sends nothing, and one
+        // that was reading ends there.
+        const running = () => {
+            if (run.probes.stopped) {
+                throw STOPPED;
+            }
+        };
         try {
             await slots.enter();
             holding = true;
+            running();
             stream = leaf.source.source.queryBindings(leaf.operation, leaf.source.context ? run.context.merge(leaf.source.context) : run.context, { [leaf.mode]: {
                     bindings: new asynciterator_1.ArrayIterator(values.map(value => value.bindings), { autoStart: false }),
                     metadata: { ...metadata, cardinality: { type: 'exact', value: values.length } },
                 } });
-            const reader = new ChunkReader(stream);
+            reader = new ChunkReader(stream);
+            run.probes.readers.add(reader);
             for (;;) {
                 if (!holding) {
                     await slots.enter();
                     holding = true;
+                    running();
                 }
                 const chunk = await reader.next(CHUNK_ROWS);
                 slots.leave();
                 holding = false;
+                running();
                 if (!chunk) {
                     break;
                 }
@@ -539,17 +580,20 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             throw error;
         }
         finally {
+            if (reader) {
+                run.probes.readers.delete(reader);
+            }
             if (holding) {
                 slots.leave();
             }
         }
     }
-    /** The rows indexed by the values of `variables`, for streaming another side past them. */
-    static index(rows, variables) {
+    /** The rows indexed by their keys, for streaming another side past them. */
+    static index(rows, keys) {
         const byKey = new Map();
         const loose = [];
-        for (const row of rows) {
-            const key = ActorRdfJoinMultiBindBlock.keyOf(row, variables);
+        for (const [i, row] of rows.entries()) {
+            const key = keys[i];
             if (key === undefined) {
                 loose.push(row);
             }
@@ -574,67 +618,58 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
         const bucket = index.byKey.get(key) ?? NO_ROWS;
         return index.loose.length === 0 ? bucket : [...bucket, ...index.loose];
     }
-    /** Join two lists of solutions on the given variables, which every row is expected to bind. */
-    static hashJoin(left, right, variables) {
-        const keyOf = (bindings) => ActorRdfJoinMultiBindBlock.keyOf(bindings, variables);
-        const index = new Map();
-        const loose = [];
-        for (const row of right) {
-            const key = keyOf(row);
-            if (key === undefined) {
-                loose.push(row);
-            }
-            else {
-                const bucket = index.get(key);
-                if (bucket) {
-                    bucket.push(row);
-                }
-                else {
-                    index.set(key, [row]);
-                }
-            }
-        }
-        const out = [];
-        for (const row of left) {
-            const key = keyOf(row);
-            const candidates = key === undefined ? right : [...index.get(key) ?? [], ...loose];
-            for (const candidate of candidates) {
-                const merged = bus_rdf_join_1.ActorRdfJoin.joinBindings(row, candidate);
-                if (merged) {
-                    out.push(merged);
-                }
-            }
-        }
-        return out;
-    }
-    /** A string identifying the values of the given variables, or `undefined` when one is unbound. */
+    /**
+     * A string identifying the values of the given variables, or `undefined` when one is unbound.
+     * Equal terms give equal keys and different ones different keys, so a key stands for its
+     * values: a probe sends each key once.
+     */
     static keyOf(bindings, variables) {
-        const values = [];
+        let key = '';
         for (const name of variables) {
             const term = bindings.get(name);
             if (!term) {
                 return undefined;
             }
-            values.push(term);
+            key += termKey(term);
         }
-        return JSON.stringify(values.map(term => [term.termType, term.value,
-            term.termType === 'Literal' ? `${term.language}^${term.datatype.value}` : '']));
+        return key;
+    }
+    static sameVariables(left, right) {
+        return left.length === right.length && left.every((name, i) => name === right[i]);
     }
     static variablesOf(operation) {
         return utils_algebra_1.algebraUtils.inScopeVariables(operation).map(variable => variable.value);
     }
 }
 exports.ActorRdfJoinMultiBindBlock = ActorRdfJoinMultiBindBlock;
-/** Rows waiting to be sent to one part, and the distinct values they carry. */
+/**
+ * One term's part of a key. Each value is prefixed with its length, so that no two lists of
+ * terms run together into the same key, and a quoted triple is keyed by its own terms.
+ */
+function termKey(term) {
+    switch (term.termType) {
+        case 'Literal':
+            return `L${term.value.length}:${term.value}@${term.language}@${term.direction ?? ''}` +
+                `${term.datatype.value.length}:${term.datatype.value}`;
+        case 'Quad':
+            return `Q${termKey(term.subject)}${termKey(term.predicate)}${termKey(term.object)}${termKey(term.graph)}`;
+        default:
+            return `${term.termType.charAt(0)}${term.value.length}:${term.value}`;
+    }
+}
+/** Rows waiting to be sent to one part, their keys on its variables, and the distinct values they carry. */
 class Batch {
     rows = [];
-    keys = new Set();
+    /** Each row's key, `undefined` where the row leaves one of the part's variables unbound. */
+    keys = [];
+    distinct = new Set();
     /** Whether `key` would take the batch past `limit` distinct values, or it already holds `BATCH_ROWS` rows. */
     isFull(key, limit) {
-        return this.rows.length >= BATCH_ROWS || (!this.keys.has(key) && this.keys.size >= limit);
+        return this.rows.length >= BATCH_ROWS || (!this.distinct.has(key) && this.distinct.size >= limit);
     }
     add(key, row) {
-        this.keys.add(key);
+        this.distinct.add(key);
+        this.keys.push(key);
         this.rows.push(row);
     }
 }
@@ -644,6 +679,10 @@ const CHUNK_ROWS = 1024;
 const BATCH_ROWS = 4 * CHUNK_ROWS;
 /** Batches one part of one block may have sent and not yet joined. */
 const BATCHES_IN_FLIGHT = 4;
+/** Turns of the event loop a read waits on a stream readable with nothing to read, before it waits on a timer. */
+const IDLE_YIELDS = 8;
+/** The longest a read waits on that timer before looking again. */
+const IDLE_WAIT_MS = 16;
 const NO_ROWS = [];
 /** Thrown into a block's work once the joined stream is closed, as a LIMIT above it does. */
 const STOPPED = new Error('The joined stream was closed');
@@ -676,6 +715,7 @@ class ChunkReader {
     wake;
     failure;
     ended = false;
+    cancelled = false;
     constructor(stream) {
         this.stream = stream;
         stream.on('readable', () => this.notify());
@@ -688,11 +728,23 @@ class ChunkReader {
             this.notify();
         });
     }
-    /** Up to `size` items, or `undefined` once the stream has ended. */
+    /**
+     * Stops reading: destroys the stream, and ends a read waiting on it. A stream destroyed
+     * without an error never announces its end, so such a read would wait for good.
+     */
+    cancel() {
+        this.cancelled = true;
+        this.stream.destroy();
+        this.notify();
+    }
+    /** Up to `size` items, or `undefined` once the stream has ended or the reader was cancelled. */
     async next(size) {
-        for (;;) {
+        for (let idle = 0;; idle++) {
             if (this.failure) {
                 throw this.failure;
+            }
+            if (this.cancelled) {
+                return undefined;
             }
             const chunk = [];
             let item;
@@ -708,14 +760,29 @@ class ChunkReader {
             if (this.stream.readable) {
                 // Readable yet nothing to read: an iterator wrapping another one can stay in this
                 // state, and it announces `readable` only on becoming readable, so waiting for the
-                // event would wait forever. Let its source make progress, then look again.
-                await yieldToEventLoop();
+                // event alone would wait forever. Let its source make progress, then look again: at
+                // once for a few turns, then after a timer or an event, whichever comes first, so a
+                // response that takes seconds does not keep a core busy looking.
+                if (idle < IDLE_YIELDS) {
+                    await yieldToEventLoop();
+                }
+                else {
+                    await this.event(Math.min(2 ** (idle - IDLE_YIELDS), IDLE_WAIT_MS));
+                }
                 continue;
             }
-            await new Promise((resolve) => {
-                this.wake = resolve;
-            });
+            await this.event();
         }
+    }
+    /** Waits for the stream's next event, or at most `milliseconds` when given. */
+    async event(milliseconds) {
+        await new Promise((resolve) => {
+            const timer = milliseconds === undefined ? undefined : setTimeout(() => this.notify(), milliseconds);
+            this.wake = () => {
+                clearTimeout(timer);
+                resolve();
+            };
+        });
     }
     notify() {
         const wake = this.wake;
@@ -736,12 +803,13 @@ function deferred() {
 }
 /**
  * Probe answers for one join, per source request and bound values. A value in flight is
- * shared by every block that needs it; answered values are kept until `limit` rows are held.
+ * shared by every block that needs it; answered values are kept until `limit` is held, each
+ * counting its rows and one more for itself.
  */
 class ProbeCache {
     limit;
     answers = new Map();
-    rows = 0;
+    held = 0;
     constructor(limit) {
         this.limit = limit;
     }
@@ -756,13 +824,16 @@ class ProbeCache {
         }
         forLeaf.set(key, answer);
     }
-    /** Keep an answered value if there is room for its rows, else drop it. */
+    /**
+     * Keep an answered value if there is room for it, else drop it. The value itself counts
+     * one: counting rows alone kept every value with no rows, without limit.
+     */
     retain(leaf, key, rows) {
-        if (this.rows + rows > this.limit) {
+        if (this.held + rows + 1 > this.limit) {
             this.forget(leaf, key);
         }
         else {
-            this.rows += rows;
+            this.held += rows + 1;
         }
     }
     forget(leaf, key) {
@@ -800,11 +871,12 @@ class Slots {
  * hands its joined rows out through `deliver` as it produces them, whatever the order the
  * blocks came in; `deliver` waits while `maxReady` rows are unread, so a slow reader holds
  * the probes back. Destroying the stream (a LIMIT above it was reached) starts no further
- * block, and wakes the waiting blocks with `STOPPED` so their requests end.
+ * block, wakes the waiting blocks with `STOPPED`, and calls `stop` so that their requests end.
  */
 class BlockJoinIterator extends asynciterator_1.BufferedIterator {
     blocks;
     join;
+    stop;
     maxActive;
     maxReady;
     /**
@@ -821,10 +893,11 @@ class BlockJoinIterator extends asynciterator_1.BufferedIterator {
     head = 0;
     pending;
     drained = [];
-    constructor(blocks, join, maxActive, maxReady) {
+    constructor(blocks, join, stop, maxActive, maxReady) {
         super({ autoStart: false });
         this.blocks = blocks;
         this.join = join;
+        this.stop = stop;
         this.maxActive = maxActive;
         this.maxReady = maxReady;
         blocks.on('readable', () => {
@@ -845,6 +918,7 @@ class BlockJoinIterator extends asynciterator_1.BufferedIterator {
         // Without the cause: destroyed with one, the blocks emit it as an error, and when the
         // error came from them in the first place that destroys this iterator again, without end.
         this.blocks.destroy();
+        this.stop();
         this.wake();
         super._destroy(cause, callback);
     }

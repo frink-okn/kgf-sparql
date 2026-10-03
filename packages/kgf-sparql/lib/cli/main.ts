@@ -270,13 +270,11 @@ function countCapLimits(values: string[] | undefined): { default?: number; hosts
   const cap = (name: string, value: string): number =>
     value === 'none' ? Number.POSITIVE_INFINITY : integer(name, value)!;
   for (const value of values ?? []) {
-    const at = value.lastIndexOf('=');
-    if (at < 0) {
-      caps.default = cap('--count-cap', value);
-    } else if (at === 0) {
-      throw new UsageError(`--count-cap needs a host before '=', not '${value}'`);
+    const named = hostValue('--count-cap', value);
+    if (named) {
+      caps.hosts[named.host] = cap(`--count-cap ${named.host}`, named.value);
     } else {
-      caps.hosts[value.slice(0, at)] = cap(`--count-cap ${value.slice(0, at)}`, value.slice(at + 1));
+      caps.default = cap('--count-cap', value);
     }
   }
   return caps;
@@ -299,36 +297,38 @@ interface IThrottle {
  */
 function throttleLimits(inFlight: string[] | undefined, rates: string[] | undefined, fallback: number): IThrottle {
   const throttle: IThrottle = { inFlight: fallback, hosts: {}};
-  const host = (option: string, value: string, at: number): string => {
-    if (at === 0) {
-      throw new UsageError(`${option} needs a host before '=', not '${value}'`);
-    }
-    const name = value.slice(0, at);
-    throttle.hosts[name] ??= {};
-    return name;
-  };
   for (const value of inFlight ?? []) {
-    const at = value.lastIndexOf('=');
-    if (at < 0) {
-      throttle.inFlight = integer('--max-in-flight', value)!;
+    const named = hostValue('--max-in-flight', value);
+    if (named) {
+      (throttle.hosts[named.host] ??= {}).inFlight = integer(`--max-in-flight ${named.host}`, named.value)!;
     } else {
-      const name = host('--max-in-flight', value, at);
-      throttle.hosts[name].inFlight = integer(`--max-in-flight ${name}`, value.slice(at + 1))!;
+      throttle.inFlight = integer('--max-in-flight', value)!;
     }
   }
   for (const value of rates ?? []) {
-    const at = value.lastIndexOf('=');
-    if (at < 0) {
+    const named = hostValue('--max-rate', value);
+    if (!named) {
       throw new UsageError(`--max-rate takes host=n, not '${value}'`);
     }
-    const name = host('--max-rate', value, at);
-    const rate = Number(value.slice(at + 1));
+    const rate = Number(named.value);
     if (!Number.isFinite(rate) || rate <= 0) {
-      throw new UsageError(`--max-rate ${name} must be a positive number of requests a second, not '${value.slice(at + 1)}'`);
+      throw new UsageError(`--max-rate ${named.host} must be a positive number of requests a second, not '${named.value}'`);
     }
-    throttle.hosts[name].perSecond = rate;
+    (throttle.hosts[named.host] ??= {}).perSecond = rate;
   }
   return throttle;
+}
+
+/** A `host=value` option value split at its last `=`, or `undefined` for a bare value. */
+function hostValue(option: string, value: string): { host: string; value: string } | undefined {
+  const at = value.lastIndexOf('=');
+  if (at < 0) {
+    return undefined;
+  }
+  if (at === 0) {
+    throw new UsageError(`${option} needs a host before '=', not '${value}'`);
+  }
+  return { host: value.slice(0, at), value: value.slice(at + 1) };
 }
 
 function integer(name: string, value: string | undefined, minimum = 1): number | undefined {

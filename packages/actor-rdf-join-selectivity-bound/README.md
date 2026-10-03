@@ -28,6 +28,12 @@ cardinality is unknown (infinite), no ratio expresses a finite bound, and the de
 answer is returned unchanged. Variables that may be unbound disable the bound. The bound
 assumes each source answers a triple pattern with a set.
 
+Only exact sizes bound the join. An estimate may be a lower bound, as a SPARQL count that
+reached its cap is (`kgf-sparql` counts to 1,000,001 and reports more as an estimate of
+that), and so is an incomplete KGF count: two such patterns on `?x` would otherwise bound
+a join of tens of millions at a million. Entries with estimates are removed first, and
+when one has to remain there is no bound.
+
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
 with this actor already registered.
 

@@ -22,10 +22,11 @@ place until its response headers arrive; the body is read outside the queue.
 - `KEY_HTTP_IN_FLIGHT` in the query context caps requests in flight for every host
   (the actor's `inFlight`, 32 in `kgf-sparql`, when it is not set).
 - `KEY_HTTP_HOST_LIMITS` gives hosts their own `{ inFlight, perSecond }`, keyed by `host`
-  (`example.org:8080`) or `hostname`. A key of `*.` and a domain gives the hosts in that
-  domain one queue between them: `*.wikidata.org` caps `query.wikidata.org` and
-  `query-scholarly.wikidata.org` together. The most particular key that names a host
-  decides its queue.
+  (`example.org:8080`) or else `hostname`. A key of `*.` and a domain is a queue the hosts
+  in that domain share: `*.wikidata.org` caps `query.wikidata.org` and
+  `query-scholarly.wikidata.org` together. A request waits its turn in its host's queue,
+  then in each such group's, so a host's own limits hold within its group's: a rate for
+  `query.wikidata.org` does not take it out of a cap on `*.wikidata.org`.
 - The actor's `hosts` are limits of the same form that hold unless the context overrides
   them, field by field. `kgf-sparql` starts at most one request a second to QLever's hosts
   (`qlever.dev`, `qlever.cs.uni-freiburg.de`), about the rate its Wikidata endpoint was
@@ -43,15 +44,20 @@ await new QueryEngine().queryBindings(query, {
 
 ## Refusals
 
-A 429 or 503, or a 405 with `Retry-After` as DBpedia sends, is a refusal.
+A 429 or 503, or a 405 with `Retry-After` as DBpedia sends, is a refusal. It teaches the
+host and each group it is in.
 
 - With `Retry-After`, the host starts nothing until then, and nothing else changes: the
-  server said when to come back, as KGF's admission gate does with `Retry-After: 1`.
+  server said when to come back, as KGF's admission gate does with `Retry-After: 1`. The
+  pause lasts no longer than the context's `httpRetryDelayLimit`: a request asked to wait
+  past it gives up, and the host's others wait no longer either.
 - Without it, the host's interval between starts doubles, from 250 ms up to 10 s, and every
   answer that is not a refusal takes a tenth off it, so the host settles near the rate it
   accepts. Only requests started since the last change count: the requests of one burst are
   refused together, and each doubling the interval again took QLever to 10 s within seconds.
 - A timeout or a network failure changes nothing.
+- Invalidating the HTTP cache (`engine.invalidateHttpCache()`, for a URL or for all)
+  forgets the pause and the interval, as it clears Comunica's retry actor's delays.
 
 A refused request is retried through its host's queue, ahead of requests not yet sent, up
 to `httpRetryCount` times, or the actor's `retries` (5) when the context sets no count.
@@ -72,16 +78,19 @@ own keeps it, and a browser sends its own, so the actor sets none there.
 ## Attempts
 
 `KEY_HTTP_ATTEMPT_LISTENER` in a request's context is told when each attempt leaves its
-host's queue (`sent`) and when its response headers arrive or it fails (`settled`), so a
-caller can time a request by the server alone: `kgf-sparql`'s bounded SPARQL source times
-its COUNT queries this way.
+host's queue (`sent`), when its response headers arrive or it fails (`settled`), and when
+its response is let go for another attempt (`retrying`), so a caller can time a request by
+the server alone: `kgf-sparql`'s bounded SPARQL source times its COUNT queries this way.
 
 ## Configuration
 
 `kgf-sparql` installs the actor with an override of Comunica's
 `urn:comunica:default:http/actors#limit-rate`, ahead of `#retry` and `#proxy`, with the
 `hosts` and `userAgent` above. Queues and learned intervals belong to the actor, so one
-engine shares them across its queries, as a page that keeps one engine does.
+engine shares them across its queries, as a page that keeps one engine does. Queries that
+give a host the same limits share its queue; a query that gives it others waits in a queue
+of its own, so that each query's limits hold for its requests. What refusals taught is
+shared either way, as the server sees all of them.
 
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), where the command
 line's `--max-in-flight` and `--max-rate` set these keys.

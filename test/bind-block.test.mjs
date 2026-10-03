@@ -21,7 +21,7 @@ const context = () => new ActionContext({ [KeysInitQuery.dataFactory.name]: df }
  * An in-memory source that answers triple patterns, and either kind of bound request:
  * `joinBindings` (as a SPARQL endpoint does with VALUES) or `filterBindings` (as KGF does).
  */
-function source(name, triples, mode) {
+function source(name, triples, mode, { delayMs = 0 } = {}) {
   const calls = [];
   const shape = mode === 'joinBindings' ?
       { type: 'operation', operation: { operationType: 'wildcard' }, joinBindings: true } :
@@ -54,6 +54,9 @@ function source(name, triples, mode) {
           }
           const bindings = await bound.bindings.toArray();
           calls.push({ bindings, variables: bound.metadata.variables.map(variable => variable.variable.value) });
+          if (delayMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
           if (mode === 'joinBindings') {
             return lazy(bindings.flatMap(binding => rows.map(row => row.merge(binding)).filter(Boolean)));
           }
@@ -207,8 +210,10 @@ test('entries that are not bound go back to the join mediator with the bound res
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [[ n('w1'), n('P7963'), n('c1') ]], 'joinBindings');
   let handed;
+  let handedContext;
   const mediatorJoin = { mediate: async action => {
     handed = action.entries;
+    handedContext = action.context;
     return action.entries[0].output;
   } };
   const tpf = { source: { referenceValue: 'urn:source:tpf', getSelectorShape: async() => ({
@@ -223,6 +228,8 @@ test('entries that are not bound go back to the join mediator with the bound res
   assert.equal(handed.length, 2);
   assert.ok(handed[0].operationModified);
   assert.equal(handed[1].operation, other.operation);
+  assert.equal(handedContext.get(KeysRdfJoin.lastPhysicalJoin), 'multi-bind-block',
+    'the leftover join is marked, so that this actor does not take it as well');
   assert.deepEqual(sorted(rows), sorted([ row([ 'cell', 'c1' ], [ 'w', 'w1' ]) ]));
 });
 
@@ -286,11 +293,21 @@ test('it refuses what it cannot help with', async() => {
     entry(on(wikidata, v('w'), n('P7963'), v('cell')), Number.POSITIVE_INFINITY, [ 'w', 'cell' ]) ]), /known, non-zero size/u);
 });
 
-test('the local join matches literals by language and datatype', () => {
-  const title = (value, language) => bf.bindings([[ v('a'), n('a1') ], [ v('t'), df.literal(value, language) ]]);
-  const left = [ title('Neuron', 'en') ];
-  const right = [ title('Neuron', 'en'), title('Neuron', 'de'), title('Neuron') ];
-  assert.equal(ActorRdfJoinMultiBindBlock.hashJoin(left, right, [ 'a', 't' ]).length, 1);
+test('the local join keys tell terms apart by language, datatype, and where one value ends', () => {
+  // A probe sends each key once, so two values with one key would leave one of them unsent.
+  const keyOf = (...terms) => ActorRdfJoinMultiBindBlock.keyOf(
+    bf.bindings(terms.map((term, i) => [ v(`x${i}`), term ])), terms.map((_, i) => `x${i}`));
+  const neuron = keyOf(df.literal('Neuron', 'en'));
+  assert.equal(keyOf(df.literal('Neuron', 'en')), neuron);
+  const others = [
+    df.literal('Neuron', 'de'), df.literal('Neuron'), df.literal('Neuron', df.namedNode('urn:type')),
+    df.literal('Neuron', { language: 'en', direction: 'rtl' }), df.namedNode('Neuron'), df.blankNode('Neuron'),
+  ];
+  assert.equal(new Set([ neuron, ...others.map(term => keyOf(term)) ]).size, others.length + 1);
+  assert.notEqual(keyOf(df.literal('ab'), df.literal('c')), keyOf(df.literal('a'), df.literal('bc')));
+  const quoted = object => df.quad(n('s'), n('p'), object);
+  assert.notEqual(keyOf(quoted(n('o1'))), keyOf(quoted(n('o2'))), 'a quoted triple is keyed by its terms');
+  assert.equal(ActorRdfJoinMultiBindBlock.keyOf(bf.bindings([]), [ 'x' ]), undefined);
 });
 
 test('a value repeated in later blocks is sent once', async() => {
@@ -325,6 +342,33 @@ test('destroying the output stops the probes, as a LIMIT above the join does', a
   await new Promise(resolve => setTimeout(resolve, 50));
   assert.ok(first);
   assert.ok(labels.calls.length <= 2 * joinActor.blocksInFlight, `${labels.calls.length} of 100 blocks probed`);
+});
+
+test('once the output is destroyed, requests waiting for a slot are not sent, nor the next step\'s', async() => {
+  // One slot, a slow source, and four blocks: the other blocks' probes queue for the slot.
+  // They used to go out after a LIMIT above the join was met, and their rows sent the next
+  // step's; only a row reaching the end stopped a block, and the last step matches one cell.
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const cells = Array.from({ length: 40 }, (_, i) => row([ 'cell', `c${i}` ]));
+  const labels = source('labels', cells.map((_, i) => [ n(`c${i}`), n('label'), n(`l${i}`) ]), 'filterBindings',
+    { delayMs: 10 });
+  const terms = source('terms', [[ n('l0'), n('term'), n('t0') ]], 'filterBindings', { delayMs: 10 });
+  const joinActor = actor(2, undefined, { blocksInFlight: 4, requestsInFlight: 1 });
+  const entries = [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 40, [ 'cell' ], {}, cells),
+    entry(on(labels, v('cell'), n('label'), v('l')), 1_000, [ 'cell', 'l' ]),
+    entry(on(terms, v('l'), n('term'), v('t')), 2_000, [ 'l', 't' ]),
+  ];
+  const action = { type: 'inner', entries, context: context() };
+  const tested = await joinActor.test(action);
+  const output = await joinActor.run(action, tested.getSideData());
+  const first = await new Promise(resolve => output.bindingsStream.once('data', resolve));
+  output.bindingsStream.destroy();
+  const sent = labels.calls.length + terms.calls.length;
+  await new Promise(resolve => setTimeout(resolve, 150));
+  assert.ok(first);
+  assert.ok(labels.calls.length + terms.calls.length <= sent + 1,
+    `${labels.calls.length + terms.calls.length - sent} requests sent after the destroy`);
 });
 
 test('a probe that fails fails the join, rather than ending it early', async() => {

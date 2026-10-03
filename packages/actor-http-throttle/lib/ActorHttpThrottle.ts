@@ -1,5 +1,6 @@
 import type { IActionHttp, IActorHttpArgs, IActorHttpOutput, MediatorHttp } from '@comunica/bus-http';
 import { ActorHttp } from '@comunica/bus-http';
+import type { ActorHttpInvalidateListenable } from '@comunica/bus-http-invalidate';
 import { KeysHttp } from '@comunica/context-entries';
 import type { TestResult } from '@comunica/core';
 import { ActionContextKey, failTest, passTest } from '@comunica/core';
@@ -29,14 +30,16 @@ export const KEY_HTTP_HOST_LIMITS = new ActionContextKey<Record<string, IHostLim
 );
 
 /**
- * Told when each attempt at a request leaves its host's queue (`sent`) and when its response
- * headers arrive or it fails (`settled`), so that a caller can time a request by how long the
- * server takes rather than how long it waited its turn. A SPARQL source times its COUNT
- * queries this way.
+ * Told when each attempt at a request leaves its host's queue (`sent`), when its response
+ * headers arrive or it fails (`settled`), and when its response is let go for another attempt
+ * (`retrying`), so that a caller can time a request by how long the server takes rather than
+ * how long it waited its turn. A SPARQL source times its COUNT queries this way.
  */
 export interface IHttpAttemptListener {
   sent: () => void;
   settled: () => void;
+  /** The attempt's response is discarded, and the request waits its turn for the next one. */
+  retrying?: () => void;
 }
 
 /** An `IHttpAttemptListener` for the request this context goes with. */
@@ -83,17 +86,23 @@ const SHORTEST_INTERVAL_MS = 10;
  * (the host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`,
  * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
  * holds its place until its response headers arrive; the body is read outside the queue. A
- * limit named `*.` and a domain gives the hosts in that domain one queue between them, for a
- * service that limits a client across its hosts.
+ * limit named `*.` and a domain is a queue the hosts in that domain share, for a service that
+ * limits a client across its hosts: a request waits its turn in its host's queue, then in the
+ * queue of each such group it is in, so a host's own limits hold within its group's, never in
+ * place of them. Requests with other limits for the same host or group, as another query's
+ * context gives, wait in a queue of their own, so each query's limits hold for its requests.
  *
- * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals.
- * A 429 or 503 with `Retry-After` pauses the host until then, and teaches nothing else: the
- * server said when to come back, as KGF's admission gate does. One without `Retry-After`
- * doubles the host's interval between starts, from 250 ms up to 10 s, and every answer that
- * is not a refusal takes a tenth off it, so the host settles near the rate it accepts. Only a
- * request started since the last change counts: the requests of one burst are refused
- * together, and each doubling the interval again took QLever to 10 s within seconds. A
- * timeout or network failure changes nothing: it says nothing about the host's rate.
+ * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals,
+ * which a host's or group's queues share, as they share the time of its last start. A 429 or
+ * 503 with `Retry-After` pauses the host and its groups until then, or for the context's
+ * `httpRetryDelayLimit` at most, and teaches nothing else: the server said when to come back,
+ * as KGF's admission gate does. One without `Retry-After` doubles the interval between starts,
+ * from 250 ms up to 10 s, and every answer that is not a refusal takes a tenth off it, so the
+ * host settles near the rate it accepts. Only a request started since the last change counts:
+ * the requests of one burst are refused together, and each doubling the interval again took
+ * QLever to 10 s within seconds. A timeout or network failure changes nothing: it says nothing
+ * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
+ * refusals taught, as it clears Comunica's retry actor's delays.
  *
  * A refused request is retried through the queue, ahead of requests not yet sent, up to the
  * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
@@ -117,7 +126,10 @@ export class ActorHttpThrottle extends ActorHttp {
   public readonly retries: number;
   public readonly hosts: Record<string, IHostLimits>;
   public readonly userAgent?: string;
+  /** The queues requests wait in, per host or group and the limits they were given. */
   private readonly queues = new Map<string, HostQueue>();
+  /** What refusals taught, per host or group, shared by its queues. */
+  private readonly pacings = new Map<string, Pacing>();
 
   public constructor(args: IActorHttpThrottleArgs) {
     super(args);
@@ -126,6 +138,7 @@ export class ActorHttpThrottle extends ActorHttp {
     this.retries = args.retries ?? 5;
     this.hosts = args.hosts ?? {};
     this.userAgent = args.userAgent;
+    args.httpInvalidator?.addInvalidateListener(action => this.invalidate(action.url));
   }
 
   public async test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>> {
@@ -138,7 +151,7 @@ export class ActorHttpThrottle extends ActorHttp {
   public async run(action: IActionHttp): Promise<IActorHttpOutput> {
     action = this.identified(action);
     const url = ActorHttp.getInputUrl(action.input);
-    const queue = this.queueFor(url, action.context);
+    const queues = this.queuesFor(url, action.context);
     const signal = action.init?.signal ?? undefined;
     const retryCount = action.context.get(KeysHttp.httpRetryCount);
     const refusalRetries = retryCount ?? this.retries;
@@ -150,22 +163,27 @@ export class ActorHttpThrottle extends ActorHttp {
     const listener = action.context.get(KEY_HTTP_ATTEMPT_LISTENER);
     const context = action.context.set(KEY_WRAPPED, true).set(KEY_STOCK_RETRY_WRAPPED, true);
     for (let attempt = 0; ; attempt++) {
-      await queue.enter(signal, attempt > 0);
+      await ActorHttpThrottle.enter(queues, signal, attempt > 0);
       const started = Date.now();
       listener?.sent();
       let response: IActorHttpOutput;
       try {
         response = await this.mediatorHttp.mediate({ ...action, context });
       } finally {
-        queue.leave();
+        for (const queue of queues) {
+          queue.leave();
+        }
         listener?.settled();
       }
       if (ActorHttpThrottle.refusal(response)) {
         const wait = ActorHttpThrottle.retryAfter(response.headers.get('retry-after'));
-        if (wait === undefined) {
-          queue.refused(started);
-        } else {
-          queue.pause(wait);
+        for (const { pacing } of queues) {
+          if (wait === undefined) {
+            pacing.refused(started);
+          } else {
+            // Past the limit this request gives up, and the others must not wait longer either.
+            pacing.pause(delayLimit === undefined ? wait : Math.min(wait, delayLimit));
+          }
         }
         if (attempt >= refusalRetries || !replayable || (delayLimit !== undefined && (wait ?? 0) > delayLimit)) {
           return response;
@@ -175,18 +193,38 @@ export class ActorHttpThrottle extends ActorHttp {
           status: response.status,
           attempt: attempt + 1,
           retryAfterMs: wait,
-          intervalMs: queue.interval,
+          intervalMs: Math.max(...queues.map(queue => queue.interval)),
         }));
         await ActorHttpThrottle.discard(response);
+        listener?.retrying?.();
         continue;
       }
-      queue.answered(started);
+      for (const { pacing } of queues) {
+        pacing.answered(started);
+      }
       if ((response.status === 504 || forced.includes(response.status)) && attempt < failureRetries && replayable) {
         await ActorHttpThrottle.discard(response);
+        listener?.retrying?.();
         await sleep(fallbackDelay, signal);
         continue;
       }
       return response;
+    }
+  }
+
+  /** Waits for a place in each queue in turn, the host's first; gives back those it had if it stops waiting. */
+  private static async enter(queues: HostQueue[], signal: AbortSignal | undefined, front: boolean): Promise<void> {
+    let entered = 0;
+    try {
+      for (const queue of queues) {
+        await queue.enter(signal, front);
+        entered++;
+      }
+    } catch (error: unknown) {
+      for (const queue of queues.slice(0, entered)) {
+        queue.leave();
+      }
+      throw error;
     }
   }
 
@@ -204,24 +242,62 @@ export class ActorHttpThrottle extends ActorHttp {
   }
 
   /**
-   * The queue of the host, or of the group of hosts, with the limits the request's context and
-   * the actor give it. The most particular name either knows decides.
+   * The queues a request waits in: its host's, with the limits named by its host and port or
+   * else its hostname, then the queue of each group it is in that has limits. The context's
+   * limits for a name override the actor's, field by field.
    */
-  private queueFor(url: URL, context: IActionContext): HostQueue {
+  private queuesFor(url: URL, context: IActionContext): HostQueue[] {
     const given = context.get(KEY_HTTP_HOST_LIMITS);
-    const name = hostNames(url).find(candidate => given?.[candidate] ?? this.hosts[candidate]);
-    const own: IHostLimits = name === undefined ? {} : { ...this.hosts[name], ...given?.[name] };
-    const key = name?.startsWith('*.') ? name : url.host;
+    const limitsOf = (name: string): IHostLimits | undefined =>
+      (given?.[name] ?? this.hosts[name]) ? { ...this.hosts[name], ...given?.[name] } : undefined;
+    const [ host, hostname, ...groups ] = hostNames(url);
+    const own = limitsOf(host) ?? limitsOf(hostname) ?? {};
+    const queues = [ this.queue(url.host, own.inFlight ?? context.get(KEY_HTTP_IN_FLIGHT) ?? this.inFlight, own.perSecond) ];
+    for (const name of groups) {
+      const limits = limitsOf(name);
+      if (limits) {
+        queues.push(this.queue(name, limits.inFlight ?? Number.POSITIVE_INFINITY, limits.perSecond));
+      }
+    }
+    return queues;
+  }
+
+  /**
+   * The queue of a host or group for these limits. Each set of limits has its own, so that a
+   * query's limits hold whatever another query's say, and the name's queues share its pacing.
+   */
+  private queue(name: string, inFlight: number, perSecond: number | undefined): HostQueue {
+    const limit = Math.max(1, inFlight);
+    const spacing = perSecond ? 1_000 / perSecond : 0;
+    const key = `${name} ${limit} ${spacing}`;
     let queue = this.queues.get(key);
     if (!queue) {
-      queue = new HostQueue();
+      let pacing = this.pacings.get(name);
+      if (!pacing) {
+        pacing = new Pacing();
+        this.pacings.set(name, pacing);
+      }
+      queue = new HostQueue(limit, spacing, pacing);
       this.queues.set(key, queue);
     }
-    queue.configure(
-      own.inFlight ?? context.get(KEY_HTTP_IN_FLIGHT) ?? this.inFlight,
-      own.perSecond ? 1_000 / own.perSecond : 0,
-    );
     return queue;
+  }
+
+  /** Forgets what refusals taught about the URL's host and its groups, or about every host without one. */
+  private invalidate(url: string | undefined): void {
+    let names: Set<string> | undefined;
+    if (url !== undefined) {
+      try {
+        names = new Set(hostNames(new URL(url)));
+      } catch {
+        return;
+      }
+    }
+    for (const [ name, pacing ] of this.pacings) {
+      if (!names || names.has(name)) {
+        pacing.reset();
+      }
+    }
   }
 
   /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */
@@ -282,6 +358,11 @@ export interface IActorHttpThrottleArgs extends IActorHttpArgs {
   hosts: Record<string, IHostLimits>;
   /** The `User-Agent` of requests that have none, under Node. */
   userAgent?: string;
+  /**
+   * Tells the actor when the HTTP cache is invalidated, upon which it forgets what refusals taught.
+   * @default {<default_invalidator> a <npmd:@comunica/bus-http-invalidate/^5.0.0/components/ActorHttpInvalidateListenable.jsonld#ActorHttpInvalidateListenable>}
+   */
+  httpInvalidator?: ActorHttpInvalidateListenable;
 }
 
 /**
@@ -298,31 +379,78 @@ interface IWaiter {
   admit: () => void;
 }
 
-/** One host's requests: at most `limit` in flight, starts spaced, waiters in order. */
-class HostQueue {
-  private active = 0;
-  private limit = Number.POSITIVE_INFINITY;
-  /** Milliseconds between starts that a configured rate asks for. */
-  private spacing = 0;
+/**
+ * What one host's or group's refusals taught, and when it last started a request: shared by
+ * every queue of the name, since the server sees all of them.
+ */
+class Pacing {
   /** Milliseconds between starts learned from refusals without `Retry-After`. */
-  private learned = 0;
+  public learned = 0;
+  /** No request starts before this time, which a `Retry-After` set. */
+  public until = 0;
+  public lastStart = Number.NEGATIVE_INFINITY;
   /** When `learned` last grew. Requests started before then were sent at the old rate. */
   private raisedAt = Number.NEGATIVE_INFINITY;
-  /** No request starts before this time, which a `Retry-After` set. */
-  private until = 0;
-  private lastStart = Number.NEGATIVE_INFINITY;
+  /** The name's queues, to wake when a pause is forgotten. */
+  public readonly queues = new Set<HostQueue>();
+
+  /** A refusal without `Retry-After` of a request started at `started`: start less often. */
+  public refused(started: number): void {
+    if (started < this.raisedAt) {
+      return;
+    }
+    this.learned = this.learned === 0 ? FIRST_INTERVAL_MS : Math.min(this.learned * 2, LONGEST_INTERVAL_MS);
+    this.raisedAt = Date.now();
+  }
+
+  /** A refusal with `Retry-After`: start nothing for this long. */
+  public pause(milliseconds: number): void {
+    this.until = Math.max(this.until, Date.now() + milliseconds);
+  }
+
+  /** Any answer but a refusal, to a request started at `started`: start a little more often again. */
+  public answered(started: number): void {
+    if (this.learned > 0 && started >= this.raisedAt) {
+      this.learned *= INTERVAL_DECAY;
+      if (this.learned < SHORTEST_INTERVAL_MS) {
+        this.learned = 0;
+      }
+    }
+  }
+
+  /** Forgets the learned interval and any pause, and lets the queues waiting on them go on. */
+  public reset(): void {
+    this.learned = 0;
+    this.until = 0;
+    this.raisedAt = Number.NEGATIVE_INFINITY;
+    for (const queue of this.queues) {
+      queue.pump();
+    }
+  }
+}
+
+/** Requests to one host or group with one set of limits: at most `limit` in flight, starts spaced, waiters in order. */
+class HostQueue {
+  private active = 0;
   private readonly waiting: IWaiter[] = [];
   private timer?: ReturnType<typeof setTimeout>;
   private timerAt = 0;
 
-  public get interval(): number {
-    return Math.max(this.spacing, this.learned);
+  /**
+   * @param limit Requests in flight at most.
+   * @param spacing Milliseconds between starts that a configured rate asks for.
+   * @param pacing What the host's or group's refusals taught, shared with its other queues.
+   */
+  public constructor(
+    private readonly limit: number,
+    private readonly spacing: number,
+    public readonly pacing: Pacing,
+  ) {
+    pacing.queues.add(this);
   }
 
-  public configure(limit: number, spacing: number): void {
-    this.limit = Math.max(1, limit);
-    this.spacing = spacing;
-    this.pump();
+  public get interval(): number {
+    return Math.max(this.spacing, this.pacing.learned);
   }
 
   /** Waits for a place, at the back of the queue or, for a retry, at the front. */
@@ -357,42 +485,22 @@ class HostQueue {
     this.pump();
   }
 
-  /** A refusal without `Retry-After` of a request started at `started`: start less often. */
-  public refused(started: number): void {
-    if (started < this.raisedAt) {
-      return;
-    }
-    this.learned = this.learned === 0 ? FIRST_INTERVAL_MS : Math.min(this.learned * 2, LONGEST_INTERVAL_MS);
-    this.raisedAt = Date.now();
-  }
-
-  /** A refusal with `Retry-After`: start nothing until then. */
-  public pause(milliseconds: number): void {
-    this.until = Math.max(this.until, Date.now() + milliseconds);
-  }
-
-  /** Any answer but a refusal, to a request started at `started`: start a little more often again. */
-  public answered(started: number): void {
-    if (this.learned > 0 && started >= this.raisedAt) {
-      this.learned *= INTERVAL_DECAY;
-      if (this.learned < SHORTEST_INTERVAL_MS) {
-        this.learned = 0;
-      }
-    }
-  }
-
-  private pump(): void {
+  /** Admits the waiters that may start now, and sets a timer for the next one that may not. */
+  public pump(): void {
     while (this.waiting.length > 0 && this.active < this.limit) {
       const now = Date.now();
-      const start = Math.max(this.lastStart + this.interval, this.until);
+      const start = Math.max(this.pacing.lastStart + this.interval, this.pacing.until);
       if (start > now) {
         this.wake(start - now);
         return;
       }
       this.active++;
-      this.lastStart = now;
+      this.pacing.lastStart = now;
       this.waiting.shift()!.admit();
     }
+    // Nothing waits on a timer now: a pause forgotten early must not leave one set for its end.
+    clearTimeout(this.timer);
+    this.timer = undefined;
   }
 
   /** Pumps again after `delay`, unless an earlier wake is already set. */

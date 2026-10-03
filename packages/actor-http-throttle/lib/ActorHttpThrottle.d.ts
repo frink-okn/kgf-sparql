@@ -1,5 +1,6 @@
 import type { IActionHttp, IActorHttpArgs, IActorHttpOutput, MediatorHttp } from '@comunica/bus-http';
 import { ActorHttp } from '@comunica/bus-http';
+import type { ActorHttpInvalidateListenable } from '@comunica/bus-http-invalidate';
 import type { TestResult } from '@comunica/core';
 import { ActionContextKey } from '@comunica/core';
 import type { IMediatorTypeTime } from '@comunica/mediatortype-time';
@@ -21,14 +22,16 @@ export declare const KEY_HTTP_IN_FLIGHT: ActionContextKey<number>;
  */
 export declare const KEY_HTTP_HOST_LIMITS: ActionContextKey<Record<string, IHostLimits>>;
 /**
- * Told when each attempt at a request leaves its host's queue (`sent`) and when its response
- * headers arrive or it fails (`settled`), so that a caller can time a request by how long the
- * server takes rather than how long it waited its turn. A SPARQL source times its COUNT
- * queries this way.
+ * Told when each attempt at a request leaves its host's queue (`sent`), when its response
+ * headers arrive or it fails (`settled`), and when its response is let go for another attempt
+ * (`retrying`), so that a caller can time a request by how long the server takes rather than
+ * how long it waited its turn. A SPARQL source times its COUNT queries this way.
  */
 export interface IHttpAttemptListener {
     sent: () => void;
     settled: () => void;
+    /** The attempt's response is discarded, and the request waits its turn for the next one. */
+    retrying?: () => void;
 }
 /** An `IHttpAttemptListener` for the request this context goes with. */
 export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptListener>;
@@ -53,17 +56,23 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  * (the host's own in `KEY_HTTP_HOST_LIMITS` or the actor's `hosts`, else `KEY_HTTP_IN_FLIGHT`,
  * else `inFlight`), and no sooner after the previous start than the host's spacing allows. It
  * holds its place until its response headers arrive; the body is read outside the queue. A
- * limit named `*.` and a domain gives the hosts in that domain one queue between them, for a
- * service that limits a client across its hosts.
+ * limit named `*.` and a domain is a queue the hosts in that domain share, for a service that
+ * limits a client across its hosts: a request waits its turn in its host's queue, then in the
+ * queue of each such group it is in, so a host's own limits hold within its group's, never in
+ * place of them. Requests with other limits for the same host or group, as another query's
+ * context gives, wait in a queue of their own, so each query's limits hold for its requests.
  *
- * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals.
- * A 429 or 503 with `Retry-After` pauses the host until then, and teaches nothing else: the
- * server said when to come back, as KGF's admission gate does. One without `Retry-After`
- * doubles the host's interval between starts, from 250 ms up to 10 s, and every answer that
- * is not a refusal takes a tenth off it, so the host settles near the rate it accepts. Only a
- * request started since the last change counts: the requests of one burst are refused
- * together, and each doubling the interval again took QLever to 10 s within seconds. A
- * timeout or network failure changes nothing: it says nothing about the host's rate.
+ * The spacing is the larger of a configured rate (`perSecond`) and one learned from refusals,
+ * which a host's or group's queues share, as they share the time of its last start. A 429 or
+ * 503 with `Retry-After` pauses the host and its groups until then, or for the context's
+ * `httpRetryDelayLimit` at most, and teaches nothing else: the server said when to come back,
+ * as KGF's admission gate does. One without `Retry-After` doubles the interval between starts,
+ * from 250 ms up to 10 s, and every answer that is not a refusal takes a tenth off it, so the
+ * host settles near the rate it accepts. Only a request started since the last change counts:
+ * the requests of one burst are refused together, and each doubling the interval again took
+ * QLever to 10 s within seconds. A timeout or network failure changes nothing: it says nothing
+ * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
+ * refusals taught, as it clears Comunica's retry actor's delays.
  *
  * A refused request is retried through the queue, ahead of requests not yet sent, up to the
  * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
@@ -87,17 +96,30 @@ export declare class ActorHttpThrottle extends ActorHttp {
     readonly retries: number;
     readonly hosts: Record<string, IHostLimits>;
     readonly userAgent?: string;
+    /** The queues requests wait in, per host or group and the limits they were given. */
     private readonly queues;
+    /** What refusals taught, per host or group, shared by its queues. */
+    private readonly pacings;
     constructor(args: IActorHttpThrottleArgs);
     test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>>;
     run(action: IActionHttp): Promise<IActorHttpOutput>;
+    /** Waits for a place in each queue in turn, the host's first; gives back those it had if it stops waiting. */
+    private static enter;
     /** The action, with the actor's `User-Agent` if it has none and runs outside a browser. */
     private identified;
     /**
-     * The queue of the host, or of the group of hosts, with the limits the request's context and
-     * the actor give it. The most particular name either knows decides.
+     * The queues a request waits in: its host's, with the limits named by its host and port or
+     * else its hostname, then the queue of each group it is in that has limits. The context's
+     * limits for a name override the actor's, field by field.
      */
-    private queueFor;
+    private queuesFor;
+    /**
+     * The queue of a host or group for these limits. Each set of limits has its own, so that a
+     * query's limits hold whatever another query's say, and the name's queues share its pacing.
+     */
+    private queue;
+    /** Forgets what refusals taught about the URL's host and its groups, or about every host without one. */
+    private invalidate;
     /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */
     static refusal(response: Response): boolean;
     /** Milliseconds a `Retry-After` value asks for, in seconds or as an HTTP date. */
@@ -131,6 +153,11 @@ export interface IActorHttpThrottleArgs extends IActorHttpArgs {
     hosts: Record<string, IHostLimits>;
     /** The `User-Agent` of requests that have none, under Node. */
     userAgent?: string;
+    /**
+     * Tells the actor when the HTTP cache is invalidated, upon which it forgets what refusals taught.
+     * @default {<default_invalidator> a <npmd:@comunica/bus-http-invalidate/^5.0.0/components/ActorHttpInvalidateListenable.jsonld#ActorHttpInvalidateListenable>}
+     */
+    httpInvalidator?: ActorHttpInvalidateListenable;
 }
 /**
  * The names a limit for a URL's host may be given under, most particular first: the host with

@@ -33,9 +33,12 @@ export const KEY_SELECTIVITY_BOUND_DELEGATING = new ActionContextKey<boolean>(
  *
  * Entries are removed greedily, largest first, while each removed entry's variables
  * stay covered by the entries that remain. The bound is the product of the remaining
- * cardinalities. A union of `k` set-valued branches can match a fixed assignment up to
- * `k` times, so removing it multiplies the bound by `k`; entries whose multiplicity is
- * unknown are never removed.
+ * cardinalities, so every entry that remains must have an exact one: an estimate may be a
+ * lower bound, as a SPARQL count that reached its cap or an incomplete KGF count is, and a
+ * product of lower bounds bounds nothing. Entries with an estimate are removed first, and
+ * when one cannot be, there is no bound. A union of `k` set-valued branches can match a
+ * fixed assignment up to `k` times, so removing it multiplies the bound by `k`; entries
+ * whose multiplicity is unknown are never removed.
  *
  * ## How it composes
  *
@@ -110,7 +113,8 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
 
   /**
    * An upper bound on the number of rows the join of `entries` produces, or `Infinity`
-   * when no entry qualifies as a filter.
+   * when no entry qualifies as a filter, or an entry whose size is only estimated cannot
+   * be removed.
    */
   public static upperBound(entries: IJoinEntry[], metadatas: MetadataBindings[]): number {
     if (metadatas.some(metadata => metadata.variables.some(variable => variable.canBeUndef))) {
@@ -118,15 +122,17 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
     }
     const variables = metadatas.map(metadata => new Set(metadata.variables.map(variable => variable.variable.value)));
     const cardinalities = metadatas.map(metadata => metadata.cardinality.value);
+    const exact = metadatas.map(metadata => metadata.cardinality.type === 'exact');
     const multiplicities = entries.map(entry => ActorRdfJoinSelectivityBound.multiplicity(entry.operation));
     const remaining = new Set(entries.map((_, i) => i));
     let factor = 1;
     let removed = true;
     while (removed && remaining.size > 1) {
       removed = false;
+      // Estimates first, since none may remain; then the largest.
       const candidates = [ ...remaining ]
         .filter(i => Number.isFinite(multiplicities[i]))
-        .sort((left, right) => cardinalities[right] - cardinalities[left]);
+        .sort((left, right) => Number(exact[left]) - Number(exact[right]) || cardinalities[right] - cardinalities[left]);
       for (const i of candidates) {
         const others = new Set<string>();
         for (const j of remaining) {
@@ -144,7 +150,7 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
         }
       }
     }
-    if (remaining.size === entries.length) {
+    if (remaining.size === entries.length || [ ...remaining ].some(i => !exact[i])) {
       return Number.POSITIVE_INFINITY;
     }
     return [ ...remaining ].reduce((acc, i) => acc * cardinalities[i], factor);

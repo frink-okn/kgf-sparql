@@ -36,8 +36,11 @@ const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identif
  * cardinality as unknown (an infinite estimate), which made one query's plan differ from run
  * to run: time spent queued behind a host's other requests, or waiting to retry a refusal,
  * counted against the server. Here the timeout runs only while an attempt is with the server,
- * from when `@kgf/actor-http-throttle` sends it to when its response headers arrive, and
- * restarts with each attempt. `deadline` bounds the whole wait, queue included.
+ * from when `@kgf/actor-http-throttle` sends it until its count arrives, body included, and
+ * restarts with each attempt; the time a refused attempt waits to be sent again does not
+ * count. `deadline` bounds the whole wait, queue included. (An earlier version stopped the
+ * timer when the response headers arrived, and a server that sends them before it has counted
+ * then had the whole deadline.)
  *
  * ## The metadata says what a request costs
  *
@@ -46,8 +49,8 @@ const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identif
  * one that sends a block of rows at a time. With uncapped counts the difference was hidden by
  * accident, since large counts timed out to an unknown size; with every count answered, the
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
- * spent with the server is reported as the metadata's `requestTime`, or, for a count already
- * known, the time of this source's last request.
+ * spent with the server, until its count arrived or the timeout reported it unknown, is the
+ * metadata's `requestTime`, or, for a count already known, the time of this source's last.
  *
  * ## Bindings are not counted
  *
@@ -106,31 +109,47 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
   ): void {
     let written = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    /** When the attempt with the server now was sent, if one is. */
     let sentAt: number | undefined;
+    /** How long the last attempt that ended was with the server. */
     let requestTime: number | undefined;
     const write = (metadata: MetadataBindings): void => {
       if (!written) {
         written = true;
         clearTimeout(timer);
+        if (sentAt !== undefined) {
+          requestTime = Date.now() - sentAt;
+        }
+        if (requestTime !== undefined) {
+          this.lastRequestTime = requestTime;
+        }
         const time = requestTime ?? this.lastRequestTime;
         target.setProperty('metadata', this.bound(time === undefined ? metadata : { ...metadata, requestTime: time }));
       }
     };
-    // The cardinality is unknown, as Comunica reports a COUNT that timed out.
+    // The cardinality is unknown, as Comunica reports a COUNT that timed out. It is written
+    // even when the operation cannot be built, without variables, as Comunica writes it then:
+    // whatever waits on the metadata would otherwise wait for good.
     const unknown = async(): Promise<void> => {
-      const operation = await operationPromise;
-      const undefs = QuerySourceSparql.getOperationUndefs(operation);
+      let variables: MetadataBindings['variables'] = [];
+      try {
+        const operation = await operationPromise;
+        const undefs = QuerySourceSparql.getOperationUndefs(operation);
+        variables = algebraUtils.inScopeVariables(operation).map(variable => ({
+          variable,
+          canBeUndef: undefs.some(undef => undef.equals(variable)),
+        }));
+      } catch {
+        // The stream reports the error itself.
+      }
       write({
         state: new MetadataValidationState(),
         cardinality: { type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.endpoint },
-        variables: algebraUtils.inScopeVariables(operation).map(variable => ({
-          variable,
-          canBeUndef: undefs.some(undef => undef.equals(variable)),
-        })),
+        variables,
       });
     };
     if (context.get(KEY_BOUND)) {
-      void unknown().catch(() => undefined);
+      void unknown();
       return;
     }
     const listener: IHttpAttemptListener = {
@@ -139,14 +158,18 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
         sentAt = Date.now();
         // Past this the server took too long on this attempt. The COUNT itself carries on,
         // and its answer is cached.
-        timer = setTimeout(() => void unknown().catch(() => undefined), this.attemptTimeout);
+        timer = setTimeout(() => void unknown(), this.attemptTimeout);
       },
-      settled: () => {
+      // The headers are not the count: a server may send them before it has counted, so the
+      // timer runs on until the count arrives.
+      settled: () => undefined,
+      // A refused attempt is over; the wait for the next one is not the server's time.
+      retrying: () => {
         clearTimeout(timer);
         timer = undefined;
         if (sentAt !== undefined) {
           requestTime = Date.now() - sentAt;
-          this.lastRequestTime = requestTime;
+          sentAt = undefined;
         }
       },
     };

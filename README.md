@@ -281,14 +281,16 @@ and 227 MB to 2.9 s and 22 MB, `abdominal-cell-types` from 4,535 requests to 52.
 [`@kgf/actor-http-throttle`](packages/actor-http-throttle/) paces requests per host, in
 place of Comunica's rate limiter. A host has at most `KEY_HTTP_IN_FLIGHT` requests in
 flight (default 32); `KEY_HTTP_HOST_LIMITS` gives particular hosts their own `inFlight` and
-`perSecond`, and `*.domain` a domain's hosts one queue between them. QLever's hosts start at
-most one request a second unless the context says otherwise: QLever publishes no limit, and
-learning it from refusals cost every run its first requests. Under Node, requests name
+`perSecond`, and `*.domain` a cap the domain's hosts share, within which each host's own
+limits still hold. QLever's hosts start at most one request a second unless the context
+says otherwise: QLever publishes no limit, and learning it from refusals cost every run its
+first requests. Under Node, requests name
 `kgf-sparql/<version> (+https://github.com/frink-okn/kgf-sparql)` as their user agent:
 Wikidata's query service asks clients to name themselves, and UniProt turned Comunica's
 default away. A 429 or 503 with `Retry-After`, as KGF's admission gate sends, pauses the host
-until then; one without, as QLever sends, doubles the interval between the host's requests,
-and later answers shorten it again. Refused requests are retried through the same queue, up
+until then, or for the context's `httpRetryDelayLimit` at most; one without, as QLever
+sends, doubles the interval between the host's requests, and later answers shorten it again.
+Refused requests are retried through the same queue, up
 to 5 times unless the context sets `httpRetryCount`, and Comunica's retry actor stands
 aside, so retries are paced and never multiplied. Timeouts and network errors no longer
 slow a host: Comunica's limiter slowed a whole host after any failure, so a SPARQL endpoint

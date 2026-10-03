@@ -25,9 +25,12 @@ export declare const KEY_SELECTIVITY_BOUND_DELEGATING: ActionContextKey<boolean>
  *
  * Entries are removed greedily, largest first, while each removed entry's variables
  * stay covered by the entries that remain. The bound is the product of the remaining
- * cardinalities. A union of `k` set-valued branches can match a fixed assignment up to
- * `k` times, so removing it multiplies the bound by `k`; entries whose multiplicity is
- * unknown are never removed.
+ * cardinalities, so every entry that remains must have an exact one: an estimate may be a
+ * lower bound, as a SPARQL count that reached its cap or an incomplete KGF count is, and a
+ * product of lower bounds bounds nothing. Entries with an estimate are removed first, and
+ * when one cannot be, there is no bound. A union of `k` set-valued branches can match a
+ * fixed assignment up to `k` times, so removing it multiplies the bound by `k`; entries
+ * whose multiplicity is unknown are never removed.
  *
  * ## How it composes
  *
@@ -54,7 +57,8 @@ export declare class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivit
     private delegate;
     /**
      * An upper bound on the number of rows the join of `entries` produces, or `Infinity`
-     * when no entry qualifies as a filter.
+     * when no entry qualifies as a filter, or an entry whose size is only estimated cannot
+     * be removed.
      */
     static upperBound(entries: IJoinEntry[], metadatas: MetadataBindings[]): number;
     /**
