@@ -1,6 +1,7 @@
 import type {
   IActionRdfJoin,
   IActorRdfJoinArgs,
+  IActorRdfJoinInternalOptions,
   IActorRdfJoinOutputInner,
   IActorRdfJoinTestSideData,
   MediatorRdfJoin,
@@ -93,18 +94,21 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
    */
   private readonly outputs = new WeakSet<IQueryOperationResultBindings>();
 
+  /** The join this actor makes, as the join bus knows it; a subclass making another gives its own. */
+  protected static readonly joinOptions: IActorRdfJoinInternalOptions = {
+    logicalType: 'inner',
+    physicalName: 'multi-bind-block',
+    limitEntries: 2,
+    limitEntriesMin: true,
+    canHandleUndefs: false,
+    isLeaf: false,
+    // Blocks reach a source one call each, so a SERVICE SILENT target that failed could not
+    // give the clause its one empty solution; Comunica then refuses this actor such a join.
+    pushesBindingsToSource: true,
+  };
+
   public constructor(args: IActorRdfJoinMultiBindBlockArgs) {
-    super(args, {
-      logicalType: 'inner',
-      physicalName: 'multi-bind-block',
-      limitEntries: 2,
-      limitEntriesMin: true,
-      canHandleUndefs: false,
-      isLeaf: false,
-      // Blocks reach a source one call each, so a SERVICE SILENT target that failed could not
-      // give the clause its one empty solution; Comunica then refuses this actor such a join.
-      pushesBindingsToSource: true,
-    });
+    super(args, (<typeof ActorRdfJoinMultiBindBlock> new.target).joinOptions);
     this.blockSize = args.blockSize ?? 256;
     this.blocksInFlight = args.blocksInFlight ?? 4;
     this.requestsInFlight = args.requestsInFlight ?? 8;
@@ -189,26 +193,8 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     sideData: IActorRdfJoinMultiBindBlockTestSideData,
   ): Promise<IActorRdfJoinOutputInner> {
     const { first, steps, remaining } = sideData.plan;
-    const dataFactory = action.context.getSafe(KeysInitQuery.dataFactory);
-    const algebraFactory = new AlgebraFactory(dataFactory);
-
-    // The bound entries are only probed; their own streams are never read.
-    for (const step of steps) {
-      step.entry.output.bindingsStream.destroy();
-    }
-    const probes: IProbeRun = {
-      cache: new ProbeCache(this.probeCacheRows),
-      slots: new Map(),
-      readers: new Set(),
-      stopped: false,
-    };
-    const bindingsStream: BindingsStream = new BlockJoinIterator(
-      new ChunkedIterator(first.output.bindingsStream, this.blockSize, { autoStart: false }),
-      async(rows, emit) => await this.joinBlock(rows, steps, first.metadata, dataFactory, action.context, probes, emit),
-      () => ActorRdfJoinMultiBindBlock.stop(probes),
-      this.blocksInFlight,
-      this.blocksInFlight * this.blockSize,
-    );
+    const algebraFactory = new AlgebraFactory(action.context.getSafe(KeysInitQuery.dataFactory));
+    const bindingsStream = this.blockStream(first, steps, action.context, async(rows, join, emit) => await join(rows, emit));
     const bound = [ first, ...steps.map(step => step.entry) ];
     const output: IQueryOperationResultBindings = {
       type: 'bindings',
@@ -241,6 +227,40 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
       result: await this.mediatorJoin.mediate({ type: action.type, entries: [ joined, ...remaining ], context: action.context }),
       physicalPlanMetadata,
     };
+  }
+
+  /**
+   * The rows of `first`, read in blocks, each block handed to `block` with `join`, which joins
+   * its rows through the steps and hands on what they join to, and `emit`, which hands rows out
+   * of the actor. The steps' own streams are never read: their entries are only probed.
+   */
+  protected blockStream(
+    first: IJoinEntryWithMetadata,
+    steps: IBindStep[],
+    context: IActionContext,
+    block: (rows: Bindings[], join: (rows: Bindings[], onJoined: Emit) => Promise<void>, emit: Emit) => Promise<void>,
+  ): BindingsStream {
+    const dataFactory = context.getSafe(KeysInitQuery.dataFactory);
+    for (const step of steps) {
+      step.entry.output.bindingsStream.destroy();
+    }
+    const probes: IProbeRun = {
+      cache: new ProbeCache(this.probeCacheRows),
+      slots: new Map(),
+      readers: new Set(),
+      stopped: false,
+    };
+    return new BlockJoinIterator(
+      new ChunkedIterator(first.output.bindingsStream, this.blockSize, { autoStart: false }),
+      async(rows, emit) => await block(
+        rows,
+        async(blockRows, onJoined) => await this.joinBlock(blockRows, steps, first.metadata, dataFactory, context, probes, onJoined),
+        emit,
+      ),
+      () => ActorRdfJoinMultiBindBlock.stop(probes),
+      this.blocksInFlight,
+      this.blocksInFlight * this.blockSize,
+    );
   }
 
   /**
@@ -887,7 +907,7 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
   }
 
   /** As `keyOf`, with a mark of its own for each variable that is unbound. */
-  private static partialKeyOf(bindings: Bindings, variables: string[]): string {
+  protected static partialKeyOf(bindings: Bindings, variables: string[]): string {
     let key = '';
     for (const name of variables) {
       const term = bindings.get(name);
@@ -900,7 +920,7 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     return left.length === right.length && left.every((name, i) => name === right[i]);
   }
 
-  private static variablesOf(operation: Algebra.Operation): string[] {
+  protected static variablesOf(operation: Algebra.Operation): string[] {
     return algebraUtils.inScopeVariables(operation).map(variable => variable.value);
   }
 }
@@ -1014,6 +1034,9 @@ interface IProbeRun {
 }
 
 /** What one block's work needs as it moves through the steps. */
+/** Hands rows on; waits while the reader is behind. */
+type Emit = (rows: Bindings[]) => Promise<void>;
+
 interface IBlockRun {
   metadata: MetadataBindings;
   dataFactory: ComunicaDataFactory;

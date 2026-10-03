@@ -1,7 +1,7 @@
 {
   "name": "@frink-okn/actor-rdf-join-inner-multi-bind-block",
   "version": "0.1.0",
-  "description": "A Comunica bind join that sends the smallest entry in blocks to one other entry: a source that takes bindings, a union of such, or a join of such",
+  "description": "A Comunica bind join that sends the smallest entry in blocks through every other entry that takes bindings, and an OPTIONAL join that sends its left rows in blocks the same way",
   "license": "MIT",
   "lsd:module": true,
   "main": "lib/index.js",

@@ -2,7 +2,8 @@
 
 A [Comunica](https://comunica.dev/) bind join that sends the smallest entry's rows in
 blocks through every other entry that can take bindings, one after another, as FedX's
-bound joins do.
+bound joins do; and an `OPTIONAL` join that sends its left rows to the optional pattern in
+blocks the same way (see [OPTIONAL](#optional)).
 
 Comunica binds in blocks only when every entry but the smallest lives on one source that
 accepts `joinBindings` (`multi-bind-source`), or when a join has a pattern on a source that
@@ -113,6 +114,31 @@ first, and priced against it each was a cross product. Nothing counts as blockin
 mediator penalises blocking joins under a `LIMIT`, and this one only waits for a block. The
 actor is registered ahead of the stock join actors, because the mediator keeps the first
 candidate when its cost is `NaN`, which happens whenever a COUNT has timed out.
+
+## OPTIONAL
+
+`ActorRdfJoinOptionalBindBlock` joins an `OPTIONAL` the same way. Comunica has three ways to
+join one: per left row (`optional-bind`), each row's values sent on their own, which against
+KGF is a `/count` and a page apiece; or by reading the optional pattern whole
+(`optional-hash`, `optional-nested-loop`). Only inner joins could send rows in blocks. Of 38
+agent-written queries that ran out of budget, 13 spent it on per-row probes, mostly labels
+and types fetched one subject at a time, and 6 on reading a whole predicate for a few
+hundred rows.
+
+This actor reads the left rows in blocks of `blockSize`, sends each block's values to the
+optional pattern's source, and hands every left row on with what it matched, or alone when
+it matched nothing. The left entry is always the one bound, since every left row is in the
+output. The optional pattern is probed as an inner block join's step is: an operation on a
+source that takes bindings, a union of such, or a join of such, with the same cache and the
+same limits on requests in flight. Its cost is the inner block join's formula with that one
+step, and its selectivity modifier is Comunica's `OPTIONAL` bind join's (0.000001, set in the
+engine's config) rather than the inner one's, so that the two compare on equal terms.
+
+It refuses an `OPTIONAL` with a `FILTER` inside, which Comunica marks as an operation that
+must be bound per row and leaves to `optional-bind`; a variable shared with the left rows
+that may be unbound there, since a left row's matches are told by its values; and an optional
+pattern no source takes bindings for. Registered ahead of Comunica's `OPTIONAL` actors, as
+the inner block join is ahead of the inner ones.
 
 ## Limits
 

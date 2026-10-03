@@ -8,7 +8,7 @@ import { MetadataValidationState } from '@comunica/utils-metadata';
 import { assignOperationSource } from '@comunica/utils-query-operation';
 import { ArrayIterator, BufferedIterator, wrap } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
-import { ActorRdfJoinMultiBindBlock } from '@frink-okn/actor-rdf-join-inner-multi-bind-block';
+import { ActorRdfJoinMultiBindBlock, ActorRdfJoinOptionalBindBlock } from '@frink-okn/actor-rdf-join-inner-multi-bind-block';
 
 const df = new DataFactory();
 const af = new AlgebraFactory(df);
@@ -782,4 +782,65 @@ test('planning asks each source for its shape once', async() => {
   assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
   assert.deepEqual(tested.getSideData().plan.stepIndexes, [ 1, 2, 3 ]);
   assert.equal(wikidata.shapes.asked, 1, 'three entries on one source, over three rounds of choosing');
+});
+
+function optionalActor(blockSize = 2) {
+  return new ActorRdfJoinOptionalBindBlock({
+    name: 'optional-bind-block',
+    bus: new Bus({ name: 'test' }),
+    blockSize,
+    selectivityModifier: 0.0001,
+    mediatorJoinSelectivity: { mediate: async() => ({ selectivity: 0.001 }) },
+    mediatorJoinEntriesSort: { mediate: async({ entries }) => ({ entries }) },
+    mediatorJoin: { mediate: async() => { throw new Error('an OPTIONAL leaves nothing to join'); } },
+  });
+}
+const labelled = (cell, label) => bf.bindings([[ v('cell'), n(cell) ], ...label ? [[ v('l'), df.literal(label) ]] : [] ]);
+
+test('an OPTIONAL is probed in blocks, and a left row that matches nothing comes back alone', async() => {
+  const ubergraph = source('ubergraph', [
+    [ n('c1'), n('label'), df.literal('one') ], [ n('c1'), n('label'), df.literal('uno') ], [ n('c2'), n('label'), df.literal('two') ],
+  ], 'filterBindings');
+  const cells = [ row([ 'cell', 'c1' ]), row([ 'cell', 'c2' ]), row([ 'cell', 'c3' ]), row([ 'cell', 'c3' ]), row([ 'cell', 'c1' ]) ];
+  const action = { type: 'optional', context: context(), entries: [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 5, [ 'cell' ], {}, cells),
+    entry(on(ubergraph, v('cell'), n('label'), v('l')), 1_000_000, [ 'cell', 'l' ]),
+  ] };
+  const join = optionalActor(2);
+  const tested = await join.test(action);
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  const output = await join.run(action, tested.getSideData());
+  const rows = await output.bindingsStream.toArray();
+  assert.deepEqual(sorted(rows), sorted([
+    labelled('c1', 'one'), labelled('c1', 'uno'), labelled('c1', 'one'), labelled('c1', 'uno'),
+    labelled('c2', 'two'), labelled('c3'), labelled('c3'),
+  ]), 'every left row, duplicates too, with its matches or alone');
+  assert.ok(ubergraph.calls.length <= 3, `five rows in blocks of two, not a request per row (${ubergraph.calls.length})`);
+  assert.ok(ubergraph.calls.every(call => call.variables.join() === 'cell' && call.bindings.length <= 2));
+  const { variables } = await output.metadata();
+  assert.equal(variables.find(variable => variable.variable.value === 'l').canBeUndef, true);
+});
+
+test('the OPTIONAL block join refuses what it cannot tell a left row\'s matches for', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const cells = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 5, [ 'cell' ]);
+  const labels = entry(on(ubergraph, v('cell'), n('label'), v('l')), 1_000, [ 'cell', 'l' ]);
+  const refusal = async(type, entries) => {
+    const tested = await optionalActor().test({ type, entries, context: context() });
+    assert.ok(tested.isFailed(), `${type} ${entries.length} should be refused`);
+    return tested.getFailMessage();
+  };
+  assert.ok((await optionalActor().test({ type: 'optional', entries: [ cells, labels ], context: context() })).isPassed());
+  await refusal('inner', [ cells, labels ]);
+  assert.match(await refusal('optional', [ cells, { ...labels, operationRequired: true }]), /operationRequired/u,
+    'an OPTIONAL with a FILTER is bound row by row, as Comunica requires');
+  const unbound = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 5, [ 'cell' ], {
+    variables: [{ variable: v('cell'), canBeUndef: true }],
+  });
+  assert.match(await refusal('optional', [ unbound, labels ]), /undefs/u, 'a left row is told by its values');
+  const tpf = { source: { referenceValue: 'urn:source:tpf', getSelectorShape: async() => ({
+    type: 'operation', operation: { operationType: 'pattern', pattern: af.createPattern(v('s'), v('p'), v('o')) },
+  }), queryBindings: () => new ArrayIterator([]) } };
+  assert.match(await refusal('optional', [ cells, entry(assignOperationSource(af.createPattern(v('cell'), n('label'), v('l')), tpf), 1_000, [ 'cell', 'l' ]) ]),
+    /no source that takes bindings/u);
 });
