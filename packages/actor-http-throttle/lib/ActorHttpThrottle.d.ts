@@ -61,7 +61,8 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  * its host and every such group it is in can all start it at that moment, so a host's own
  * limits hold within its group's, never in place of them. (A request used to take its host's
  * turn and then wait for the group's, and a group that held several back let them all start
- * at once, past the host's rate.) Requests with other limits for the same host or group, as
+ * at once, past the host's rate.) A group starts its hosts' requests in the order they
+ * arrived. Requests with other limits for the same host or group, as
  * another query's context gives, wait in a queue of their own, so each query's limits hold for
  * its requests; a queue no request holds is let go.
  *
@@ -78,7 +79,7 @@ export declare const KEY_HTTP_ATTEMPT_LISTENER: ActionContextKey<IHttpAttemptLis
  * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
  * refusals taught, as it clears Comunica's retry actor's delays.
  *
- * A refused request is retried through the queue, ahead of requests not yet sent, up to the
+ * A refused request is retried through the queue, ahead of requests that arrived after it, up to the
  * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
  * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a
  * status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run
@@ -104,6 +105,8 @@ export declare class ActorHttpThrottle extends ActorHttp {
     private readonly queues;
     /** What refusals taught, per host or group, shared by its queues. */
     private readonly pacings;
+    /** The order requests arrived in, which a group keeps across its hosts' queues. */
+    private arrivals;
     constructor(args: IActorHttpThrottleArgs);
     test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>>;
     run(action: IActionHttp): Promise<IActorHttpOutput>;
@@ -129,7 +132,11 @@ export declare class ActorHttpThrottle extends ActorHttp {
     private invalidate;
     /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */
     static refusal(response: Response): boolean;
-    /** Milliseconds a `Retry-After` value asks for, in seconds or as an HTTP date. */
+    /**
+     * Milliseconds a `Retry-After` value asks for, in seconds (whole, or with a fraction, as some
+     * servers send) or as an HTTP date, which names its day or month. Anything else asks for
+     * nothing: `Date.parse` reads `0.5` as a date in 2000, which would retry at once.
+     */
     static retryAfter(value: string | null): number | undefined;
     /** Whether a request body can be sent again. A stream is read once. */
     static replayable(body: unknown): boolean;

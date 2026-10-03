@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ActionContext, Bus } from '@comunica/core';
+import { ActionContext, Bus, failTest, passTest } from '@comunica/core';
 import { AlgebraFactory } from '@comunica/utils-algebra';
+import { assignOperationSource } from '@comunica/utils-query-operation';
 import { DataFactory } from 'rdf-data-factory';
 import { ActorRdfJoinSelectivityBound, KEY_SELECTIVITY_BOUND_DELEGATING } from '@kgf/actor-rdf-join-selectivity-bound';
 
@@ -11,23 +12,31 @@ const v = name => df.variable(name);
 const n = name => df.namedNode(`urn:${name}`);
 
 // The delegate answers what the shape-only heuristic answered for the abdomen cells: 0.2785.
+// `delegated` may instead be a function answering the TestResult the bus would.
 function actor(delegated = 0.2785) {
   const asked = [];
   const mediatorJoinSelectivity = {
-    mediate: async action => {
+    mediateTestable: async action => {
       asked.push(action.context.get(KEY_SELECTIVITY_BOUND_DELEGATING));
-      return { selectivity: delegated };
+      return typeof delegated === 'function' ? delegated() : passTest({ selectivity: delegated });
     },
   };
   return { asked, actor: new ActorRdfJoinSelectivityBound({ name: 'bound', bus: new Bus({ name: 'test' }), mediatorJoinSelectivity }) };
 }
-function entry(operation, cardinality, names, undef = [], type = 'exact') {
+/** A join entry. A union's branches carry their own sources; any other operation is given one. */
+function entry(operation, cardinality, names, undef = [], type = 'exact', { modified = false } = {}) {
   const metadata = {
     cardinality: { type, value: cardinality },
     variables: names.map(name => ({ variable: v(name), canBeUndef: undef.includes(name) })),
   };
-  return { operation, output: { metadata: async() => metadata } };
+  return {
+    operation: operation.type === 'union' || operation.type === 'join' ? operation : sourced(operation),
+    operationModified: modified,
+    output: { metadata: async() => metadata },
+  };
 }
+const SOURCE = { source: { toString: () => 'source' } };
+const sourced = operation => assignOperationSource(operation, SOURCE);
 const pattern = (s, p, o) => af.createPattern(s, p, o);
 
 test('a pattern whose only variable is the join variable caps the join at the other side', async() => {
@@ -84,7 +93,7 @@ test('when two filters cover only each other, one of them stays', async() => {
 });
 
 test('a union of two sources counts each solution up to twice; unknown operators never filter', async() => {
-  const union = af.createUnion([ pattern(v('x'), n('label'), n('o')), pattern(v('x'), n('label'), n('o')) ]);
+  const union = af.createUnion([ pattern(v('x'), n('label'), n('o')), pattern(v('x'), n('label'), n('o')) ].map(sourced));
   const entries = [ entry(union, 500, [ 'x' ]), entry(pattern(v('x'), n('p'), v('y')), 40, [ 'x', 'y' ]) ];
   const metadatas = await Promise.all(entries.map(e => e.output.metadata()));
   assert.equal(ActorRdfJoinSelectivityBound.upperBound(entries, metadatas), 80);
@@ -133,4 +142,36 @@ test('a size that is only estimated never bounds the join, but such an entry can
     entry(pattern(v('x'), n('part_of'), n('abdomen')), 500, [ 'x' ]),
   ];
   assert.equal(ActorRdfJoinSelectivityBound.upperBound(mixed, await Promise.all(mixed.map(e => e.output.metadata()))), 500);
+});
+
+test('a size a join computed is an estimate, however its inputs were counted', async() => {
+  // A join of two counted entries is labeled exact by Comunica, though its 50 rows are an
+  // estimate (40,000 in truth): bounding by it would cap the join at 50.
+  const join = af.createJoin([ pattern(v('x'), n('p'), v('z')), pattern(v('z'), n('q'), n('o')) ].map(sourced));
+  const types = entry(pattern(v('x'), n('type'), n('Gene')), 2_000_000, [ 'x' ]);
+  for (const computed of [
+    entry(join, 50, [ 'x', 'z' ], [], 'exact', { modified: true }),
+    entry(join, 50, [ 'x', 'z' ]),
+  ]) {
+    const entries = [ computed, types ];
+    assert.equal(ActorRdfJoinSelectivityBound.upperBound(entries, await Promise.all(entries.map(e => e.output.metadata()))),
+      Number.POSITIVE_INFINITY);
+  }
+  // The same join answered whole by one source was counted by it.
+  const pushed = [ entry(join, 50, [ 'x', 'z' ]), types ];
+  pushed[0].operation = sourced(join);
+  assert.equal(ActorRdfJoinSelectivityBound.upperBound(pushed, await Promise.all(pushed.map(e => e.output.metadata()))), 50);
+});
+
+test('without another estimate the product stands, and a delegate that fails fails the estimate', async() => {
+  const entries = [
+    entry(pattern(v('cell'), n('subClassOf'), n('cell')), 31_721, [ 'cell' ]),
+    entry(pattern(v('cell'), n('part_of'), n('abdomen')), 838, [ 'cell' ]),
+  ];
+  const { actor: alone } = actor(() => failTest('no actor answers'));
+  assert.equal((await alone.run({ entries, context: new ActionContext() })).selectivity, 1 / 31_721);
+  const { actor: failing } = actor(() => {
+    throw new Error('malformed statistics');
+  });
+  await assert.rejects(failing.run({ entries, context: new ActionContext() }), /malformed statistics/u);
 });

@@ -660,8 +660,9 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     }
     const answered = await Promise.all(elsewhere.map(async value => ({ value, rows: await value.answer })));
     const kept = answered.flatMap(({ rows: answer }) => answer ?? []);
-    if (kept.length > 0) {
-      await onRows(kept);
+    // A chunk at a time, as a request's rows go: the answers kept may be `probeCacheRows` rows.
+    for (let start = 0; start < kept.length; start += CHUNK_ROWS) {
+      await onRows(kept.slice(start, start + CHUNK_ROWS));
     }
     // Answers that turned out too large to keep: ask for those values here too, uncached.
     const resend = answered.filter(({ rows: answer }) => !answer)

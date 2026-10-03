@@ -28,7 +28,9 @@ place until its response headers arrive; the body is read outside the queue.
   only when its host and each such group can all start it then, so a host's own limits hold
   within its group's: a rate for `query.wikidata.org` does not take it out of a cap on
   `*.wikidata.org`, and a cap on the group that holds the host's requests back does not let
-  them all start at once when it has room, past the host's rate.
+  them all start at once when it has room, past the host's rate. A group starts its hosts'
+  requests in the order they arrived: one host with requests always waiting does not keep
+  the group's places from another host's request that has waited longer.
 - The actor's `hosts` are limits of the same form that hold unless the context overrides
   them, field by field. `kgf-sparql` starts at most one request a second to QLever's hosts
   (`qlever.dev`, `qlever.cs.uni-freiburg.de`), about the rate its Wikidata endpoint was
@@ -49,10 +51,11 @@ await new QueryEngine().queryBindings(query, {
 A 429 or 503, or a 405 with `Retry-After` as DBpedia sends, is a refusal. It teaches the
 host and each group it is in.
 
-- With `Retry-After`, the host starts nothing until then, and nothing else changes: the
-  server said when to come back, as KGF's admission gate does with `Retry-After: 1`. The
-  pause lasts no longer than the context's `httpRetryDelayLimit`: a request asked to wait
-  past it gives up, and the host's others wait no longer either.
+- With `Retry-After`, in seconds (a fraction allowed) or as an HTTP date, the host starts
+  nothing until then, and nothing else changes: the server said when to come back, as
+  KGF's admission gate does with `Retry-After: 1`. The pause lasts no longer than the
+  context's `httpRetryDelayLimit`: a request asked to wait past it gives up, and the host's
+  others wait no longer either.
 - Without it, the host's interval between starts doubles, from 250 ms up to 10 s, and every
   answer that is not a refusal takes a tenth off it, so the host settles near the rate it
   accepts. Only requests started since the last change count: the requests of one burst are
@@ -63,8 +66,8 @@ host and each group it is in.
 - Invalidating the HTTP cache (`engine.invalidateHttpCache()`, for a URL or for all)
   forgets the pause and the interval, as it clears Comunica's retry actor's delays.
 
-A refused request is retried through its host's queue, ahead of requests not yet sent, up
-to `httpRetryCount` times, or the actor's `retries` (5) when the context sets no count.
+A refused request is retried through its host's queue, ahead of requests that arrived after
+it, up to `httpRetryCount` times, or the actor's `retries` (5) when the context sets no count.
 Comunica's retry actor is told to stand aside, since its retries would bypass the pacing or
 multiply this actor's, and this actor keeps its other duties: with `httpRetryCount` set, a
 504 or a status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When

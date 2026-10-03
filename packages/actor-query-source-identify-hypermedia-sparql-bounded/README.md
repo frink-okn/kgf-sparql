@@ -44,8 +44,10 @@ and retries included.
 
 ## Request time
 
-The source reports the time its COUNT spent with the server as the metadata's
-`requestTime`, or the time of its last request for a count it already knew. Comunica's
+The source reports the time its COUNT spent with the server, until the count arrived, as
+the metadata's `requestTime`. A count it already knew, or one that timed out or failed,
+reports the time of its last answered COUNT: a COUNT that timed out took as long as it was
+let, and when it stood for the endpoint's requests it charged every later probe 3 s. Comunica's
 SPARQL source reports none, so a join's cost model charged nothing per request to an
 endpoint, and a bind join sending one request per row costed the same as one sending a
 block of rows. Once counts were bounded, the two came out equal but for the block held, and

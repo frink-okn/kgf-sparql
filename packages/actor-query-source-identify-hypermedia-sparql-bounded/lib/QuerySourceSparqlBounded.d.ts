@@ -36,8 +36,10 @@ import type { AsyncIterator } from 'asynciterator';
  * one that sends a block of rows at a time. With uncapped counts the difference was hidden by
  * accident, since large counts timed out to an unknown size; with every count answered, the
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
- * spent with the server, until its count arrived or the timeout reported it unknown, is the
- * metadata's `requestTime`, or, for a count already known, the time of this source's last.
+ * spent with the server until its count arrived is the metadata's `requestTime`. A count
+ * already known, or one that timed out or failed, takes the time of this source's last answered
+ * COUNT: a timed-out one took as long as it was let, and once stood for every later request to
+ * the endpoint, charging each probe 3 s.
  *
  * ## Bindings are not counted
  *
@@ -72,6 +74,14 @@ export declare class QuerySourceSparqlBounded extends QuerySourceSparql {
      * its graph is kept, which Comunica's drops, counting a `GRAPH` pattern in the default graph.
      */
     operationToNormalizedCountQuery(operation: Algebra.Operation): Promise<string>;
+    /**
+     * A pattern with each variable renamed for the first position it fills (`s`, `p`, `o`, `g`),
+     * so that a repeated variable stays repeated: `?x <p> ?x` is counted as `?s <p> ?s`. Comunica
+     * renames each position apart, and counted every `<p>` statement as that pattern's exact
+     * size. A pattern with a quoted triple is kept as it is: the variables inside it are not
+     * renamed, and the new names could meet them.
+     */
+    private normalize;
     protected attachMetadata(target: AsyncIterator<any>, context: IActionContext, operationPromise: Promise<Algebra.Operation>): void;
     /** A count that reached the cap is an estimate, a lower bound, not an exact count. */
     private static bound;

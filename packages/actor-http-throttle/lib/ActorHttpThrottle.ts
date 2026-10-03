@@ -91,7 +91,8 @@ const SHORTEST_INTERVAL_MS = 10;
  * its host and every such group it is in can all start it at that moment, so a host's own
  * limits hold within its group's, never in place of them. (A request used to take its host's
  * turn and then wait for the group's, and a group that held several back let them all start
- * at once, past the host's rate.) Requests with other limits for the same host or group, as
+ * at once, past the host's rate.) A group starts its hosts' requests in the order they
+ * arrived. Requests with other limits for the same host or group, as
  * another query's context gives, wait in a queue of their own, so each query's limits hold for
  * its requests; a queue no request holds is let go.
  *
@@ -108,7 +109,7 @@ const SHORTEST_INTERVAL_MS = 10;
  * about the host's rate. Invalidating the HTTP cache, for a URL or for all, forgets what
  * refusals taught, as it clears Comunica's retry actor's delays.
  *
- * A refused request is retried through the queue, ahead of requests not yet sent, up to the
+ * A refused request is retried through the queue, ahead of requests that arrived after it, up to the
  * context's `httpRetryCount` or else `retries` times. Comunica's own retry actor is told to
  * stand aside, and this one keeps its other duties: with `httpRetryCount` set, a 504 or a
  * status in `httpRetryStatusCodes` is retried after `httpRetryDelayFallback`. When retries run
@@ -134,6 +135,8 @@ export class ActorHttpThrottle extends ActorHttp {
   private readonly queues = new Map<string, HostQueue>();
   /** What refusals taught, per host or group, shared by its queues. */
   private readonly pacings = new Map<string, Pacing>();
+  /** The order requests arrived in, which a group keeps across its hosts' queues. */
+  private arrivals = 0;
 
   public constructor(args: IActorHttpThrottleArgs) {
     super(args);
@@ -177,6 +180,8 @@ export class ActorHttpThrottle extends ActorHttp {
     const replayable = ActorHttpThrottle.replayable(action.init?.body);
     const listener = action.context.get(KEY_HTTP_ATTEMPT_LISTENER);
     const context = action.context.set(KEY_WRAPPED, true).set(KEY_STOCK_RETRY_WRAPPED, true);
+    // A retry keeps the request's place in arrival order, ahead of those that came after it.
+    const arrival = this.arrivals++;
     const leave = (): void => {
       for (const queue of queues) {
         queue.leave();
@@ -184,7 +189,7 @@ export class ActorHttpThrottle extends ActorHttp {
       listener?.settled();
     };
     for (let attempt = 0; ; attempt++) {
-      await queues[0].enter(queues, signal, attempt > 0);
+      await queues[0].enter(queues, signal, arrival);
       const started = Date.now();
       listener?.sent();
       let response: IActorHttpOutput;
@@ -325,13 +330,22 @@ export class ActorHttpThrottle extends ActorHttp {
       (response.status === 405 && response.headers.has('retry-after'));
   }
 
-  /** Milliseconds a `Retry-After` value asks for, in seconds or as an HTTP date. */
+  /**
+   * Milliseconds a `Retry-After` value asks for, in seconds (whole, or with a fraction, as some
+   * servers send) or as an HTTP date, which names its day or month. Anything else asks for
+   * nothing: `Date.parse` reads `0.5` as a date in 2000, which would retry at once.
+   */
   public static retryAfter(value: string | null): number | undefined {
     if (value === null) {
       return undefined;
     }
     const trimmed = value.trim();
-    const wait = /^\d+$/u.test(trimmed) ? Number(trimmed) * 1_000 : Date.parse(trimmed) - Date.now();
+    let wait = Number.NaN;
+    if (/^\d+(?:\.\d+)?$/u.test(trimmed)) {
+      wait = Number(trimmed) * 1_000;
+    } else if (/[a-z]/iu.test(trimmed)) {
+      wait = Date.parse(trimmed) - Date.now();
+    }
     return Number.isNaN(wait) ? undefined : Math.max(0, wait);
   }
 
@@ -397,6 +411,8 @@ export function hostNames(url: URL): string[] {
 interface IWaiter {
   /** The request's queues: its host's, in whose waiting list it is, then its groups'. */
   queues: HostQueue[];
+  /** When the request first arrived, against the actor's other requests. */
+  arrival: number;
   admit: () => void;
 }
 
@@ -500,10 +516,11 @@ class HostQueue {
   }
 
   /**
-   * Waits until the request may start in this queue, its host's, and in each of `queues`, at
-   * the back of this queue or, for a retry, at the front. It then holds a place in all of them.
+   * Waits until the request may start in this queue, its host's, and in each of `queues`, in
+   * order of `arrival`: at the back of this queue, or, for a retry, ahead of the requests that
+   * arrived after it. It then holds a place in all of them.
    */
-  public async enter(queues: HostQueue[], signal: AbortSignal | undefined, front: boolean): Promise<void> {
+  public async enter(queues: HostQueue[], signal: AbortSignal | undefined, arrival: number): Promise<void> {
     signal?.throwIfAborted();
     await new Promise<void>((resolve, reject) => {
       const abort = (): void => {
@@ -517,16 +534,20 @@ class HostQueue {
       };
       const waiter: IWaiter = {
         queues,
+        arrival,
         admit: () => {
           signal?.removeEventListener('abort', abort);
           resolve();
         },
       };
       signal?.addEventListener('abort', abort, { once: true });
-      if (front) {
-        this.waiting.unshift(waiter);
-      } else {
+      const later = this.waiting.length > 0 && this.waiting.at(-1)!.arrival > arrival ?
+        this.waiting.findIndex(other => other.arrival > arrival) :
+        -1;
+      if (later < 0) {
         this.waiting.push(waiter);
+      } else {
+        this.waiting.splice(later, 0, waiter);
       }
       this.pump();
     });
@@ -537,10 +558,15 @@ class HostQueue {
     this.unblock();
   }
 
-  /** Pumps this queue, and the host queues whose waiters it held back. */
+  /**
+   * Pumps this queue, and then the host queues whose waiters it held back, the one whose next
+   * request arrived first going first. (In the order they were held back, a host whose next
+   * request was held back again went first again: one host with requests to send kept every
+   * place in its group from another host's request that had waited longer.)
+   */
   public unblock(): void {
     this.pump();
-    const blocked = [ ...this.blocked ];
+    const blocked = [ ...this.blocked ].sort((left, right) => (left.nextArrival() - right.nextArrival()) || 0);
     this.blocked.clear();
     for (const queue of blocked) {
       queue.pump();
@@ -550,8 +576,10 @@ class HostQueue {
   /**
    * Admits the waiters that may start now in every one of their queues, and arranges to look
    * again for the next one that may not: a timer for a spacing or a pause, or a word from the
-   * queue that is full. Admission takes a place in all of a request's queues at once, and
-   * stamps each one's last start, so that each queue's rate counts from the actual start.
+   * queue that is full. A group that holds a waiter back sets the timer itself, so that its
+   * hosts' waiters start in the order they arrived. Admission takes a place in all of a
+   * request's queues at once, and stamps each one's last start, so that each queue's rate
+   * counts from the actual start.
    */
   public pump(): void {
     while (this.waiting.length > 0) {
@@ -569,8 +597,11 @@ class HostQueue {
       if (start > now) {
         if (holder !== this) {
           holder.blocked.add(this);
-        }
-        if (Number.isFinite(start)) {
+          this.unwake();
+          if (Number.isFinite(start)) {
+            holder.wake(start - now);
+          }
+        } else if (Number.isFinite(start)) {
           this.wake(start - now);
         } else {
           // Full: the queue that is full pumps this one when it has room.
@@ -597,7 +628,12 @@ class HostQueue {
     return Math.max(this.pacing.lastStart + this.interval, this.pacing.until);
   }
 
-  /** Pumps again after `delay`, unless an earlier wake is already set. */
+  /** When the request waiting first in this queue arrived, if one waits. */
+  private nextArrival(): number {
+    return this.waiting[0]?.arrival ?? Number.POSITIVE_INFINITY;
+  }
+
+  /** Pumps again, with the queues held back, after `delay`, unless an earlier wake is already set. */
   private wake(delay: number): void {
     const at = Date.now() + delay;
     if (this.timer !== undefined) {
@@ -609,7 +645,7 @@ class HostQueue {
     this.timerAt = at;
     this.timer = setTimeout(() => {
       this.timer = undefined;
-      this.pump();
+      this.unblock();
     }, delay);
   }
 

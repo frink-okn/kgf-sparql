@@ -51,8 +51,10 @@ const KEY_BOUND = new ActionContextKey<boolean>('@kgf/actor-query-source-identif
  * one that sends a block of rows at a time. With uncapped counts the difference was hidden by
  * accident, since large counts timed out to an unknown size; with every count answered, the
  * two came out equal but for the block held, and the per-row join won. The time the COUNT
- * spent with the server, until its count arrived or the timeout reported it unknown, is the
- * metadata's `requestTime`, or, for a count already known, the time of this source's last.
+ * spent with the server until its count arrived is the metadata's `requestTime`. A count
+ * already known, or one that timed out or failed, takes the time of this source's last answered
+ * COUNT: a timed-out one took as long as it was let, and once stood for every later request to
+ * the endpoint, charging each probe 3 s.
  *
  * ## Bindings are not counted
  *
@@ -111,19 +113,39 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
     const cap = this.caps.get(operation) ?? this.identifiedCap;
     const df = this.countDataFactory;
     const af = this.countAlgebraFactory;
-    const normalized = isKnownOperation(operation, Algebra.Types.PATTERN) ?
-      af.createPattern(
-        operation.subject.termType === 'Variable' ? df.variable('s') : operation.subject,
-        operation.predicate.termType === 'Variable' ? df.variable('p') : operation.predicate,
-        operation.object.termType === 'Variable' ? df.variable('o') : operation.object,
-        operation.graph.termType === 'Variable' ? df.variable('g') : operation.graph,
-      ) :
-      operation;
+    const normalized = isKnownOperation(operation, Algebra.Types.PATTERN) ? this.normalize(operation) : operation;
     if (!Number.isFinite(cap)) {
       return await this.operationToCountQuery(df, af, normalized);
     }
     const bounded = af.createSlice(af.createProject(normalized, algebraUtils.inScopeVariables(normalized)), 0, cap + 1);
     return await this.operationToCountQuery(df, af, bounded);
+  }
+
+  /**
+   * A pattern with each variable renamed for the first position it fills (`s`, `p`, `o`, `g`),
+   * so that a repeated variable stays repeated: `?x <p> ?x` is counted as `?s <p> ?s`. Comunica
+   * renames each position apart, and counted every `<p>` statement as that pattern's exact
+   * size. A pattern with a quoted triple is kept as it is: the variables inside it are not
+   * renamed, and the new names could meet them.
+   */
+  private normalize(pattern: Algebra.Pattern): Algebra.Pattern {
+    const terms = [ pattern.subject, pattern.predicate, pattern.object, pattern.graph ];
+    if (terms.some(term => term.termType === 'Quad')) {
+      return pattern;
+    }
+    const renamed = new Map<string, ReturnType<ComunicaDataFactory['variable']>>();
+    const [ subject, predicate, object, graph ] = terms.map((term, position) => {
+      if (term.termType !== 'Variable') {
+        return term;
+      }
+      let variable = renamed.get(term.value);
+      if (!variable) {
+        variable = this.countDataFactory.variable('spog'[position]);
+        renamed.set(term.value, variable);
+      }
+      return variable;
+    });
+    return this.countAlgebraFactory.createPattern(subject, predicate, object, graph);
   }
 
   protected override attachMetadata(
@@ -136,19 +158,19 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
     let timer: ReturnType<typeof setTimeout> | undefined;
     /** When the attempt with the server now was sent, if one is. */
     let sentAt: number | undefined;
-    /** How long the last attempt that ended was with the server. */
-    let requestTime: number | undefined;
+    /**
+     * Writes the metadata once. Only a count the server answered times a request: one that
+     * timed out or failed took as long as it was let, and the time of a refused attempt is the
+     * refusal's, so the source's last answered COUNT's time stands for them.
+     */
     const write = (metadata: MetadataBindings): void => {
       if (!written) {
         written = true;
         clearTimeout(timer);
-        if (sentAt !== undefined) {
-          requestTime = Date.now() - sentAt;
+        if (sentAt !== undefined && Number.isFinite(metadata.cardinality.value)) {
+          this.lastRequestTime = Date.now() - sentAt;
         }
-        if (requestTime !== undefined) {
-          this.lastRequestTime = requestTime;
-        }
-        const time = requestTime ?? this.lastRequestTime;
+        const time = this.lastRequestTime;
         target.setProperty('metadata', QuerySourceSparqlBounded.bound(
           time === undefined ? metadata : { ...metadata, requestTime: time },
           cap,
@@ -195,10 +217,7 @@ export class QuerySourceSparqlBounded extends QuerySourceSparql {
       retrying: () => {
         clearTimeout(timer);
         timer = undefined;
-        if (sentAt !== undefined) {
-          requestTime = Date.now() - sentAt;
-          sentAt = undefined;
-        }
+        sentAt = undefined;
       },
     };
     const metadataOnly = <AsyncIterator<any>> <unknown> {

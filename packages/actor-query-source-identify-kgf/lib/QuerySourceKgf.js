@@ -76,20 +76,25 @@ class QuerySourceKgf {
         const variables = [...new Set(POSITIONS.map(position => pattern[position])
                 .filter(term => term.termType === 'Variable').map(term => term.value))];
         let rows;
+        /** Each row's size in the body, in UTF-8 bytes. */
+        const rowSizes = [];
         if (options?.filterBindings) {
             const bindings = await options.filterBindings.bindings.toArray();
             if (bindings.length === 0) {
                 return undefined;
             }
+            // A row is keyed by its encoding in the body, so that encoding also gives its size.
             const seen = new Set();
-            rows = bindings.map(binding => variables.map(variable => binding.get(variable))).filter(row => {
-                const key = JSON.stringify(row.map(term => term && encodeTerm(term)));
-                if (seen.has(key)) {
-                    return false;
+            rows = [];
+            for (const binding of bindings) {
+                const row = variables.map(variable => binding.get(variable));
+                const key = JSON.stringify(bindingRow(row));
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    rows.push(row);
+                    rowSizes.push(utf8Length(key));
                 }
-                seen.add(key);
-                return true;
-            });
+            }
             if (variables.length === 0) {
                 rows = undefined;
             }
@@ -109,8 +114,8 @@ class QuerySourceKgf {
             const empty = bytes({ ...bindingBody(pattern, variables, []), limit: pageSize });
             let batch = { rows: [], offset: 0 };
             let size = empty;
-            for (const row of rows) {
-                const rowSize = bytes(bindingRow(row));
+            for (const [index, row] of rows.entries()) {
+                const rowSize = rowSizes[index];
                 if (batch.rows.length && (batch.rows.length + 1 > batchSize || size + 1 + rowSize > budget)) {
                     batches.push(batch);
                     batch = { rows: [], offset: batch.offset + batch.rows.length };
@@ -325,8 +330,30 @@ function matchesBinding(quad, pattern, variables, row) {
         return !bound || bound.equals(quad[position]);
     });
 }
-const encoder = new TextEncoder();
-function bytes(body) { return encoder.encode(JSON.stringify(body)).length; }
+function bytes(body) { return utf8Length(JSON.stringify(body)); }
+/** The length of a string in UTF-8 bytes, as `TextEncoder` would encode it, without encoding it. */
+function utf8Length(text) {
+    let length = 0;
+    for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+        if (code < 0x80) {
+            length += 1;
+        }
+        else if (code < 0x800) {
+            length += 2;
+        }
+        else if (code >= 0xD800 && code < 0xDC00 && (text.charCodeAt(i + 1) & 0xFC00) === 0xDC00) {
+            // A surrogate pair is one character of four bytes.
+            length += 4;
+            i++;
+        }
+        else {
+            // A lone surrogate is encoded as U+FFFD, three bytes, as is every other character.
+            length += 3;
+        }
+    }
+    return length;
+}
 function setting(value, fallback, name) {
     if (value !== undefined && (0, KgfClient_1.positiveInteger)(value, 0) === 0) {
         throw new Error(`KGF ${name} must be a positive safe integer`);

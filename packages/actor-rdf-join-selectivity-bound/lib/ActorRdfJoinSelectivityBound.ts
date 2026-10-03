@@ -9,6 +9,7 @@ import { ActionContextKey, failTest, passTest } from '@comunica/core';
 import type { IMediatorTypeAccuracy } from '@comunica/mediatortype-accuracy';
 import type { IJoinEntry, MetadataBindings } from '@comunica/types';
 import { Algebra } from '@comunica/utils-algebra';
+import { getOperationSource } from '@comunica/utils-query-operation';
 
 /**
  * Set while this actor asks the selectivity bus for the estimate it bounds, so that the
@@ -35,10 +36,14 @@ export const KEY_SELECTIVITY_BOUND_DELEGATING = new ActionContextKey<boolean>(
  * stay covered by the entries that remain. The bound is the product of the remaining
  * cardinalities, so every entry that remains must have an exact one: an estimate may be a
  * lower bound, as a SPARQL count that reached its cap or an incomplete KGF count is, and a
- * product of lower bounds bounds nothing. Entries with an estimate are removed first, and
- * when one cannot be, there is no bound. A union of `k` set-valued branches can match a
- * fixed assignment up to `k` times, so removing it multiplies the bound by `k`; entries
- * whose multiplicity is unknown are never removed.
+ * product of lower bounds bounds nothing. Only a size its sources counted is exact here:
+ * Comunica labels a join's result exact whenever its inputs are, though its size is their
+ * product times an estimated selectivity, which may be far below the true one. So an entry
+ * that a join computed, or any operation that is not a source's (or a union of them), counts
+ * as estimated. Entries with an estimate are removed first, and when one cannot be, there is
+ * no bound. A union of `k` set-valued branches can match a fixed assignment up to `k` times,
+ * so removing it multiplies the bound by `k`; entries whose multiplicity is unknown are never
+ * removed.
  *
  * ## How it composes
  *
@@ -97,18 +102,17 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
     return { selectivity: Math.max(bound / product, Number.MIN_VALUE) };
   }
 
-  /** The estimate this actor caps: whatever the bus answers without it. */
+  /**
+   * The estimate this actor caps: whatever the bus answers without it. When no other actor
+   * answers, the product is the only estimate there is; one that fails while answering fails
+   * the estimate, as it would without this actor.
+   */
   private async delegate(action: IActionRdfJoinSelectivity): Promise<number> {
-    try {
-      const { selectivity } = await this.mediatorJoinSelectivity.mediate({
-        ...action,
-        context: action.context.set(KEY_SELECTIVITY_BOUND_DELEGATING, true),
-      });
-      return selectivity;
-    } catch {
-      // No other actor answers: the product is the only estimate there is.
-      return 1;
-    }
+    const delegated = await this.mediatorJoinSelectivity.mediateTestable({
+      ...action,
+      context: action.context.set(KEY_SELECTIVITY_BOUND_DELEGATING, true),
+    });
+    return delegated.isPassed() ? delegated.get().selectivity : 1;
   }
 
   /**
@@ -122,7 +126,8 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
     }
     const variables = metadatas.map(metadata => new Set(metadata.variables.map(variable => variable.variable.value)));
     const cardinalities = metadatas.map(metadata => metadata.cardinality.value);
-    const exact = metadatas.map(metadata => metadata.cardinality.type === 'exact');
+    const exact = metadatas.map((metadata, i) =>
+      metadata.cardinality.type === 'exact' && ActorRdfJoinSelectivityBound.counted(entries[i]));
     const multiplicities = entries.map(entry => ActorRdfJoinSelectivityBound.multiplicity(entry.operation));
     const remaining = new Set(entries.map((_, i) => i));
     let factor = 1;
@@ -154,6 +159,20 @@ export class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivity {
       return Number.POSITIVE_INFINITY;
     }
     return [ ...remaining ].reduce((acc, i) => acc * cardinalities[i], factor);
+  }
+
+  /**
+   * Whether an entry's size is the count its sources gave: the entry was not computed by a
+   * join, and its operation is a source's, or a union of sources' operations, whose size is
+   * the sum of theirs.
+   */
+  public static counted(entry: IJoinEntry): boolean {
+    return !entry.operationModified && ActorRdfJoinSelectivityBound.sourced(entry.operation);
+  }
+
+  private static sourced(operation: Algebra.Operation): boolean {
+    return getOperationSource(operation) !== undefined || (operation.type === Algebra.Types.UNION &&
+      (<Algebra.Union> operation).input.every(input => ActorRdfJoinSelectivityBound.sourced(input)));
   }
 
   /**

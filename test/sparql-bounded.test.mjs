@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ActionContext } from '@comunica/core';
+import { ActorQuerySerializeSparql } from '@comunica/actor-query-serialize-sparql';
+import { ActionContext, Bus } from '@comunica/core';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import {
   QuerySourceSparqlBounded,
 } from '@kgf/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
 import { BufferedIterator } from 'asynciterator';
+import { ActorHttpThrottle } from '@kgf/actor-http-throttle';
 import { KEY_HTTP_HOST_LIMITS, KEY_SPARQL_COUNT_CAP_HOSTS, QueryEngine } from 'kgf-sparql';
 import { DataFactory } from 'rdf-data-factory';
 import { EP, server } from './helpers/mock-kgf.mjs';
@@ -232,4 +234,61 @@ test('each query\'s cap holds for its COUNTs, though the engine keeps the source
   fake.requests.length = 0;
   await query({ [KEY_SPARQL_COUNT_CAP_HOSTS.name]: { 'sparql.test': null } });
   assert.ok(planning().every(request => !/LIMIT/u.test(request.query)), 'and a third counts in full');
+});
+
+/**
+ * A bounded source of its own over `fetch`, its requests paced by the throttle (whose attempt
+ * listener times the COUNTs), with an LRU of counts and `attemptTimeout` ms per COUNT attempt.
+ */
+function boundedSource(fetch, attemptTimeout = 3_000) {
+  const df = new DataFactory();
+  const af = new AlgebraFactory(df);
+  const serializer = new ActorQuerySerializeSparql({ name: 'serialize', bus: new Bus({ name: 'serialize' }) });
+  const mediatorQuerySerialize = { mediate: async action => serializer.run(action) };
+  const transport = { mediate: async action => fetch(action.input, action.init) };
+  const throttle = new ActorHttpThrottle({ name: 'throttle', bus: new Bus({ name: 'http' }), mediatorHttp: transport });
+  const mediatorHttp = { mediate: async action => throttle.run(action) };
+  const source = new QuerySourceSparqlBounded(() => 1_000, attemptTimeout, ENDPOINT, ENDPOINT, new ActionContext(), mediatorHttp,
+    mediatorQuerySerialize, 'values', df, af, new BindingsFactory(df), false, 16, 30_000, true, false, 600, false, {});
+  const metadata = async operation => await new Promise(resolve =>
+    source.queryBindings(operation, new ActionContext()).getProperty('metadata', resolve));
+  return { df, af, source, metadata };
+}
+
+test('a repeated variable stays repeated in the COUNT, and its count is its own', async() => {
+  // Each position was renamed apart: `?x <urn:p> ?x` was counted as every <urn:p> statement,
+  // and that count reported as the pattern's exact size.
+  const { df, af, source } = boundedSource(async() => new Response('', { status: 500 }));
+  const x = df.variable('x');
+  const count = async pattern => (await source.operationToNormalizedCountQuery(pattern)).replace(/\s+/gu, ' ');
+  assert.match(await count(af.createPattern(x, df.namedNode('urn:p'), x)), /\?s <urn:p> \?s/u);
+  assert.match(await count(af.createPattern(df.variable('a'), df.namedNode('urn:p'), df.variable('b'))), /\?s <urn:p> \?o/u);
+  assert.match(await count(af.createPattern(x, df.variable('p'), df.variable('o'), x)), /GRAPH \?s \{ \?s \?p \?o/u);
+});
+
+test('a COUNT that timed out does not stand for the time of the endpoint\'s requests', async() => {
+  // A COUNT timed out after its attempt's 200 ms used to become the source's request time, and
+  // every count already known, and every probe, then reported it: here, a request of 30 ms.
+  const sparqlCount = value => new Response(JSON.stringify({ head: { vars: [ 'count' ] },
+    results: { bindings: [{ count: { type: 'literal', value: String(value), datatype: XSD_INTEGER }}] }}), {
+    headers: { 'content-type': 'application/sparql-results+json' },
+  });
+  const { df, af, metadata } = boundedSource(async(input, init) => {
+    const slow = decodeURIComponent(`${input} ${init?.body ?? ''}`).includes('urn:slow');
+    await sleep(slow ? 600 : 30);
+    return sparqlCount(5);
+  }, 200);
+  const fast = af.createPattern(df.variable('a'), df.namedNode('urn:fast'), df.variable('b'));
+  const slow = af.createPattern(df.variable('a'), df.namedNode('urn:slow'), df.variable('b'));
+  const answered = await metadata(fast);
+  assert.equal(answered.cardinality.value, 5);
+  assert.ok(answered.requestTime >= 25 && answered.requestTime < 150, `${answered.requestTime} ms`);
+  const timedOut = await metadata(slow);
+  assert.equal(timedOut.cardinality.value, Number.POSITIVE_INFINITY);
+  assert.equal(timedOut.requestTime, answered.requestTime, 'the last answered COUNT\'s time stands for it');
+  const known = await metadata(fast);
+  assert.equal(known.cardinality.value, 5);
+  assert.equal(known.requestTime, answered.requestTime);
+  // Let the slow COUNT, which carries on, finish.
+  await sleep(450);
 });

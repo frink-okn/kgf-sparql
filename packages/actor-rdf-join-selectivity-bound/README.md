@@ -34,6 +34,16 @@ that), and so is an incomplete KGF count: two such patterns on `?x` would otherw
 a join of tens of millions at a million. Entries with estimates are removed first, and
 when one has to remain there is no bound.
 
+An exact size is one a source counted: the entry's operation is a source's, or a union of
+sources' operations, and no join computed it. Comunica labels a join's result exact whenever
+its inputs are, though its size is their product times an estimated selectivity, which may
+be far below the truth; bounding by it could cap a join of 40,000 rows at 50. Such an entry
+counts as estimated.
+
+When no other selectivity actor answers, the bound is taken against the product of the
+input sizes. One that fails while answering fails the estimate, as it would without this
+actor.
+
 Most users want [`kgf-sparql`](https://www.npmjs.com/package/kgf-sparql), which is Comunica
 with this actor already registered.
 

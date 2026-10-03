@@ -27,10 +27,14 @@ export declare const KEY_SELECTIVITY_BOUND_DELEGATING: ActionContextKey<boolean>
  * stay covered by the entries that remain. The bound is the product of the remaining
  * cardinalities, so every entry that remains must have an exact one: an estimate may be a
  * lower bound, as a SPARQL count that reached its cap or an incomplete KGF count is, and a
- * product of lower bounds bounds nothing. Entries with an estimate are removed first, and
- * when one cannot be, there is no bound. A union of `k` set-valued branches can match a
- * fixed assignment up to `k` times, so removing it multiplies the bound by `k`; entries
- * whose multiplicity is unknown are never removed.
+ * product of lower bounds bounds nothing. Only a size its sources counted is exact here:
+ * Comunica labels a join's result exact whenever its inputs are, though its size is their
+ * product times an estimated selectivity, which may be far below the true one. So an entry
+ * that a join computed, or any operation that is not a source's (or a union of them), counts
+ * as estimated. Entries with an estimate are removed first, and when one cannot be, there is
+ * no bound. A union of `k` set-valued branches can match a fixed assignment up to `k` times,
+ * so removing it multiplies the bound by `k`; entries whose multiplicity is unknown are never
+ * removed.
  *
  * ## How it composes
  *
@@ -53,7 +57,11 @@ export declare class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivit
     constructor(args: IActorRdfJoinSelectivityBoundArgs);
     test(action: IActionRdfJoinSelectivity): Promise<TestResult<IMediatorTypeAccuracy>>;
     run(action: IActionRdfJoinSelectivity): Promise<IActorRdfJoinSelectivityOutput>;
-    /** The estimate this actor caps: whatever the bus answers without it. */
+    /**
+     * The estimate this actor caps: whatever the bus answers without it. When no other actor
+     * answers, the product is the only estimate there is; one that fails while answering fails
+     * the estimate, as it would without this actor.
+     */
     private delegate;
     /**
      * An upper bound on the number of rows the join of `entries` produces, or `Infinity`
@@ -61,6 +69,13 @@ export declare class ActorRdfJoinSelectivityBound extends ActorRdfJoinSelectivit
      * be removed.
      */
     static upperBound(entries: IJoinEntry[], metadatas: MetadataBindings[]): number;
+    /**
+     * Whether an entry's size is the count its sources gave: the entry was not computed by a
+     * join, and its operation is a source's, or a union of sources' operations, whose size is
+     * the sum of theirs.
+     */
+    static counted(entry: IJoinEntry): boolean;
+    private static sourced;
     /**
      * How many times one solution can occur in the operation's output, assuming every
      * source answers a triple pattern with a set. `Infinity` when it cannot be told.

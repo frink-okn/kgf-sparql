@@ -355,3 +355,55 @@ test('a queue no request holds is let go, and the host\'s rate outlives it', asy
   assert.equal(actor.queues.size, 0);
   assert.ok(gaps(calls).every(gap => gap >= 45), `${gaps(calls)} ms between starts at 20 a second, across queues`);
 });
+
+test('a group starts its hosts\' requests in the order they arrived', async() => {
+  // One host that always had a request waiting kept every place in its group: a request to
+  // the other host, queued while three were waiting, started after all twenty.
+  const { calls, fetch } = throttle(undefined, { hold: 5 });
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { '*.wikidata.example': { inFlight: 1 }}};
+  const issued = [];
+  const send = (url) => {
+    issued.push(url);
+    return fetch(url, settings);
+  };
+  let n = 0;
+  const main = async() => {
+    while (n < 20) {
+      await send(`https://query-main.wikidata.example/q${n++}`);
+    }
+  };
+  const loops = [ main(), main(), main() ];
+  await sleep(2);
+  const scholarly = 'https://query-scholarly.wikidata.example/x';
+  await Promise.all([ ...loops, send(scholarly) ]);
+  const started = calls.map(call => call.url);
+  const later = issued.slice(issued.indexOf(scholarly) + 1);
+  assert.ok(later.length > 0);
+  assert.ok(later.every(url => started.indexOf(url) > started.indexOf(scholarly)),
+    `started ${started.indexOf(scholarly) + 1}th of ${started.length}, issued ${issued.indexOf(scholarly) + 1}th`);
+});
+
+test('a group paced by rate starts its hosts\' requests in the order they arrived', async() => {
+  const { calls, fetch } = throttle();
+  const settings = { [KEY_HTTP_HOST_LIMITS.name]: { '*.wikidata.example': { perSecond: 100 }}};
+  const urls = [
+    'https://a.wikidata.example/1', 'https://b.wikidata.example/1', 'https://a.wikidata.example/2',
+    'https://b.wikidata.example/2', 'https://a.wikidata.example/3', 'https://b.wikidata.example/3',
+  ];
+  await Promise.all(urls.map(url => fetch(url, settings)));
+  assert.deepEqual(calls.map(call => call.url), urls);
+});
+
+test('Retry-After in seconds may have a fraction, and only a date is read as a date', async() => {
+  assert.equal(ActorHttpThrottle.retryAfter('2'), 2_000);
+  assert.equal(ActorHttpThrottle.retryAfter(' 0.5 '), 500);
+  // Date.parse reads these as dates in 2000 and 2001, which asked to retry at once.
+  assert.equal(ActorHttpThrottle.retryAfter('1.5.3'), undefined);
+  assert.equal(ActorHttpThrottle.retryAfter('soon'), undefined);
+  const inFiveSeconds = new Date(Date.now() + 5_000).toUTCString();
+  assert.ok(ActorHttpThrottle.retryAfter(inFiveSeconds) > 3_000);
+  assert.equal(ActorHttpThrottle.retryAfter('Wed, 21 Oct 2015 07:28:00 GMT'), 0);
+  const { calls, fetch } = throttle((_, call) => call === 0 ? refused(429, { 'retry-after': '0.3' }) : new Response('ok'));
+  assert.equal((await fetch('https://rate.example/x')).status, 200);
+  assert.ok(gaps(calls)[0] >= 290, `retried after ${gaps(calls)[0]} ms`);
+});
