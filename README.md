@@ -190,6 +190,15 @@ command line in-process.
 Requests use Comunica's HTTP mediator, so its `fetch`, authentication, timeout,
 and logging settings apply. Destroying a result stream stops further pagination.
 
+## Named graphs
+
+A bare pattern reads a KGF dataset's union, and `GRAPH` reaches its named graphs and
+its unnamed graph through two reserved IRIs. This holds for the native `kgf` source
+and for a stock `brtpf` source pointed at a dataset's TPF route, with no engine
+configuration: do not set Comunica's `unionDefaultGraph` context key for either. The
+contract the native source must implement, and what it does today, is in
+[docs/graph-semantics.md](docs/graph-semantics.md).
+
 ## VoID without preloading
 
 Automatic VoID join estimates are enabled for native KGF sources. No statistics
