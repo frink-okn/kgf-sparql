@@ -1,7 +1,7 @@
 node_modules/
-lib/**/*.js
-lib/**/*.d.ts
-lib/**/*.map
+packages/*/lib/**/*.js
+packages/*/lib/**/*.d.ts
+packages/*/lib/**/*.map
 *.tsbuildinfo
 packages/*/components/
 packages/kgf-sparql/engine-default.js
