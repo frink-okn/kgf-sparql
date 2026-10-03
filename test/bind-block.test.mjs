@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ActionContext, Bus } from '@comunica/core';
-import { KeysInitQuery, KeysRdfJoin } from '@comunica/context-entries';
+import { KeysInitQuery, KeysQueryOperation, KeysRdfJoin } from '@comunica/context-entries';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import { MetadataValidationState } from '@comunica/utils-metadata';
@@ -309,6 +309,10 @@ test('it refuses what it cannot help with', async() => {
     /found no entry/u, 'an entry smaller than the bound one is cheaper to fetch whole');
   assert.match(await refusal([ entry(on(ubergraph, v('cell'), n('label'), v('l')), Number.POSITIVE_INFINITY, [ 'cell', 'l' ]),
     entry(on(wikidata, v('w'), n('P7963'), v('cell')), Number.POSITIVE_INFINITY, [ 'w', 'cell' ]) ]), /known, non-zero size/u);
+  const silent = { ...wikidata.wrapper, context: new ActionContext({ [KeysQueryOperation.silent.name]: true }) };
+  assert.match(await refusal([ cells,
+    entry(assignOperationSource(af.createPattern(v('w'), n('P7963'), v('cell')), silent), 300_000, [ 'w', 'cell' ]) ]),
+  /SERVICE SILENT/u, 'a SERVICE SILENT target that failed once per block could not give its one empty solution');
 });
 
 test('the local join keys tell terms apart by language, datatype, and where one value ends', () => {

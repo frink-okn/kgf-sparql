@@ -101,6 +101,9 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
       limitEntriesMin: true,
       canHandleUndefs: false,
       isLeaf: false,
+      // Blocks reach a source one call each, so a SERVICE SILENT target that failed could not
+      // give the clause its one empty solution; Comunica then refuses this actor such a join.
+      pushesBindingsToSource: true,
     });
     this.blockSize = args.blockSize ?? 256;
     this.blocksInFlight = args.blocksInFlight ?? 4;

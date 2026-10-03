@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ActorQuerySerializeSparql } from '@comunica/actor-query-serialize-sparql';
+import { KeysQueryOperation } from '@comunica/context-entries';
 import { ActionContext, Bus } from '@comunica/core';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import {
   QuerySourceSparqlBounded,
 } from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
-import { BufferedIterator } from 'asynciterator';
+import {
+  ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded,
+} from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded';
+import { ArrayIterator, BufferedIterator } from 'asynciterator';
 import { ActorHttpThrottle } from '@frink-okn/actor-http-throttle';
 import { KEY_HTTP_HOST_LIMITS, KEY_SPARQL_COUNT_CAP_HOSTS, QueryEngine } from '@frink-okn/kgf-sparql';
 import { DataFactory } from 'rdf-data-factory';
@@ -291,4 +295,27 @@ test('a COUNT that timed out does not stand for the time of the endpoint\'s requ
   assert.equal(known.requestTime, answered.requestTime);
   // Let the slow COUNT, which carries on, finish.
   await sleep(450);
+});
+
+test('source selection keeps the target of a SERVICE SILENT clause without asking it', async() => {
+  const df = new DataFactory();
+  const af = new AlgebraFactory(df);
+  const prune = new ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded({
+    name: 'prune', bus: new Bus({ name: 'test' }), useAskIfSupported: false,
+  });
+  const asked = [];
+  const empty = () => {
+    asked.push('bindings');
+    const bindings = new ArrayIterator([], { autoStart: false });
+    bindings.setProperty('metadata', { cardinality: { type: 'exact', value: 0 }});
+    return bindings;
+  };
+  const wrapper = context => ({ source: { queryBindings: empty }, context });
+  const pattern = af.createPattern(df.variable('s'), df.namedNode('urn:p'), df.variable('o'));
+  assert.equal(await prune.hasSourceResults(af, wrapper(new ActionContext()), pattern, new ActionContext()), false,
+    'an empty source is dropped');
+  asked.length = 0;
+  const silent = new ActionContext({ [KeysQueryOperation.silent.name]: true });
+  assert.equal(await prune.hasSourceResults(af, wrapper(silent), pattern, new ActionContext()), true);
+  assert.deepEqual(asked, [], 'a SERVICE SILENT target that fails must still give its one empty solution');
 });

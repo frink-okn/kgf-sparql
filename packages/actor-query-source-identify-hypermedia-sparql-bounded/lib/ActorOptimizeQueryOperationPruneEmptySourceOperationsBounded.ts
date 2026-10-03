@@ -4,7 +4,7 @@ import type {
 import {
   ActorOptimizeQueryOperationPruneEmptySourceOperations,
 } from '@comunica/actor-optimize-query-operation-prune-empty-source-operations';
-import { KeysInitQuery, KeysQuerySourceIdentify } from '@comunica/context-entries';
+import { KeysInitQuery, KeysQueryOperation, KeysQuerySourceIdentify } from '@comunica/context-entries';
 import type { IActionContext, IQuerySourceWrapper, QueryResultCardinality } from '@comunica/types';
 import type { Algebra, AlgebraFactory } from '@comunica/utils-algebra';
 import { doesShapeAcceptOperation } from '@comunica/utils-query-operation';
@@ -43,6 +43,11 @@ export class ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded
     const wildcardAcceptAllExtensionFunctions = mergedContext.get(KeysInitQuery.extensionFunctionsAlwaysPushdown);
     // Traversal contexts are never empty at optimization time.
     if (mergedContext.get(KeysQuerySourceIdentify.traverse)) {
+      return true;
+    }
+    // The target of a SERVICE SILENT clause is never dropped: when it fails, the clause must
+    // give one empty solution rather than none, as Comunica's own source selection keeps it.
+    if (mergedContext.get(KeysQueryOperation.silent)) {
       return true;
     }
     const askOperation = (): Algebra.Ask => algebraFactory.createAsk(input);
