@@ -1,4 +1,4 @@
-# @frink-okn/actor-rdf-join-inner-multi-bind-block
+# @frink-okn/actor-rdf-join-multi-bind-block
 
 A [Comunica](https://comunica.dev/) bind join that sends the smallest entry's rows in
 blocks through every other entry that can take bindings, one after another, as FedX's

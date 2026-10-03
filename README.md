@@ -37,7 +37,7 @@ and the context keys, is in [packages/kgf-sparql](packages/kgf-sparql/README.md)
 | [`@frink-okn/actor-query-source-identify-kgf`](packages/actor-query-source-identify-kgf/) | the native KGF JSON source: counts before pages, bindings over HTTP `QUERY`, opaque cursors, lazy VoID |
 | [`@frink-okn/actor-rdf-join-selectivity-void`](packages/actor-rdf-join-selectivity-void/) | join selectivity from VoID statistics, for any source that publishes them |
 | [`@frink-okn/actor-rdf-join-selectivity-bound`](packages/actor-rdf-join-selectivity-bound/) | an upper bound on any join-size estimate |
-| [`@frink-okn/actor-rdf-join-inner-multi-bind-block`](packages/actor-rdf-join-inner-multi-bind-block/) | block bind joins, as FedX's bound joins do: inner, through every entry that takes bindings, and `OPTIONAL` |
+| [`@frink-okn/actor-rdf-join-multi-bind-block`](packages/actor-rdf-join-multi-bind-block/) | block bind joins, as FedX's bound joins do: inner, through every entry that takes bindings, and `OPTIONAL` |
 | [`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](packages/actor-rdf-join-inner-multi-bind-round-trip/) | Comunica's inner and `OPTIONAL` bind joins, charging a request per probe |
 | [`@frink-okn/actor-http-throttle`](packages/actor-http-throttle/) | per-host pacing, and retries of refused requests |
 | [`@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded`](packages/actor-query-source-identify-hypermedia-sparql-bounded/) | Comunica's SPARQL endpoint source with bounded, server-timed COUNTs |

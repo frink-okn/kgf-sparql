@@ -1,5 +1,5 @@
 {
-  "name": "@frink-okn/actor-rdf-join-inner-multi-bind-block",
+  "name": "@frink-okn/actor-rdf-join-multi-bind-block",
   "version": "0.1.0",
   "description": "A Comunica bind join that sends the smallest entry in blocks through every other entry that takes bindings, and an OPTIONAL join that sends its left rows in blocks the same way",
   "license": "MIT",
@@ -44,6 +44,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frink-okn/kgf-sparql.git",
-    "directory": "packages/actor-rdf-join-inner-multi-bind-block"
+    "directory": "packages/actor-rdf-join-multi-bind-block"
   }
 }

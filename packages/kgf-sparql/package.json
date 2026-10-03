@@ -41,7 +41,7 @@
     "@frink-okn/actor-http-throttle": "^0.1.0",
     "@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded": "^0.1.0",
     "@frink-okn/actor-query-source-identify-kgf": "^0.1.0",
-    "@frink-okn/actor-rdf-join-inner-multi-bind-block": "^0.1.0",
+    "@frink-okn/actor-rdf-join-multi-bind-block": "^0.1.0",
     "@frink-okn/actor-rdf-join-inner-multi-bind-round-trip": "^0.1.0",
     "@frink-okn/actor-rdf-join-selectivity-bound": "^0.1.0",
     "@frink-okn/actor-rdf-join-selectivity-void": "^0.1.0",

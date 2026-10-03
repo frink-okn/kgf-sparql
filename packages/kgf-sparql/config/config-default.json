@@ -6,7 +6,7 @@
     "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-query-source-identify-kgf/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-rdf-join-selectivity-bound/^0.0.0/components/context.jsonld",
-    "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-rdf-join-inner-multi-bind-block/^0.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-rdf-join-multi-bind-block/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-http-throttle/^0.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded/^0.0.0/components/context.jsonld"
   ],

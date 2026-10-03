@@ -284,7 +284,7 @@ whose variables all occur in the others cannot make the join larger, so `?cell
 rdfs:subClassOf cell:` joined with `?cell part_of: abdomen:` has at most 838 rows where the
 shape heuristic estimated 7.4 million. It never raises an estimate, so its error can only
 shrink, except a cross product's, which it sets to the product, as that size is exact.
-[`@frink-okn/actor-rdf-join-inner-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-block)
+[`@frink-okn/actor-rdf-join-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-block)
 sends the smallest entry in blocks through every entry that accepts bindings, a SPARQL
 endpoint through `VALUES` and a union across sources included, in one pass, as FedX's bound
 joins do. A query joining Ubergraph with QLever's Wikidata endpoint, which stock Comunica had
@@ -349,7 +349,7 @@ configurations:
 | [`@frink-okn/actor-query-source-identify-kgf`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-kgf) | the native KGF JSON source and its HTTP transport |
 | [`@frink-okn/actor-rdf-join-selectivity-void`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-void) | join selectivity from VoID statistics |
 | [`@frink-okn/actor-rdf-join-selectivity-bound`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-selectivity-bound) | an upper bound on any join-size estimate |
-| [`@frink-okn/actor-rdf-join-inner-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-block) | block bind joins: inner, through every entry that takes bindings, and `OPTIONAL` |
+| [`@frink-okn/actor-rdf-join-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-block) | block bind joins: inner, through every entry that takes bindings, and `OPTIONAL` |
 | [`@frink-okn/actor-rdf-join-inner-multi-bind-round-trip`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-inner-multi-bind-round-trip) | Comunica's bind joins, charging a request per probe |
 | [`@frink-okn/actor-http-throttle`](https://www.npmjs.com/package/@frink-okn/actor-http-throttle) | per-host pacing, and retries of refused requests |
 | [`@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded`](https://www.npmjs.com/package/@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded) | Comunica's SPARQL source with bounded, server-timed COUNTs |
