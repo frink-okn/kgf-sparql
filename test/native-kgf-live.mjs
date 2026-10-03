@@ -69,6 +69,22 @@ const source = new QuerySourceKgf(endpoint, { mediate: async({ input, init }) =>
   return fetchBounded(input, init);
 } }, df, bf);
 const operation = new AlgebraFactory(df).createPattern(df.variable('s'), df.namedNode(label), df.variable('label'));
+const path = request => new URL(request.url).pathname;
+
+// A pattern is counted before any page is read, and its metadata carries the lazy VoID provider.
+const scan = source.queryBindings(operation, new ActionContext({ [KEY_KGF_PAGE_SIZE.name]: 1 }));
+const scanned = await new Promise(resolve => scan.getProperty('metadata', resolve));
+scan.destroy();
+assert.ok(requests.some(request => path(request).endsWith('/count')));
+assert.ok(requests.every(request => !path(request).endsWith('/fragment')));
+const statistics = await scanned[VOID_STATISTICS_PROVIDER]();
+assert.ok(statistics?.propertyPartitions?.[label]?.distinctSubjects > 0);
+assert.ok(requests.filter(request => path(request).endsWith('/schema'))
+  .every(request => new URL(request.url).searchParams.get('view') === 'queryable' && !new URL(request.url).searchParams.has('children')));
+
+// A call with bindings is a bind join's probe: it is not counted, reports an unknown
+// cardinality, and reads its pages over QUERY, following the cursor.
+requests.length = 0;
 const rows = source.queryBindings(operation, new ActionContext({ [KEY_KGF_PAGE_SIZE.name]: 1 }), {
   filterBindings: {
     bindings: new ArrayIterator([...seeds, seeds[0]].map(iri => bf.bindings([[df.variable('s'), df.namedNode(iri)]]))),
@@ -79,15 +95,13 @@ const rows = source.queryBindings(operation, new ActionContext({ [KEY_KGF_PAGE_S
   },
 });
 const metadata = await new Promise(resolve => rows.getProperty('metadata', resolve));
-assert.ok(requests.every(request => !new URL(request.url).pathname.endsWith('/fragment')));
-const statistics = await metadata[VOID_STATISTICS_PROVIDER]();
-assert.ok(statistics?.propertyPartitions?.[label]?.distinctSubjects > 0);
-assert.ok(requests.filter(request => new URL(request.url).pathname.endsWith('/schema'))
-  .every(request => new URL(request.url).searchParams.get('view') === 'queryable' && !new URL(request.url).searchParams.has('children')));
+assert.equal(metadata.cardinality.value, Number.POSITIVE_INFINITY);
+assert.ok(requests.every(request => !path(request).endsWith('/fragment')));
 const bound = await rows.toArray();
 assert.ok(bound.length >= 2);
 assert.equal(new Set(bag(bound)).size, bound.length);
-assert.ok(requests.some(request => request.method === 'QUERY' && new URL(request.url).pathname.endsWith('/count')));
+assert.ok(requests.every(request => !path(request).endsWith('/count')), 'a probe is not counted');
+assert.ok(requests.some(request => request.method === 'QUERY' && path(request).endsWith('/fragment')));
 assert.ok(requests.some(request => request.method === 'QUERY' && request.body?.cursor));
 const expectedLabels = await (await new StockQueryEngine().queryBindings(
   `SELECT ?s ?label WHERE { VALUES ?s { ${seeds.map(iri => `<${iri}>`).join(' ')} } ?s <${label}> ?label }`,
