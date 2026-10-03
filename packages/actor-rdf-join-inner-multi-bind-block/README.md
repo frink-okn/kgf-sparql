@@ -102,7 +102,10 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
 The coefficients are the stock bind join's formula over the probed entries, so the two
 compare on equal terms, except that probe requests are charged once per block instead of
 once per row, one for each request a block sends to the entry (each branch of a union, each
-input of a join), and one block of rows is held. Nothing counts as blocking: Comunica's join
+input of a join), and one block of rows is held; and each probed entry's selectivity is
+taken against the entry it joins, the one bound before it that shares the most variables
+with it, rather than against the first. In a chain most entries share nothing with the
+first, and priced against it each was a cross product. Nothing counts as blocking: Comunica's join
 mediator penalises blocking joins under a `LIMIT`, and this one only waits for a block. The
 actor is registered ahead of the stock join actors, because the mediator keeps the first
 candidate when its cost is `NaN`, which happens whenever a COUNT has timed out.

@@ -290,6 +290,25 @@ test('the cost is the stock bind join\'s, with requests charged per block instea
   assert.equal(blockingItems, 0, 'only a block, never the input, so a LIMIT above is not penalised');
 });
 
+test('each step is priced against the entry it joins, not the first', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const block = actor(256);
+  const asked = [];
+  block.mediatorJoinSelectivity = { mediate: async({ entries: pair }) => {
+    asked.push(pair.map(each => each.metadata.variables.map(variable => variable.variable.value).join(',')));
+    return { selectivity: 0.001 };
+  } };
+  const tested = await block.test({ type: 'inner', context: context(), entries: [
+    entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 838, [ 'cell' ]),
+    entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]),
+    entry(on(wikidata, v('article'), n('P921'), v('w')), 35_000_000, [ 'article', 'w' ]),
+  ] });
+  assert.ok(tested.isPassed(), tested.isFailed() ? tested.getFailMessage() : '');
+  assert.deepEqual(asked, [[ 'cell', 'w,cell' ], [ 'w,cell', 'article,w' ]],
+    'the articles join the works on ?w, and share nothing with the cells');
+});
+
 test('it refuses what it cannot help with', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [], 'joinBindings');

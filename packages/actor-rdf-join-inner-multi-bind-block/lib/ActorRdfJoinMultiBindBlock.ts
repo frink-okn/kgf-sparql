@@ -114,6 +114,28 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     this.mediatorJoin = args.mediatorJoin;
   }
 
+  /**
+   * The entry bound before step `index` that the step joins: the one sharing the most variables
+   * with it, the earliest on a tie. A step need share a variable only with the rows bound by
+   * then, not with the first entry, and priced against the first it was priced as a cross
+   * product. That was cheap while the selectivity heuristic gave a cross product about 0.07;
+   * at its true 1, a chain of 20 patterns cost 2.5 times as much, and Comunica's pairwise joins
+   * took it over and sent more than 5,000 requests where the block join needs about 3,600.
+   */
+  public static partner(first: IJoinEntryWithMetadata, steps: IBindStep[], index: number): IJoinEntryWithMetadata {
+    const names = new Set(steps[index].entry.metadata.variables.map(variable => variable.variable.value));
+    let partner = first;
+    let most = -1;
+    for (const entry of [ first, ...steps.slice(0, index).map(step => step.entry) ]) {
+      const shared = entry.metadata.variables.filter(variable => names.has(variable.variable.value)).length;
+      if (shared > most) {
+        partner = entry;
+        most = shared;
+      }
+    }
+    return partner;
+  }
+
   public override async getJoinCoefficients(
     action: IActionRdfJoin,
     sideData: IActorRdfJoinTestSideData,
@@ -132,9 +154,10 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     const metadatas = [ first.metadata, ...steps.map(step => step.entry.metadata) ];
     const initial = ActorRdfJoin.getRequestInitialTimes(metadatas);
     const item = ActorRdfJoin.getRequestItemTimes(metadatas);
-    // The stock bind join's formula over the probed entries, with its selectivity modifier...
-    const selectivities = await Promise.all(steps.map(async step => (await this.mediatorJoinSelectivity.mediate({
-      entries: [ first, step.entry ],
+    // The stock bind join's formula over the probed entries, with its selectivity modifier,
+    // each step priced against the entry it joins rather than the first...
+    const selectivities = await Promise.all(steps.map(async(step, i) => (await this.mediatorJoinSelectivity.mediate({
+      entries: [ ActorRdfJoinMultiBindBlock.partner(first, steps, i), step.entry ],
       context: action.context,
     })).selectivity));
     let probed = 0;
