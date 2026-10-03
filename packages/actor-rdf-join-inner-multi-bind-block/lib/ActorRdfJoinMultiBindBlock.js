@@ -28,7 +28,8 @@ const asynciterator_1 = require("asynciterator");
  * - a union whose branches are each such an operation, as source assignment produces for
  *   a pattern several sources can answer: every branch is probed;
  * - a join no source was given, whose inputs are each of the above, as `group-sources`
- *   leaves behind. Each input is probed and joined in turn, never to each other.
+ *   leaves behind. Each input is probed and joined in turn, never to each other, in an
+ *   order where each shares a variable with the rows bound by then.
  *
  * Each block of the smallest entry then runs through those entries in that order. Every
  * probe carries the values of the variables it shares with the rows joined so far,
@@ -229,13 +230,33 @@ class ActorRdfJoinMultiBindBlock extends bus_rdf_join_1.ActorRdfJoin {
             return shared.length > 0 ? [{ operation, shared, leaves }] : undefined;
         }
         if (operation.type === utils_algebra_1.Algebra.Types.JOIN && !(0, utils_query_operation_1.getOperationSource)(operation)) {
+            // Inputs are probed in turn, each with the rows the ones before it joined, so an input
+            // may share a variable only with an earlier one: a label pattern on ?article after the
+            // pattern that binds ?article from the block's ?wikicell. Each next input is the one
+            // sharing the most variables with what is bound by then; an input that never shares
+            // one leaves the join to another actor. Checking every input against the block's own
+            // variables alone refused such a join, and the per-row bind join that took it sent a
+            // COUNT per row to every source of every pattern.
+            const pending = [...operation.input];
+            const bound = new Set(known);
             const parts = [];
-            for (const input of operation.input) {
-                const inner = await this.probeParts(input, known, context);
-                if (!inner) {
+            while (pending.length > 0) {
+                let best;
+                for (const input of pending) {
+                    const inner = await this.probeParts(input, bound, context);
+                    const shared = inner ? new Set(inner.flatMap(part => part.shared)).size : 0;
+                    if (inner && (!best || shared > best.shared)) {
+                        best = { input, parts: inner, shared };
+                    }
+                }
+                if (!best) {
                     return undefined;
                 }
-                parts.push(...inner);
+                parts.push(...best.parts);
+                pending.splice(pending.indexOf(best.input), 1);
+                for (const name of ActorRdfJoinMultiBindBlock.variablesOf(best.input)) {
+                    bound.add(name);
+                }
             }
             return parts;
         }
@@ -786,6 +807,14 @@ class BlockJoinIterator extends asynciterator_1.BufferedIterator {
     join;
     maxActive;
     maxReady;
+    /**
+     * Whether this iterator has been read. Until then no block starts, however readable the
+     * blocks say they are, as asynciterator's own iterators wait for a read before reading their
+     * source: a lazy iterator says it is readable as soon as it exists. A join the planner built
+     * and never read, inside an entry another join only probed, otherwise read its first entry:
+     * every `wdt:P921` statement on two of Wikidata's query services, until the heap gave out.
+     */
+    started = false;
     active = 0;
     ready = [];
     readyRows = 0;
@@ -798,11 +827,16 @@ class BlockJoinIterator extends asynciterator_1.BufferedIterator {
         this.join = join;
         this.maxActive = maxActive;
         this.maxReady = maxReady;
-        blocks.on('readable', () => this.startBlocks());
+        blocks.on('readable', () => {
+            if (this.started) {
+                this.startBlocks();
+            }
+        });
         blocks.on('end', () => this.settle());
         blocks.on('error', (error) => this.destroy(error));
     }
     _read(count, done) {
+        this.started = true;
         this.pending = { count, done };
         this.startBlocks();
         this.settle();

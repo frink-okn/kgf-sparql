@@ -25,7 +25,8 @@ import { Algebra } from '@comunica/utils-algebra';
  * - a union whose branches are each such an operation, as source assignment produces for
  *   a pattern several sources can answer: every branch is probed;
  * - a join no source was given, whose inputs are each of the above, as `group-sources`
- *   leaves behind. Each input is probed and joined in turn, never to each other.
+ *   leaves behind. Each input is probed and joined in turn, never to each other, in an
+ *   order where each shares a variable with the rows bound by then.
  *
  * Each block of the smallest entry then runs through those entries in that order. Every
  * probe carries the values of the variables it shares with the rows joined so far,

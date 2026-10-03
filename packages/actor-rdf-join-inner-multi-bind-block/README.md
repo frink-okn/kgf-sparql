@@ -27,7 +27,13 @@ per-row bind join took the join over. The entries it can probe are:
   pattern more than one source can answer; every branch is probed;
 - a join no source was given, whose inputs are each of the above, as Comunica's
   `group-sources` leaves behind. Each input is probed and joined in turn, never to each
-  other.
+  other, in an order where each shares a variable with the rows bound by then: a label
+  pattern on `?article` after the pattern that binds `?article` from the block's
+  `?wikicell`. Each next input is the one sharing the most variables. Checking every input
+  against the block's own variables refused such a join, and Comunica's per-row bind join,
+  which took it over, sent a COUNT per row to every source of every pattern: 651 COUNTs to
+  Wikidata's two query services on one query, which now completes in 60 requests where it took
+  1,070.
 
 Each block of the smallest entry then runs through those entries in that order. Every
 probe carries the values of the variables it shares with the rows joined so far, projected
@@ -43,6 +49,10 @@ takes 32 requests and 1.3 s, where Comunica's per-row bind join takes 1,615 and 
 
 ## Execution
 
+- Nothing is read until the join's own output is. A lazy iterator says it is readable as
+  soon as it exists, and the join used to start its blocks on that; inside an entry that
+  another join only probed, a join that was planned and never read then read its first
+  entry anyway, a scan of every `wdt:P921` statement on two of Wikidata's query services.
 - `blockSize` (default 256) rows per block and values per probe request.
 - Rows move through the steps in chunks of 1,024 as they are joined. A probe's results are
   streamed past an index of the rows that sent them rather than collected first, and the

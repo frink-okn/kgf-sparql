@@ -155,6 +155,54 @@ test('a join no source took is probed input by input and joined to the block, ne
   assert.deepEqual(sent.sort(), [ 'article', 'article', 'cell', 'cell' ], 'each input carries only its own shared variable');
 });
 
+test('a join no source took is probed in an order where each input shares a variable with those before it', async() => {
+  // Titles share ?article only with P921, which binds it from the block's ?wikicell: checked
+  // against the block's variables alone, the join could not be probed, and the per-row bind
+  // join that took it sent a COUNT per row to every source of every pattern.
+  const ubergraph = source('ubergraph', [[ n('c1'), n('label'), n('neuron') ], [ n('c2'), n('label'), n('glia') ]], 'filterBindings');
+  const wikidata = source('wikidata', [
+    [ n('a1'), n('P921'), n('w1') ], [ n('a2'), n('P921'), n('w2') ], [ n('a9'), n('P921'), n('w9') ],
+    [ n('a1'), n('label'), n('t1') ], [ n('a2'), n('label'), n('t2') ], [ n('a9'), n('label'), n('t9') ],
+  ], 'joinBindings');
+  const titles = af.createUnion([ on(ubergraph, v('article'), n('label'), v('title')), on(wikidata, v('article'), n('label'), v('title')) ]);
+  const subjects = af.createUnion([ on(wikidata, v('article'), n('P921'), v('wikicell')) ]);
+  const labels = af.createUnion([ on(ubergraph, v('cell'), n('label'), v('l')), on(wikidata, v('cell'), n('label'), v('l')) ]);
+  const cells = [ row([ 'cell', 'c1' ], [ 'wikicell', 'w1' ]), row([ 'cell', 'c2' ], [ 'wikicell', 'w2' ]) ];
+  const { rows } = await run(actor(256), [
+    entry(on(wikidata, v('wikicell'), n('P7963'), v('cell')), 2, [ 'cell', 'wikicell' ], {}, cells),
+    entry(af.createJoin([ titles, subjects, labels ]), Number.POSITIVE_INFINITY, [ 'article', 'title', 'wikicell', 'cell', 'l' ]),
+  ]);
+  assert.deepEqual(sorted(rows), sorted([
+    row([ 'cell', 'c1' ], [ 'wikicell', 'w1' ], [ 'article', 'a1' ], [ 'title', 't1' ], [ 'l', 'neuron' ]),
+    row([ 'cell', 'c2' ], [ 'wikicell', 'w2' ], [ 'article', 'a2' ], [ 'title', 't2' ], [ 'l', 'glia' ]),
+  ]));
+  const sent = [ ...ubergraph.calls, ...wikidata.calls ].map(call => call.variables.join());
+  assert.deepEqual(sent.sort(), [ 'article', 'article', 'cell', 'cell', 'wikicell' ]);
+});
+
+test('a block join that is never read reads nothing, however readable its entry says it is', async() => {
+  // A lazy iterator says it is readable as soon as it exists. A join built inside an entry that
+  // another join only probes is never read, and reading its first entry anyway sent a scan of
+  // every wdt:P921 statement to two of Wikidata's query services.
+  let reads = 0;
+  const first = new BufferedIterator({ autoStart: false });
+  first._read = (count, done) => {
+    reads++;
+    first.close();
+    done();
+  };
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const bound = entry(on(wikidata, v('cell'), n('part_of'), n('abdomen')), 3, [ 'cell' ]);
+  bound.output.bindingsStream = first;
+  const action = { type: 'inner', entries: [ bound, entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300, [ 'w', 'cell' ]) ], context: context() };
+  const tested = await actor(2).test(action);
+  const output = await actor(2).run(action, tested.getSideData());
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(reads, 0, 'nothing read before the join is');
+  assert.deepEqual(await output.bindingsStream.toArray(), []);
+  assert.equal(reads, 1);
+});
+
 test('entries that are not bound go back to the join mediator with the bound result', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [[ n('w1'), n('P7963'), n('c1') ]], 'joinBindings');
