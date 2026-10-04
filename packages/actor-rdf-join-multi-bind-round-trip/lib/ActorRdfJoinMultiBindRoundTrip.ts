@@ -4,9 +4,11 @@ import type { IActionRdfJoin, IActorRdfJoinTestSideData } from '@comunica/bus-rd
 import type { TestResult } from '@comunica/core';
 import { passTestWithSideData } from '@comunica/core';
 import type { IMediatorTypeJoinCoefficients } from '@comunica/mediatortype-join-coefficients';
+import { probeRequestTimes } from './ProbeRequestTime';
 
 /**
- * Comunica's bind join, with each bound probe against a paged source charged one request.
+ * Comunica's bind join, with each bound probe charged the requests it sends: one against a paged
+ * source, and one per pattern into an entry the engine computes (see {@link probeRequestTimes}).
  *
  * The stock actor prices a probe against a remaining entry as that entry's initial request
  * cost plus a per-item cost. Comunica takes a paged source's initial cost as zero, because
@@ -19,8 +21,11 @@ import type { IMediatorTypeJoinCoefficients } from '@comunica/mediatortype-join-
  * non-paged sources, and changes nothing else: same defaults, same other coefficients.
  */
 export class ActorRdfJoinMultiBindRoundTrip extends ActorRdfJoinMultiBind {
+  public readonly patternRequestTime: number;
+
   public constructor(args: IActorRdfJoinMultiBindRoundTripArgs) {
     super(args);
+    this.patternRequestTime = args.patternRequestTime ?? 100;
   }
 
   public override async getJoinCoefficients(
@@ -33,12 +38,10 @@ export class ActorRdfJoinMultiBindRoundTrip extends ActorRdfJoinMultiBind {
     }
     const coefficients = result.get();
     const side = result.getSideData();
-    const [ smallest, ...remaining ] = side.entriesSorted;
-    // A non-paged entry is already charged its request per probe by the stock formula.
-    const requestPerProbe = remaining.reduce(
-      (sum, entry) => sum + (entry.metadata.pageSize ? entry.metadata.requestTime ?? 0 : 0),
-      0,
-    );
+    const [ smallest ] = side.entriesSorted;
+    const requestPerProbe = probeRequestTimes(side.entriesSorted, this.patternRequestTime)
+      .slice(1)
+      .reduce((sum, time) => sum + time, 0);
     return passTestWithSideData({
       ...coefficients,
       requestTime: coefficients.requestTime + smallest.metadata.cardinality.value * requestPerProbe,
@@ -46,4 +49,11 @@ export class ActorRdfJoinMultiBindRoundTrip extends ActorRdfJoinMultiBind {
   }
 }
 
-export interface IActorRdfJoinMultiBindRoundTripArgs extends IActorRdfJoinMultiBindArgs {}
+export interface IActorRdfJoinMultiBindRoundTripArgs extends IActorRdfJoinMultiBindArgs {
+  /**
+   * The time charged per pattern of a probe into an entry the engine computes, in milliseconds,
+   * when no entry of the join reports a request time to measure one by.
+   * @default {100}
+   */
+  patternRequestTime?: number;
+}

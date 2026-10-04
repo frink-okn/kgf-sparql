@@ -1,7 +1,7 @@
 {
   "name": "@frink-okn/actor-rdf-join-multi-bind-round-trip",
   "version": "0.1.0",
-  "description": "Comunica's inner and OPTIONAL bind joins with each bound probe against a paged source charged one request",
+  "description": "Comunica's inner and OPTIONAL bind joins with each bound probe charged the requests it sends",
   "license": "MIT",
   "lsd:module": true,
   "main": "lib/index.js",
@@ -23,7 +23,8 @@
     "@comunica/actor-rdf-join-optional-bind": "^5.4.0",
     "@comunica/bus-rdf-join": "^5.4.0",
     "@comunica/core": "^5.4.0",
-    "@comunica/mediatortype-join-coefficients": "^5.4.0"
+    "@comunica/mediatortype-join-coefficients": "^5.4.0",
+    "@comunica/utils-algebra": "^5.4.0"
   },
   "scripts": {
     "build": "tsc -b . && componentsjs-generator .",

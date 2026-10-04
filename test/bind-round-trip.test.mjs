@@ -36,6 +36,15 @@ function entry(predicate, cardinality, transport) {
     output: { type: 'bindings', bindingsStream: new ArrayIterator([]), metadata: async() => metadata },
   };
 }
+// An entry the engine computes, as a join's or an OPTIONAL's result: it reports no page size and
+// no request time, and a probe into it re-runs every pattern of its operation.
+function computed(operation, cardinality, names) {
+  const metadata = {
+    state: new MetadataValidationState(), cardinality: { type: 'estimate', value: cardinality }, variables: names.map(variable),
+  };
+  return { operation, output: { type: 'bindings', bindingsStream: new ArrayIterator([]), metadata: async() => metadata } };
+}
+const pattern = (subject, predicate) => af.createPattern(df.variable(subject), df.namedNode(`urn:${predicate}`), df.variable(predicate));
 async function coefficients(actor, entries) {
   const metadatas = await Promise.all(entries.map(e => e.output.metadata()));
   const result = await actor.getJoinCoefficients({ type: 'inner', entries, context: new ActionContext() }, { metadatas });
@@ -92,4 +101,35 @@ test('an OPTIONAL probe against a paged source is charged one request too', asyn
   const endpointMetadatas = await Promise.all(endpoint.map(e => e.output.metadata()));
   const runEndpoint = async actor => (await actor.getJoinCoefficients({ type: 'optional', entries: endpoint, context: new ActionContext() }, { metadatas: endpointMetadatas })).get();
   assert.deepEqual(await runEndpoint(roundTrip), await runEndpoint(stock));
+});
+
+test('a probe into an entry the engine computes is charged a request per pattern, at the join\'s own time per pattern', async() => {
+  const { stock, roundTrip } = actors();
+  const group = af.createJoin([ pattern('s', 'x'), af.createLeftJoin(pattern('x', 'y'), pattern('y', 'z')) ]);
+  const entries = [ entry('a', 10, { pageSize: 1_000, requestTime: 60 }), computed(group, 5_000, [ 's', 'x', 'y', 'z' ]) ];
+  const before = await coefficients(stock, entries);
+  const after = await coefficients(roundTrip, entries);
+  assert.equal(after.iterations, before.iterations);
+  assert.equal(after.requestTime, before.requestTime + 10 * 3 * 60, 'three patterns per probe, at the paged entry\'s 60 ms');
+  // VALUES has no pattern to re-run.
+  const values = computed(af.createValues([ df.variable('s') ], [ { s: df.namedNode('urn:v') } ]), 5_000, [ 's' ]);
+  assert.deepEqual(await coefficients(roundTrip, [ entries[0], values ]), await coefficients(stock, [ entries[0], values ]));
+});
+
+test('an OPTIONAL probe into a computed group is charged its patterns, at the configured time when nothing is timed', async() => {
+  // The shape that lost a query: a group of five patterns joined per row, both sides computed.
+  const optionalDefaults = { bindOrder: 'depth-first', selectivityModifier: 0.000001 };
+  const left = computed(af.createJoin([ pattern('study', 'title'), pattern('study', 'assay') ]), 105, [ 'study', 'title', 'assay' ]);
+  let group = pattern('mission', 'study');
+  for (const predicate of [ 'program', 'flight', 'start', 'end' ]) {
+    group = af.createLeftJoin(group, pattern('mission', predicate));
+  }
+  const right = computed(group, 127, [ 'mission', 'study', 'program', 'flight', 'start', 'end' ]);
+  const metadatas = await Promise.all([ left, right ].map(e => e.output.metadata()));
+  const run = async actor => (await actor.getJoinCoefficients({ type: 'optional', entries: [ left, right ], context: new ActionContext() }, { metadatas })).get();
+  const actor = args => new ActorRdfJoinOptionalBindRoundTrip({ name: 'round-trip', bus: new Bus({ name: 'round-trip' }), ...mediators, ...optionalDefaults, ...args });
+  const stock = await run(new ActorRdfJoinOptionalBind({ name: 'stock', bus: new Bus({ name: 'stock' }), ...mediators, ...optionalDefaults }));
+  assert.equal(stock.requestTime, 0, 'the stock formula prices 105 re-runs of five patterns at nothing');
+  assert.equal((await run(actor({}))).requestTime, 105 * 5 * 100);
+  assert.equal((await run(actor({ patternRequestTime: 40 }))).requestTime, 105 * 5 * 40);
 });

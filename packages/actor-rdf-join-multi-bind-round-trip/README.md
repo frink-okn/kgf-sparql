@@ -1,7 +1,7 @@
 # @frink-okn/actor-rdf-join-multi-bind-round-trip
 
 [Comunica](https://comunica.dev/)'s inner and `OPTIONAL` bind joins, with each bound probe
-against a paged source charged one request.
+charged the requests it sends.
 
 The stock `ActorRdfJoinMultiBind` prices a probe against a remaining join entry as that
 entry's initial request cost plus a per-item cost. Comunica takes a paged source's initial
@@ -19,10 +19,21 @@ coefficient, default, and refusal is the stock actor's; the class overrides one 
 
 `ActorRdfJoinOptionalBindRoundTrip` does the same for `ActorRdfJoinOptionalBind`, whose
 formula has the same shape and the same zero: on one query its two `OPTIONAL` patterns
-cost 19,537 per-row probes, a count and a page each. Both replace the stock actors in place
-through Components.js `Override`s in the engine's config, keeping the actors' identifiers
-so the other join actors' ordering still refers to them. Nothing here is specific to KGF;
-any paged source with honest `requestTime` metadata benefits.
+cost 19,537 per-row probes, a count and a page each.
+
+Both formulas also price at zero a probe into an entry the engine computes, such as the
+result of a join or a nested `OPTIONAL` group, which reports neither a page size nor a
+request time. Each such probe re-plans and re-runs every pattern in the entry. With
+Comunica's cap on `OPTIONAL` size estimates (comunica#1846), one query joined such a group
+per row at a cost of nothing, and read the same four predicates whole 780 times each before
+it ran out of time. Both actors charge such a probe one request per triple pattern or
+property path in the entry, at the time per pattern that the join's other entries report.
+When no entry reports a request time they use `patternRequestTime` (100 ms by default).
+
+Both replace the stock actors in place through Components.js `Override`s in the engine's
+config, keeping the actors' identifiers so the other join actors' ordering still refers to
+them. Nothing here is specific to KGF; any paged source with honest `requestTime` metadata
+benefits.
 
 Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), which is Comunica
 with these actors already registered.
