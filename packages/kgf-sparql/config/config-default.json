@@ -252,6 +252,16 @@
           }
         ]
       }
+    },
+    {
+      "@id": "urn:kgf:override/optimize-query-operation/actors#group-sources",
+      "@type": "Override",
+      "overrideInstance": {
+        "@id": "urn:comunica:default:optimize-query-operation/actors#group-sources"
+      },
+      "overrideParameters": {
+        "@type": "ActorOptimizeQueryOperationGroupSourcesFlat"
+      }
     }
   ]
 }

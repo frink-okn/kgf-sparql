@@ -73,13 +73,26 @@ it is: from these sources it is a count that reached its cap, which proves there
 Skipping an ASK never loses results, since an ASK can only let source selection drop a
 source.
 
+## Source grouping
+
+`ActorOptimizeQueryOperationGroupSourcesFlat` replaces Comunica's grouping of a join's
+operations by source. A SPARQL endpoint takes the operations only it answers as one join, as
+before. Comunica, once it has handed an endpoint such a join, also nests every other group
+of operations as a join of its own, though no source takes it: the operations several sources
+answer join each other before the rest of the query. In the Ubergraph and Wikidata cells
+query those are the two `rdfs:label` patterns, which share no variable, and their cross
+product of millions of rows by millions could only be bound a row at a time: 122 rows after
+300 s and 509 requests. Here a group no source takes stays as separate operations of the
+join it came from, and the query returns 1,000 rows in 46 requests. Where no source takes any
+group, as in queries over KGF sources alone, the grouping is Comunica's own.
+
 ## Configuration
 
-`kgf-sparql` installs both actors with overrides of Comunica's
-`urn:comunica:default:query-source-identify-hypermedia/actors#sparql` and
+`kgf-sparql` installs the three actors with overrides of Comunica's
+`urn:comunica:default:query-source-identify-hypermedia/actors#sparql`,
 `urn:comunica:default:optimize-query-operation/actors#prune-empty-source-operations`, and
-the command line's `--count-cap n` or `--count-cap host=n`, with `none` for no cap, sets the
-context keys.
+`urn:comunica:default:optimize-query-operation/actors#group-sources`, and the command line's
+`--count-cap n` or `--count-cap host=n`, with `none` for no cap, sets the context keys.
 
 Most users want [`@frink-okn/kgf-sparql`](https://www.npmjs.com/package/@frink-okn/kgf-sparql), with these actors
 already installed.

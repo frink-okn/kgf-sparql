@@ -338,8 +338,11 @@ one to a million), timed only while the server has them, and reported with their
 time, so that a bind join sending a request per row no longer costs the same as one sending
 a block of rows; a count at the cap is accepted without the ASK Comunica would confirm it
 with. A probe that sends bindings as `VALUES` is not counted at all: nothing reads that
-count, and it doubled the requests of every block. The cells query now takes the block join
-on every run, 1,000 rows in 13 to 16 s and about 21 requests to QLever.
+count, and it doubled the requests of every block. Operations several sources answer, such as
+the cells query's two label patterns, stay in the join with the rest of the query, rather
+than being joined to each other first as Comunica groups them once an endpoint takes a join
+of its own. The cells query now takes the block join on every run, 1,000 rows in about 15 s
+and 15 requests to QLever.
 
 ## Packages
 

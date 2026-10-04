@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ActorQuerySerializeSparql } from '@comunica/actor-query-serialize-sparql';
-import { KeysQueryOperation } from '@comunica/context-entries';
+import { KeysInitQuery, KeysQueryOperation } from '@comunica/context-entries';
 import { ActionContext, Bus } from '@comunica/core';
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
+import { assignOperationSource, getOperationSource } from '@comunica/utils-query-operation';
 import {
   QuerySourceSparqlBounded,
 } from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded/lib/QuerySourceSparqlBounded.js';
 import {
+  ActorOptimizeQueryOperationGroupSourcesFlat,
   ActorOptimizeQueryOperationPruneEmptySourceOperationsBounded,
 } from '@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded';
 import { ArrayIterator, BufferedIterator } from 'asynciterator';
@@ -318,4 +320,48 @@ test('source selection keeps the target of a SERVICE SILENT clause without askin
   const silent = new ActionContext({ [KeysQueryOperation.silent.name]: true });
   assert.equal(await prune.hasSourceResults(af, wrapper(silent), pattern, new ActionContext()), true);
   assert.deepEqual(asked, [], 'a SERVICE SILENT target that fails must still give its one empty solution');
+});
+
+test('source grouping nests only the operations a source takes whole', async() => {
+  const df = new DataFactory();
+  const af = new AlgebraFactory(df);
+  const group = new ActorOptimizeQueryOperationGroupSourcesFlat({ name: 'group', bus: new Bus({ name: 'test' }) });
+  const context = new ActionContext({ [KeysInitQuery.dataFactory.name]: df });
+  const wildcard = { type: 'operation', operation: { operationType: 'wildcard' }};
+  const patterns = { type: 'operation', operation: { operationType: 'pattern', pattern: af.createPattern(
+    df.variable('s'), df.variable('p'), df.variable('o'),
+  ) }, variablesOptional: [ 's', 'p', 'o' ].map(name => df.variable(name)) };
+  const source = (name, shape) => ({ source: { getSelectorShape: async() => shape, toString: () => name }});
+  const endpoint = source('endpoint', wildcard);
+  const fragments = source('fragments', patterns);
+  const pattern = (s, p, o) => af.createPattern(df.variable(s), df.namedNode(p), df.variable(o));
+  const label = pattern('article', 'urn:label', 'title');
+  const cellLabel = pattern('cell', 'urn:label', 'cellLabel');
+  const sources = operation => (operation.input ?? [ operation ]).map(input => getOperationSource(input)?.source.toString());
+
+  // Two label patterns both sources answer, two patterns only the endpoint has, and two only
+  // the fragment interface has.
+  const grouped = (await group.run({ context, operation: af.createJoin([
+    label,
+    assignOperationSource(pattern('wikicell', 'urn:P7963', 'cell'), endpoint),
+    assignOperationSource(pattern('cell', 'urn:subClassOf', 'type'), fragments),
+    cellLabel,
+    assignOperationSource(pattern('article', 'urn:P921', 'wikicell'), endpoint),
+    assignOperationSource(pattern('cell', 'urn:partOf', 'part'), fragments),
+  ]) })).operation;
+  assert.equal(grouped.type, 'join');
+  assert.deepEqual(grouped.input.slice(0, 2), [ label, cellLabel ],
+    'the label patterns stay in the join, rather than becoming a cross product of their own');
+  assert.equal(getOperationSource(grouped.input[2]), endpoint, 'the endpoint takes its patterns as one join');
+  assert.deepEqual(sources(grouped.input[2]), [ undefined, undefined ]);
+  assert.deepEqual(sources(grouped).slice(3), [ 'fragments', 'fragments' ],
+    'patterns no source takes together stay in the join, each with its source');
+
+  // Where no source takes any cluster, everything stays flat, as Comunica leaves it.
+  const flat = (await group.run({ context, operation: af.createJoin([
+    label,
+    assignOperationSource(pattern('cell', 'urn:subClassOf', 'type'), fragments),
+    cellLabel,
+  ]) })).operation;
+  assert.deepEqual(sources(flat), [ undefined, undefined, 'fragments' ]);
 });

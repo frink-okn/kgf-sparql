@@ -1,7 +1,7 @@
 {
   "name": "@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded",
   "version": "0.1.0",
-  "description": "Comunica's SPARQL endpoint source with bounded COUNT queries, timed by the server, and source selection that accepts a bounded count without an ASK",
+  "description": "Comunica's SPARQL endpoint source with bounded COUNT queries, timed by the server, source selection that accepts a bounded count without an ASK, and source grouping that nests only what a source takes",
   "license": "MIT",
   "lsd:module": true,
   "main": "lib/index.js",
@@ -19,6 +19,7 @@
     "LICENSE"
   ],
   "dependencies": {
+    "@comunica/actor-optimize-query-operation-group-sources": "~5.4.0",
     "@comunica/actor-optimize-query-operation-prune-empty-source-operations": "~5.4.0",
     "@comunica/actor-query-source-identify-hypermedia-sparql": "~5.4.0",
     "@comunica/bus-http": "~5.4.0",
