@@ -4,6 +4,8 @@ import type { IVoidDatasetStatistics, IVoidPropertyPartition } from '@frink-okn/
 import { KEY_KGF_HTTP_METHOD } from './Context';
 
 export interface KgfCount { value: number; exact: boolean }
+/** A pattern's size, and how long the request that learned it took. */
+export interface KgfSize { count: KgfCount; requestTime: number }
 export interface KgfTerm { type: 'iri' | 'bnode' | 'literal'; value: string; lang?: string; datatype?: string }
 export interface KgfPage {
   rows: Record<string, KgfTerm | number>[];
@@ -19,10 +21,15 @@ export interface KgfService {
   maxRequestBytes: number;
 }
 
-/** A client per query: promises deduplicate discovery/statistics without caching result pages. */
+/**
+ * A client per query: promises deduplicate discovery, statistics, and patterns' sizes without
+ * caching result pages.
+ */
 export class KgfClient {
   private discovery?: Promise<KgfService>;
   private readonly statistics = new Map<string, Promise<IVoidPropertyPartition | undefined>>();
+  /** Patterns' sizes this query has learned, by the URL that asks for them. */
+  private readonly sizes = new Map<string, Promise<KgfSize>>();
   private method: 'QUERY' | 'POST';
 
   public constructor(
@@ -99,6 +106,25 @@ export class KgfClient {
       throw new Error(`KGF request failed: ${response.status} ${response.statusText} (${url})`);
     }
     return response.json();
+  }
+
+  /** A pattern's size if this query has learned it or is learning it, by the URL that asks for it. */
+  public size(key: string): Promise<KgfSize> | undefined {
+    return this.sizes.get(key);
+  }
+
+  /**
+   * Keep a pattern's size for the rest of the query, which takes the same request to give the
+   * same answer while it runs. A size that failed to arrive, as a destroyed stream's aborted
+   * request does, is forgotten, and the next plan of the pattern asks again.
+   */
+  public rememberSize(key: string, size: Promise<KgfSize>): void {
+    this.sizes.set(key, size);
+    size.catch(() => {
+      if (this.sizes.get(key) === size) {
+        this.sizes.delete(key);
+      }
+    });
   }
 
   public async getVoidStatistics(predicate?: string): Promise<IVoidDatasetStatistics | undefined> {

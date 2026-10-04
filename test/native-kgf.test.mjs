@@ -47,6 +47,34 @@ test('planning uses /count without opening fragment pages or VoID; pages respect
   assert.equal(calls(mock, 'schema').length, 0);
 });
 
+test('a query counts a pattern once, a later query counts it again, and a count that failed to arrive is forgotten', async() => {
+  const mock = server();
+  const { source: kgf, context } = source(mock);
+  // Planned together, as a join plans its entries.
+  const streams = [kgf.queryBindings(pattern(), context), kgf.queryBindings(pattern(), context)];
+  const metas = await Promise.all(streams.map(metadata));
+  assert.deepEqual(metas.map(meta => meta.cardinality), [{ type: 'exact', value: 5 }, { type: 'exact', value: 5 }]);
+  assert.equal(metas[0].requestTime, metas[1].requestTime);
+  assert.equal(calls(mock, 'count').length, 1);
+  assert.deepEqual(await Promise.all(streams.map(async stream => (await stream.toArray()).length)), [5, 5]);
+  await metadata(kgf.queryBindings(pattern(), context));
+  assert.equal(calls(mock, 'count').length, 1, 'planned again, the pattern asks nothing');
+  const later = source(mock);
+  await metadata(later.source.queryBindings(pattern(), later.context));
+  assert.equal(calls(mock, 'count').length, 2);
+
+  const slow = server({ delayMs: 20 });
+  const { source: slowKgf, context: slowContext } = source(slow);
+  const aborted = slowKgf.queryBindings(pattern(), slowContext);
+  aborted.on('error', () => {});
+  await new Promise(resolve => setTimeout(resolve, 5));
+  aborted.destroy();
+  const replanned = slowKgf.queryBindings(pattern(), slowContext);
+  assert.deepEqual((await metadata(replanned)).cardinality, { type: 'exact', value: 5 });
+  assert.equal((await replanned.toArray()).length, 5);
+  assert.equal(calls(slow, 'count').length, 2);
+});
+
 test('empty matches, empty bindings, and named graphs never request result pages', async() => {
   const mock = server();
   const { source: kgf, context } = source(mock);

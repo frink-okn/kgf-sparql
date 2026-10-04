@@ -8,7 +8,8 @@ Configure sources as `{ type: 'kgf', value: datasetOrVersionedFragmentUrl }`.
 Dataset `/latest/fragment` aliases are also accepted and pinned to the current
 release through the dataset descriptor, without fetching a fragment page.
 The actor identifies sources without network access. Query planning then discovers
-service limits and requests `/count`; fragment pages remain lazy. Filter bindings
+service limits and requests `/count`, once per pattern per query however often the query
+plans it; fragment pages remain lazy. Filter bindings
 use QUERY, with POST fallback on HTTP 405/501, and follow opaque cursors. A call with
 filter bindings is a bind join's probe: it is not counted, and reports an unknown
 cardinality.

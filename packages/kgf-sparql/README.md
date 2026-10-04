@@ -176,6 +176,8 @@ command line in-process.
 
 - Each triple pattern supplies metadata from `GET /count`. Planning does not
   download a fragment page. Fragment pages are fetched only as results are consumed.
+  A query keeps each pattern's count, so a pattern planned again, as a per-row join
+  plans the rest of the query for every row, sends nothing.
 - Pages default to **1,000 rows**, capped by the service descriptor. Bindings
   batches default to the server's advertised **max_bindings** (200 if absent),
   and also respect its request-byte budget. Comunica may supply smaller batches.

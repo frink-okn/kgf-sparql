@@ -13,7 +13,7 @@ import type * as RDF from '@rdfjs/types';
 import type { AsyncIterator } from 'asynciterator';
 import { termToString } from 'rdf-string-ttl';
 import { KEY_KGF_BINDINGS_SIZE, KEY_KGF_PAGE_SIZE, KEY_KGF_VOID_STATISTICS } from './Context';
-import type { KgfPage, KgfService, KgfTerm } from './KgfClient';
+import type { KgfPage, KgfService, KgfSize, KgfTerm } from './KgfClient';
 import { KgfClient, positiveInteger, readCount } from './KgfClient';
 import { LazyQuadIterator } from './LazyQuadIterator';
 
@@ -167,36 +167,27 @@ export class QuerySourceKgf implements IQuerySource {
       };
       return { client, service, pageSize, variables, rows, batches, metadata };
     }
-    const start = performance.now();
-    let value = 0;
-    let exact = true;
-    for (const batch of batches) {
-      const response = rows ?
-        await client.json(service.count, bindingBody(pattern, variables, batch.rows), signal) :
-        await client.json(patternUrl(service.count, pattern).href, undefined, signal);
-      if (rows) {
-        if (response.complete !== true || !Array.isArray(response.counts) || response.counts.length !== batch.rows.length) {
-          throw new Error('Incomplete KGF per-binding count response');
-        }
-        const indices = new Set<number>();
-        for (const entry of response.counts) {
-          if (!Number.isInteger(entry.binding) || entry.binding < 0 || entry.binding >= batch.rows.length || indices.has(entry.binding)) {
-            throw new Error('Invalid KGF per-binding count index');
-          }
-          indices.add(entry.binding);
-          const count = readCount(entry);
-          value += count.value;
-          exact &&= count.exact;
-        }
-      } else {
-        const count = readCount(response);
-        value += count.value;
-        exact &&= count.exact;
-      }
+    // Planning asks /count, which the server answers from its indexes. A pattern's first page
+    // carries its size too, but decoding its rows took a large pattern's request from 65 ms to
+    // 190 ms, for patterns the plan mostly never reads whole, and priced every probe at that.
+    // The query keeps the size by the URL that asks for it, so a pattern planned again, as a
+    // per-row join plans the rest of the query for every row, asks nothing: one query spent
+    // 4,589 of its 5,000 requests repeating earlier ones. A join plans its entries together, so
+    // the size is looked up and its request remembered with no await between them, or two
+    // plans of one pattern would both ask.
+    const sizeKey = patternUrl(service.count, pattern).href;
+    const known = client.size(sizeKey);
+    let size = known && await known.catch(() => undefined);
+    if (!size) {
+      const start = performance.now();
+      const sized = client.json(sizeKey, undefined, signal).then((response): KgfSize => ({
+        count: readCount(response),
+        requestTime: performance.now() - start,
+      }));
+      client.rememberSize(sizeKey, sized);
+      size = await sized;
     }
-    // Native binding rows form a bag; filterBindings requires the union of matching triples.
-    // Its summed count is an upper estimate when input rows can overlap.
-    exact &&= value === 0 || !rows || rows.length <= 1;
+    let { value, exact } = size.count;
     if (!Number.isSafeInteger(value)) {
       value = Number.MAX_SAFE_INTEGER;
       exact = false;
@@ -210,7 +201,7 @@ export class QuerySourceKgf implements IQuerySource {
       state: new MetadataValidationState(),
       cardinality: { type: exact ? 'exact' : 'estimate', value },
       pageSize,
-      requestTime: (performance.now() - start) / batches.length,
+      requestTime: size.requestTime,
     };
     if (context.get(KEY_KGF_VOID_STATISTICS) !== false) {
       metadata[VOID_STATISTICS_PROVIDER] = () => client.getVoidStatistics(
