@@ -78,6 +78,20 @@ import { ArrayIterator, BufferedIterator } from 'asynciterator';
  * and one block of rows is held. Nothing counts as blocking: the join mediator penalises
  * blocking joins below a LIMIT, and this one only ever waits for a block, not its input.
  */
+/** The block joins on each bus, by name (see {@link blockJoinOn}). */
+const blockJoins = new WeakMap<object, Map<string, ActorRdfJoinMultiBindBlock>>();
+
+/**
+ * The block join named `name` on `bus`, for a bind join that leaves to it the joins it binds in
+ * blocks. The bind join finds it here, when it tests a join, rather than taking it as a
+ * parameter: Comunica orders a bus's actors by references between them, the block join goes
+ * before an actor that goes before the bind join, and a reference back is a cycle that
+ * Components.js waits on forever.
+ */
+export function blockJoinOn(bus: object, name: string): ActorRdfJoinMultiBindBlock | undefined {
+  return blockJoins.get(bus)?.get(name);
+}
+
 export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiBindBlockTestSideData> {
   public readonly blockSize: number;
   public readonly blocksInFlight: number;
@@ -93,6 +107,14 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
    * left a join of two leftover entries that this actor could bind to a per-row bind join.
    */
   private readonly outputs = new WeakSet<IQueryOperationResultBindings>();
+  /**
+   * Each join's test, which the per-row bind joins ask for too (see `bindsEveryEntryFrom`), so
+   * that a join is planned once whoever asks first.
+   */
+  private readonly tests = new WeakMap<
+    IActionRdfJoin,
+    Promise<TestResult<IMediatorTypeJoinCoefficients, IActorRdfJoinMultiBindBlockTestSideData>>
+  >();
 
   /** The join this actor makes, as the join bus knows it; a subclass making another gives its own. */
   protected static readonly joinOptions: IActorRdfJoinInternalOptions = {
@@ -116,6 +138,12 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     this.selectivityModifier = args.selectivityModifier ?? 0.0001;
     this.mediatorJoinEntriesSort = args.mediatorJoinEntriesSort;
     this.mediatorJoin = args.mediatorJoin;
+    let named = blockJoins.get(this.bus);
+    if (!named) {
+      named = new Map();
+      blockJoins.set(this.bus, named);
+    }
+    named.set(this.name, this);
   }
 
   /**
@@ -138,6 +166,32 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
       }
     }
     return partner;
+  }
+
+  public override async test(
+    action: IActionRdfJoin,
+  ): Promise<TestResult<IMediatorTypeJoinCoefficients, IActorRdfJoinMultiBindBlockTestSideData>> {
+    let tested = this.tests.get(action);
+    if (!tested) {
+      tested = super.test(action);
+      this.tests.set(action, tested);
+    }
+    return tested;
+  }
+
+  /**
+   * The operation of the entry this actor binds the join from, when it binds every other entry
+   * of the join; undefined when it cannot take the join, or leaves an entry to be joined
+   * afterwards. A bind join that binds from the same entry sends the same probes, one row at a
+   * time where this actor sends a block of rows.
+   */
+  public async bindsEveryEntryFrom(action: IActionRdfJoin): Promise<Algebra.Operation | undefined> {
+    const tested = await this.test(action);
+    if (tested.isFailed()) {
+      return undefined;
+    }
+    const { plan } = tested.getSideData();
+    return plan.remaining.length === 0 ? plan.first.operation : undefined;
   }
 
   public override async getJoinCoefficients(

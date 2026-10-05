@@ -325,6 +325,32 @@ test('each step is priced against the entry it joins, not the first', async() =>
     'the articles join the works on ?w, and share nothing with the cells');
 });
 
+test('it says which entry it binds a join from when it binds every other entry, planning each join once', async() => {
+  const ubergraph = source('ubergraph', [], 'filterBindings');
+  const wikidata = source('wikidata', [], 'joinBindings');
+  const cells = entry(on(ubergraph, v('cell'), n('part_of'), n('abdomen')), 838, [ 'cell' ]);
+  const works = entry(on(wikidata, v('w'), n('P7963'), v('cell')), 300_000, [ 'w', 'cell' ]);
+  const block = actor(256);
+  let plans = 0;
+  const plan = block.plan.bind(block);
+  block.plan = async(...args) => {
+    plans++;
+    return await plan(...args);
+  };
+  const action = { type: 'inner', entries: [ cells, works ], context: context() };
+  assert.equal(await block.bindsEveryEntryFrom(action), cells.operation);
+  assert.equal(await block.test(action), await block.test(action));
+  assert.equal(plans, 1, 'the mediator\'s test and the bind join\'s question share one plan');
+  // An entry left to be joined afterwards, as no source takes bindings for it, is not bound.
+  const tpf = { source: { referenceValue: 'urn:source:tpf', getSelectorShape: async() => ({
+    type: 'operation', operation: { operationType: 'pattern', pattern: af.createPattern(v('s'), v('p'), v('o')) },
+  }), queryBindings: () => new ArrayIterator([]) } };
+  const labels = entry(assignOperationSource(af.createPattern(v('cell'), n('label'), v('l')), tpf), 5_000, [ 'cell', 'l' ]);
+  assert.equal(await block.bindsEveryEntryFrom({ type: 'inner', entries: [ cells, works, labels ], context: context() }), undefined);
+  // Nor is a join it refuses.
+  assert.equal(await block.bindsEveryEntryFrom({ type: 'optional', entries: [ cells, works ], context: context() }), undefined);
+});
+
 test('it refuses what it cannot help with', async() => {
   const ubergraph = source('ubergraph', [], 'filterBindings');
   const wikidata = source('wikidata', [], 'joinBindings');

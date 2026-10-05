@@ -2,8 +2,9 @@ import type { IActorRdfJoinMultiBindArgs, IActorRdfJoinMultiBindTestSideData } f
 import { ActorRdfJoinMultiBind } from '@comunica/actor-rdf-join-inner-multi-bind';
 import type { IActionRdfJoin, IActorRdfJoinTestSideData } from '@comunica/bus-rdf-join';
 import type { TestResult } from '@comunica/core';
-import { passTestWithSideData } from '@comunica/core';
+import { failTest, passTestWithSideData } from '@comunica/core';
 import type { IMediatorTypeJoinCoefficients } from '@comunica/mediatortype-join-coefficients';
+import { blockJoinOn } from '@frink-okn/actor-rdf-join-multi-bind-block';
 import { probeRequestTimes } from './ProbeRequestTime';
 
 /**
@@ -19,13 +20,24 @@ import { probeRequestTimes } from './ProbeRequestTime';
  * binding beat pushing the bindings in blocks by two orders of magnitude, at 1,791
  * requests instead of 22. This actor adds the term the stock formula already applies to
  * non-paged sources, and changes nothing else: same defaults, same other coefficients.
+ *
+ * It refuses a join that the block join named `blockJoin` binds whole from the entry this actor
+ * would bind from: the block join then sends the same probes, a block of rows to each where this
+ * actor sends a row, and never more requests. The two were weighed by cost, and their formulas
+ * drifted apart: Comunica 5.4 put the rows each of this join's probes returns at one at most,
+ * the block join kept the selectivity's estimate, and on a query over Ubergraph and Wikidata
+ * this join won and sent a COUNT and a SELECT for each row, 122 rows in 300 s where the block
+ * join takes 46 requests. A join the block join cannot take, or binds from another entry, or
+ * binds only in part, is weighed as before.
  */
 export class ActorRdfJoinMultiBindRoundTrip extends ActorRdfJoinMultiBind {
   public readonly patternRequestTime: number;
+  public readonly blockJoin?: string;
 
   public constructor(args: IActorRdfJoinMultiBindRoundTripArgs) {
     super(args);
     this.patternRequestTime = args.patternRequestTime ?? 100;
+    this.blockJoin = args.blockJoin;
   }
 
   public override async getJoinCoefficients(
@@ -39,6 +51,10 @@ export class ActorRdfJoinMultiBindRoundTrip extends ActorRdfJoinMultiBind {
     const coefficients = result.get();
     const side = result.getSideData();
     const [ smallest ] = side.entriesSorted;
+    const blockJoin = this.blockJoin === undefined ? undefined : blockJoinOn(this.bus, this.blockJoin);
+    if (blockJoin && await blockJoin.bindsEveryEntryFrom(action) === smallest.operation) {
+      return failTest(`${this.name} leaves to ${blockJoin.name} a join it binds whole, from the same entry, in blocks`);
+    }
     const requestPerProbe = probeRequestTimes(side.entriesSorted, this.patternRequestTime)
       .slice(1)
       .reduce((sum, time) => sum + time, 0);
@@ -56,4 +72,9 @@ export interface IActorRdfJoinMultiBindRoundTripArgs extends IActorRdfJoinMultiB
    * @default {100}
    */
   patternRequestTime?: number;
+  /**
+   * The name of the block join, on this actor's bus, that this actor leaves every join to that
+   * it binds whole from the same entry.
+   */
+  blockJoin?: string;
 }

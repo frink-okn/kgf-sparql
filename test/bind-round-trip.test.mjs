@@ -8,6 +8,7 @@ import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
 import { ActorRdfJoinOptionalBind } from '@comunica/actor-rdf-join-optional-bind';
 import { ActorRdfJoinMultiBindRoundTrip, ActorRdfJoinOptionalBindRoundTrip } from '@frink-okn/actor-rdf-join-multi-bind-round-trip';
+import { ActorRdfJoinMultiBindBlock, ActorRdfJoinOptionalBindBlock } from '@frink-okn/actor-rdf-join-multi-bind-block';
 
 const df = new DataFactory();
 const af = new AlgebraFactory(df);
@@ -132,4 +133,41 @@ test('an OPTIONAL probe into a computed group is charged its patterns, at the co
   assert.equal(stock.requestTime, 0, 'the stock formula prices 105 re-runs of five patterns at nothing');
   assert.equal((await run(actor({}))).requestTime, 105 * 5 * 100);
   assert.equal((await run(actor({ patternRequestTime: 40 }))).requestTime, 105 * 5 * 40);
+});
+
+test('a join the block join binds whole from the same entry is left to it', async() => {
+  // The block join sends the same probes a block at a time; weighed by cost, the per-row join won
+  // where Comunica 5.4 had lowered its estimate, and sent a COUNT and a SELECT per row.
+  const bus = new Bus({ name: 'rdf-join' });
+  const blockArgs = { bus, mediatorJoinSelectivity: mediators.mediatorJoinSelectivity,
+    mediatorJoinEntriesSort: mediators.mediatorJoinEntriesSort, mediatorJoin: { mediate: async() => { throw new Error('not run'); } } };
+  const block = new ActorRdfJoinMultiBindBlock({ name: 'urn:test:block', ...blockArgs });
+  let from;
+  block.bindsEveryEntryFrom = async() => from;
+  const roundTrip = new ActorRdfJoinMultiBindRoundTrip({ name: 'round-trip', bus, ...mediators, blockJoin: 'urn:test:block' });
+  const entries = [ entry('name', 296, { pageSize: 10_000, requestTime: 60 }), entry('type', 434_501, { pageSize: 10_000, requestTime: 60 }) ];
+  const metadatas = await Promise.all(entries.map(e => e.output.metadata()));
+  const tested = () => roundTrip.getJoinCoefficients({ type: 'inner', entries, context: new ActionContext() }, { metadatas });
+
+  from = entries[0].operation;
+  const refused = await tested();
+  assert.ok(refused.isFailed());
+  assert.match(refused.getFailMessage(), /leaves to urn:test:block/u);
+  from = entries[1].operation;
+  assert.ok((await tested()).isPassed(), 'bound from another entry, the block join sends other probes');
+  from = undefined;
+  assert.ok((await tested()).isPassed(), 'a join it cannot take, or binds only in part, is weighed as before');
+
+  // The block join is found by name on this actor's own bus: another engine's is not this one's.
+  from = entries[0].operation;
+  const elsewhere = new ActorRdfJoinMultiBindRoundTrip({ name: 'round-trip', bus: new Bus({ name: 'other' }), ...mediators, blockJoin: 'urn:test:block' });
+  assert.ok((await elsewhere.getJoinCoefficients({ type: 'inner', entries, context: new ActionContext() }, { metadatas })).isPassed());
+
+  // An OPTIONAL is left to the OPTIONAL block join in the same way.
+  const optionalDefaults = { bindOrder: 'depth-first', selectivityModifier: 0.000001 };
+  const optionalBlock = new ActorRdfJoinOptionalBindBlock({ name: 'urn:test:optional-block', ...blockArgs });
+  optionalBlock.bindsEveryEntryFrom = async() => from;
+  const optional = new ActorRdfJoinOptionalBindRoundTrip({ name: 'optional-round-trip', bus, ...mediators, ...optionalDefaults, blockJoin: 'urn:test:optional-block' });
+  const left = await optional.getJoinCoefficients({ type: 'optional', entries, context: new ActionContext() }, { metadatas });
+  assert.match(left.isFailed() ? left.getFailMessage() : '', /leaves to urn:test:optional-block/u);
 });

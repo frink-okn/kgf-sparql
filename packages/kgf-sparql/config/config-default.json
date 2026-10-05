@@ -135,6 +135,7 @@
       },
       "overrideParameters": {
         "@type": "ActorRdfJoinMultiBindRoundTrip",
+        "blockJoin": "urn:kgf:rdf-join/actors#inner-multi-bind-block",
         "mediatorJoinSelectivity": {
           "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
         },
@@ -174,6 +175,7 @@
       },
       "overrideParameters": {
         "@type": "ActorRdfJoinOptionalBindRoundTrip",
+        "blockJoin": "urn:kgf:rdf-join/actors#optional-bind-block",
         "mediatorJoinSelectivity": {
           "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
         },

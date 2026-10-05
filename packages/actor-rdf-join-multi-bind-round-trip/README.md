@@ -1,7 +1,7 @@
 # @frink-okn/actor-rdf-join-multi-bind-round-trip
 
 [Comunica](https://comunica.dev/)'s inner and `OPTIONAL` bind joins, with each bound probe
-charged the requests it sends.
+charged the requests it sends, and the joins a block join binds whole left to it.
 
 The stock `ActorRdfJoinMultiBind` prices a probe against a remaining join entry as that
 entry's initial request cost plus a per-item cost. Comunica takes a paged source's initial
@@ -29,6 +29,24 @@ per row at a cost of nothing, and read the same four predicates whole 780 times 
 it ran out of time. Both actors charge such a probe one request per triple pattern or
 property path in the entry, at the time per pattern that the join's other entries report.
 When no entry reports a request time they use `patternRequestTime` (100 ms by default).
+
+## Leaving joins to the block join
+
+Both actors refuse a join that
+[`@frink-okn/actor-rdf-join-multi-bind-block`](https://www.npmjs.com/package/@frink-okn/actor-rdf-join-multi-bind-block)
+binds whole from the entry they would bind from: the inner block join for the inner actor,
+the `OPTIONAL` block join for the `OPTIONAL` one. The block join then sends the same probes,
+a block of rows at a time where these send a row, and never needs more requests. The two
+used to be weighed by cost, and their formulas drifted apart: Comunica 5.4 caps the rows
+each bind-join probe returns at one, the block join kept the selectivity's estimate, and on
+a query over Ubergraph and Wikidata the per-row join won and sent a COUNT and a SELECT for
+every row. A join the block join cannot take, binds from another entry, or binds only in
+part is weighed by cost as before.
+
+`blockJoin` names the block join, which is found on the actor's own bus when a join is
+tested. A reference to it would close a cycle through Comunica's ordering of the join actors
+(the block join goes before `inner-multi-bind-source`, which goes before the bind join),
+and Components.js waits on such a cycle forever.
 
 Both replace the stock actors in place through Components.js `Override`s in the engine's
 config, keeping the actors' identifiers so the other join actors' ordering still refers to
