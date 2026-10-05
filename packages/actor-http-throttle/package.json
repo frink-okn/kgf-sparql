@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-http-throttle",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Comunica HTTP actor that paces requests per host: requests in flight, requests per second, and backoff learned from 429 and 503 responses",
   "license": "MIT",
   "lsd:module": true,

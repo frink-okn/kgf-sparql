@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-rdf-join-multi-bind-block",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Comunica bind join that sends the smallest entry in blocks through every other entry that takes bindings, and an OPTIONAL join that sends its left rows in blocks the same way",
   "license": "MIT",
   "lsd:module": true,

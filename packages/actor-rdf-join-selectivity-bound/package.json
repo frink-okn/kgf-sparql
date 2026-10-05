@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-rdf-join-selectivity-bound",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Comunica join-selectivity actor that caps any other estimate with an upper bound on the join size, and gives a cross product its exact size",
   "license": "MIT",
   "lsd:module": true,

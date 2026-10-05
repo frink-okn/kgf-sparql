@@ -204,7 +204,7 @@
           "qlever.dev": { "perSecond": 1 },
           "qlever.cs.uni-freiburg.de": { "perSecond": 1 }
         },
-        "userAgent": "kgf-sparql/0.1.0 (+https://github.com/frink-okn/kgf-sparql)",
+        "userAgent": "kgf-sparql/0.1.1 (+https://github.com/frink-okn/kgf-sparql)",
         "beforeActors": [
           {
             "@id": "urn:comunica:default:http/actors#retry"

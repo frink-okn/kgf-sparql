@@ -146,7 +146,7 @@ if a budget had already ended the run.
   "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120,
               "max_connections": 32, "max_in_flight": 32, "max_in_flight_hosts": {},
               "max_rate_hosts": {} },
-  "engine": { "kgf_sparql": "0.1.0", "comunica": "5.4.1", "node": "v25.9.0" },
+  "engine": { "kgf_sparql": "0.1.1", "comunica": "5.4.1", "node": "v25.9.0" },
   "started": "2026-09-09T22:14:03.000Z",
   "finished": "2026-09-09T22:14:04.812Z"
 }

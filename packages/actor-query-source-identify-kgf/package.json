@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-query-source-identify-kgf",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Native Knowledge Graph Fragments query source for Comunica",
   "license": "MIT",
   "lsd:module": true,
@@ -32,7 +32,7 @@
     "@comunica/utils-algebra": "^5.4.0",
     "@comunica/utils-bindings-factory": "^5.4.0",
     "@comunica/utils-metadata": "^5.4.0",
-    "@frink-okn/actor-rdf-join-selectivity-void": "^0.1.0",
+    "@frink-okn/actor-rdf-join-selectivity-void": "^0.1.1",
     "@rdfjs/types": "^2.0.1",
     "asynciterator": "^3.9.0",
     "rdf-string-ttl": "^2.0.1"

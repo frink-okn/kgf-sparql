@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-rdf-join-selectivity-void",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Comunica join-selectivity actor that estimates from published VoID statistics",
   "license": "MIT",
   "lsd:module": true,

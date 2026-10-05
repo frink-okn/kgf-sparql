@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-query-source-identify-hypermedia-sparql-bounded",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Comunica's SPARQL endpoint source with bounded COUNT queries, timed by the server, source selection that accepts a bounded count without an ASK, and source grouping that nests only what a source takes",
   "license": "MIT",
   "lsd:module": true,
@@ -35,7 +35,7 @@
     "@comunica/utils-bindings-factory": "^5.4.0",
     "@comunica/utils-metadata": "^5.4.0",
     "@comunica/utils-query-operation": "~5.4.0",
-    "@frink-okn/actor-http-throttle": "^0.1.0",
+    "@frink-okn/actor-http-throttle": "^0.1.1",
     "asynciterator": "^3.9.0"
   },
   "scripts": {

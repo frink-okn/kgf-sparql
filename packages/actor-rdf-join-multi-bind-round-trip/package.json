@@ -1,6 +1,6 @@
 {
   "name": "@frink-okn/actor-rdf-join-multi-bind-round-trip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Comunica's inner and OPTIONAL bind joins with each bound probe charged the requests it sends, which leave to the block joins what those bind in blocks",
   "license": "MIT",
   "lsd:module": true,
@@ -25,7 +25,7 @@
     "@comunica/core": "^5.4.0",
     "@comunica/mediatortype-join-coefficients": "^5.4.0",
     "@comunica/utils-algebra": "^5.4.0",
-    "@frink-okn/actor-rdf-join-multi-bind-block": "^0.1.0"
+    "@frink-okn/actor-rdf-join-multi-bind-block": "^0.1.1"
   },
   "scripts": {
     "build": "tsc -b . && componentsjs-generator .",
