@@ -52,6 +52,9 @@
           "mediatorJoinSelectivity": {
             "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
           },
+          "mediatorExpressionEvaluatorFactory": {
+            "@id": "urn:comunica:default:expression-evaluator-factory/mediators#main"
+          },
           "mediatorJoinEntriesSort": {
             "@id": "urn:comunica:default:rdf-join-entries-sort/mediators#main"
           },
@@ -94,6 +97,9 @@
           "selectivityModifier": 0.000001,
           "mediatorJoinSelectivity": {
             "@id": "urn:comunica:default:rdf-join-selectivity/mediators#main"
+          },
+          "mediatorExpressionEvaluatorFactory": {
+            "@id": "urn:comunica:default:expression-evaluator-factory/mediators#main"
           },
           "mediatorJoinEntriesSort": {
             "@id": "urn:comunica:default:rdf-join-entries-sort/mediators#main"

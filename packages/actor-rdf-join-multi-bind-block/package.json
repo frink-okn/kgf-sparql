@@ -19,6 +19,7 @@
     "LICENSE"
   ],
   "dependencies": {
+    "@comunica/bus-expression-evaluator-factory": "^5.4.0",
     "@comunica/bus-rdf-join": "^5.4.0",
     "@comunica/bus-rdf-join-entries-sort": "^5.4.0",
     "@comunica/context-entries": "~5.4.0",
@@ -26,6 +27,7 @@
     "@comunica/mediatortype-join-coefficients": "^5.4.0",
     "@comunica/types": "^5.4.0",
     "@comunica/utils-algebra": "^5.4.0",
+    "@comunica/utils-expression-evaluator": "^5.4.0",
     "@comunica/utils-iterator": "^5.0.0",
     "@comunica/utils-query-operation": "^5.4.0",
     "asynciterator": "^3.9.0"

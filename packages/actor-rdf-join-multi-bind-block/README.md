@@ -40,7 +40,16 @@ per-row bind join took the join over. The entries it can probe are:
   against the block's own variables refused such a join, and Comunica's per-row bind join,
   which took it over, sent a COUNT per row to every source of every pattern: 651 COUNTs to
   Wikidata's two query services on one query, which now completes in 60 requests where it took
-  1,070.
+  1,070;
+- a BIND over any of the above that no source took, as a branch labelled
+  `{ ?p :q ?o . BIND("x" AS ?kind) }` is, and a group of one pattern: the operation under the
+  BIND is probed, and the actor evaluates the expression on the probe's own rows, through
+  Comunica's expression evaluator, as Comunica's BIND would (a row whose expression errs is
+  kept without the variable). The variable the BIND assigns may not be one the probe carries.
+  Neither this actor nor Comunica's bind join, which refuses to bind into a BIND, could probe
+  such a branch: a union of three labelled branches joined to two proteins was read whole,
+  288,454 rows in 294 requests, where it now takes 8. Without `mediatorExpressionEvaluatorFactory`
+  the actor does not probe through a BIND.
 
 Each block of the smallest entry then runs through those entries in that order. Every
 probe carries the values of the variables it shares with the rows joined so far, projected

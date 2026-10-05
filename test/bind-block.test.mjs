@@ -5,6 +5,7 @@ import { KeysInitQuery, KeysQueryOperation, KeysRdfJoin } from '@comunica/contex
 import { AlgebraFactory } from '@comunica/utils-algebra';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import { MetadataValidationState } from '@comunica/utils-metadata';
+import { ExpressionError } from '@comunica/utils-expression-evaluator';
 import { assignOperationSource } from '@comunica/utils-query-operation';
 import { ArrayIterator, BufferedIterator, wrap } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
@@ -349,6 +350,49 @@ test('it says which entry it binds a join from when it binds every other entry, 
   assert.equal(await block.bindsEveryEntryFrom({ type: 'inner', entries: [ cells, works, labels ], context: context() }), undefined);
   // Nor is a join it refuses.
   assert.equal(await block.bindsEveryEntryFrom({ type: 'optional', entries: [ cells, works ], context: context() }), undefined);
+});
+
+test('a BIND over a probed pattern is evaluated on the probe\'s rows, so a labelled union is probed, not read whole', async() => {
+  // `{ ?prot :bp ?go . BIND("BP" AS ?aspect) } UNION { ?prot :mf ?go . BIND("MF" AS ?aspect) }`:
+  // neither this actor nor Comunica's bind join could bind into such a branch, and the union
+  // was read whole to join two rows.
+  const prokn = source('prokn', [
+    [ n('p1'), n('bp'), n('go1') ], [ n('p2'), n('mf'), n('go2') ], [ n('p3'), n('bp'), n('go3') ],
+  ], 'filterBindings');
+  const evaluated = [];
+  const mediatorExpressionEvaluatorFactory = { mediate: async({ algExpr }) => ({
+    evaluate: async(bindings) => {
+      evaluated.push(bindings.get(v('prot')).value);
+      if (algExpr.term.value === 'err') {
+        throw new ExpressionError('a BIND that errs leaves its variable unbound');
+      }
+      return algExpr.term;
+    },
+  }) };
+  const branch = (predicate, label) => af.createExtend(
+    af.createJoin([ on(prokn, v('prot'), n(predicate), v('go')) ]), v('aspect'), af.createTermExpression(df.literal(label)),
+  );
+  // A fresh entry per join: each reads its rows once.
+  const proteins = () => entry(af.createValues([ v('prot') ], []), 2, [ 'prot' ], {}, [ row([ 'prot', 'p1' ]), row([ 'prot', 'p2' ]) ]);
+  const labelled = entry(af.createUnion([ branch('bp', 'BP'), branch('mf', 'MF') ]), 300_000, [ 'prot', 'go', 'aspect' ]);
+  const { rows } = await run(actor(256, undefined, { mediatorExpressionEvaluatorFactory }), [ proteins(), labelled ]);
+  const aspect = (prot, go, label) => bf.bindings([[ v('prot'), n(prot) ], [ v('go'), n(go) ], [ v('aspect'), df.literal(label) ]]);
+  assert.deepEqual(sorted(rows), sorted([ aspect('p1', 'go1', 'BP'), aspect('p2', 'go2', 'MF') ]));
+  assert.equal(prokn.calls.length, 2, 'one probe per branch, carrying both proteins');
+  assert.ok(prokn.calls.every(call => call.variables.join() === 'prot' && call.bindings.length === 2));
+  assert.deepEqual(evaluated.sort(), [ 'urn:p1', 'urn:p2' ], 'evaluated on the probe\'s rows only');
+
+  // A row whose expression errs is kept without the variable, as Comunica's BIND keeps it.
+  const erring = entry(branch('bp', 'err'), 300_000, [ 'prot', 'go', 'aspect' ]);
+  const { rows: kept } = await run(actor(256, undefined, { mediatorExpressionEvaluatorFactory }), [ proteins(), erring ]);
+  assert.deepEqual(sorted(kept), sorted([ row([ 'prot', 'p1' ], [ 'go', 'go1' ]) ]));
+
+  // A BIND to a variable the probe carries, or one the actor has no evaluator for, is not probed.
+  const block = actor(256, undefined, { mediatorExpressionEvaluatorFactory });
+  const rebinding = af.createExtend(on(prokn, v('prot'), n('bp'), v('go')), v('prot'), af.createTermExpression(n('p1')));
+  assert.equal(await block.probeParts(rebinding, new Set([ 'prot' ]), context(), new Map()), undefined);
+  assert.equal(await actor(256).probeParts(branch('bp', 'BP'), new Set([ 'prot' ]), context(), new Map()), undefined);
+  assert.ok(await block.probeParts(branch('bp', 'BP'), new Set([ 'prot' ]), context(), new Map()));
 });
 
 test('it refuses what it cannot help with', async() => {

@@ -7,6 +7,7 @@ import type {
   MediatorRdfJoin,
 } from '@comunica/bus-rdf-join';
 import { ActorRdfJoin } from '@comunica/bus-rdf-join';
+import type { MediatorExpressionEvaluatorFactory } from '@comunica/bus-expression-evaluator-factory';
 import type { MediatorRdfJoinEntriesSort } from '@comunica/bus-rdf-join-entries-sort';
 import { KeysInitQuery } from '@comunica/context-entries';
 import type { TestResult } from '@comunica/core';
@@ -18,6 +19,7 @@ import type {
   ComunicaDataFactory,
   FragmentSelectorShape,
   IActionContext,
+  IExpressionEvaluator,
   IJoinEntry,
   IJoinEntryWithMetadata,
   IQueryOperationResultBindings,
@@ -26,6 +28,7 @@ import type {
   MetadataBindings,
 } from '@comunica/types';
 import { Algebra, AlgebraFactory, algebraUtils } from '@comunica/utils-algebra';
+import { isExpressionError } from '@comunica/utils-expression-evaluator';
 import { ChunkedIterator } from '@comunica/utils-iterator';
 import { doesShapeAcceptOperation, getOperationSource } from '@comunica/utils-query-operation';
 import type { AsyncIterator } from 'asynciterator';
@@ -53,7 +56,14 @@ import { ArrayIterator, BufferedIterator } from 'asynciterator';
  *   a pattern several sources can answer: every branch is probed;
  * - a join no source was given, whose inputs are each of the above, as `group-sources`
  *   leaves behind. Each input is probed and joined in turn, never to each other, in an
- *   order where each shares a variable with the rows bound by then.
+ *   order where each shares a variable with the rows bound by then;
+ * - a BIND over any of the above that a source did not take, as a branch labelled
+ *   `{ ?p :q ?o . BIND("x" AS ?kind) }` is: the operation under it is probed, and the
+ *   actor evaluates the expression on the probe's rows, as Comunica's own BIND would. The
+ *   variable it assigns may not be one the probe carries. Neither this actor nor Comunica's
+ *   bind join could bind into such a branch, and a union of three of them, joined to two
+ *   rows, was read whole: 288,454 rows in 294 requests, where the same union without the
+ *   BINDs took 17.
  *
  * Each block of the smallest entry then runs through those entries in that order. Every
  * probe carries the values of the variables it shares with the rows joined so far,
@@ -100,6 +110,7 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
   public readonly selectivityModifier: number;
   public readonly mediatorJoinEntriesSort: MediatorRdfJoinEntriesSort;
   public readonly mediatorJoin: MediatorRdfJoin;
+  public readonly mediatorExpressionEvaluatorFactory?: MediatorExpressionEvaluatorFactory;
   /**
    * The outputs of this actor's joins, which it does not take into a join again: it would bind
    * the computed result into the entries it just left out. A context key, as Comunica's
@@ -138,6 +149,7 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
     this.selectivityModifier = args.selectivityModifier ?? 0.0001;
     this.mediatorJoinEntriesSort = args.mediatorJoinEntriesSort;
     this.mediatorJoin = args.mediatorJoin;
+    this.mediatorExpressionEvaluatorFactory = args.mediatorExpressionEvaluatorFactory;
     let named = blockJoins.get(this.bus);
     if (!named) {
       named = new Map();
@@ -302,6 +314,7 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
       cache: new ProbeCache(this.probeCacheRows),
       slots: new Map(),
       readers: new Set(),
+      evaluators: new Map(),
       stopped: false,
     };
     return new BlockJoinIterator(
@@ -527,6 +540,21 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
         leaves.push(...inner);
       }
       return leaves.length > 0 ? leaves : undefined;
+    }
+    if (operation.type === Algebra.Types.EXTEND && this.mediatorExpressionEvaluatorFactory) {
+      // The rows a probe brings back carry the variables it shares with the block's rows, so a
+      // BIND to one of those would have to filter on it, not assign it.
+      const { input, variable, expression } = <Algebra.Extend> operation;
+      if (known.has(variable.value)) {
+        return undefined;
+      }
+      const inner = await this.probeLeaves(input, known, context, shapes);
+      return inner?.map(leaf => ({ ...leaf, extensions: [ ...leaf.extensions ?? [], { variable, expression }]}));
+    }
+    if (operation.type === Algebra.Types.JOIN && !getOperationSource(operation) &&
+      (<Algebra.Join> operation).input.length === 1) {
+      // A group of one pattern, as the group under a BIND is.
+      return await this.probeLeaves((<Algebra.Join> operation).input[0], known, context, shapes);
     }
     return undefined;
   }
@@ -853,13 +881,14 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
           holding = true;
           running();
         }
-        const chunk = await reader.next(CHUNK_ROWS);
+        const read = await reader.next(CHUNK_ROWS);
         slots.leave();
         holding = false;
         running();
-        if (!chunk) {
+        if (!read) {
           break;
         }
+        const chunk = leaf.extensions ? await this.extend(leaf.extensions, read, run) : read;
         if (keeping) {
           for (const row of chunk) {
             const key = ActorRdfJoinMultiBindBlock.keyOf(row, leaf.shared);
@@ -910,6 +939,34 @@ export class ActorRdfJoinMultiBindBlock extends ActorRdfJoin<IActorRdfJoinMultiB
   }
 
   /** The probe slots of the leaf's source in this join, made on first use. */
+  /**
+   * A probe's rows through the BINDs above its operation, innermost first. A BIND sees only
+   * the variables of its own group, which are all a probe's rows carry. A row whose expression
+   * errs is kept without the variable, as Comunica's own BIND keeps it.
+   */
+  private async extend(extensions: IProbeExtension[], rows: Bindings[], run: IBlockRun): Promise<Bindings[]> {
+    let extended = rows;
+    for (const { variable, expression } of extensions) {
+      let evaluator = run.probes.evaluators.get(expression);
+      if (!evaluator) {
+        evaluator = this.mediatorExpressionEvaluatorFactory!.mediate({ algExpr: expression, context: run.context });
+        run.probes.evaluators.set(expression, evaluator);
+      }
+      const evaluate = await evaluator;
+      extended = await Promise.all(extended.map(async(row) => {
+        try {
+          return row.set(variable, await evaluate.evaluate(row));
+        } catch (error: unknown) {
+          if (isExpressionError(<Error> error)) {
+            return row;
+          }
+          throw error;
+        }
+      }));
+    }
+    return extended;
+  }
+
   private slotsOf(probes: IProbeRun, leaf: IProbeLeaf): Slots {
     let slots = probes.slots.get(leaf.source.source);
     if (!slots) {
@@ -1004,6 +1061,14 @@ export interface IProbeLeaf {
   mode: 'filterBindings' | 'joinBindings';
   /** Variables the request's bindings carry: those it shares with the rows bound so far. */
   shared: string[];
+  /** BINDs above the operation that its source did not take, innermost first, applied to its rows. */
+  extensions?: IProbeExtension[];
+}
+
+/** A BIND the actor applies to a probe's rows itself. */
+export interface IProbeExtension {
+  variable: Algebra.Extend['variable'];
+  expression: Algebra.Expression;
 }
 
 /** A unit the rows are joined to: one operation, probed through one or more source requests. */
@@ -1071,6 +1136,11 @@ export interface IActorRdfJoinMultiBindBlockArgs extends IActorRdfJoinArgs<IActo
    */
   mediatorJoinEntriesSort: MediatorRdfJoinEntriesSort;
   /**
+   * The expression evaluator factory mediator, for BINDs over probed operations. Without it,
+   * an entry with such a BIND is not probed.
+   */
+  mediatorExpressionEvaluatorFactory?: MediatorExpressionEvaluatorFactory;
+  /**
    * The join mediator, for the entries that are not bound.
    */
   mediatorJoin: MediatorRdfJoin;
@@ -1083,6 +1153,8 @@ interface IProbeRun {
   slots: Map<IQuerySource, Slots>;
   /** The requests reading their sources now, to cancel once the output is closed. */
   readers: Set<ChunkReader<Bindings>>;
+  /** An evaluator per BIND expression the probes apply, made once per join. */
+  evaluators: Map<Algebra.Expression, Promise<IExpressionEvaluator>>;
   /** Whether the output is closed, after which no request is sent. */
   stopped: boolean;
 }
