@@ -81,6 +81,14 @@ caller reports its status. A request whose body is a stream is sent once; a `Req
 own body is sent is sent a copy of it each attempt. A `Request`'s own signal aborts it while it
 waits, as the init's does.
 
+A request that fails without any response, as a dropped or refused connection fails it (fetch
+throws a `TypeError`: "fetch failed" under Node, "Failed to fetch" in Chromium, "Load failed"
+in Safari), is retried after 0.5, 1, and 2 s, up to `httpRetryCount` times, or the actor's
+`networkRetries` (3). Comunica's retry actor retries only responses, and a federated query
+failed whole on one request that lost its connection: two of three runs of one query against
+QLever ended with "fetch failed" on a plan that completes. A request that was aborted, by its
+caller or a timeout, is not retried, nor is Comunica's own timeout, which throws a plain `Error`.
+
 ## User agent
 
 Under Node, a request without a `User-Agent` header is sent with the actor's `userAgent`

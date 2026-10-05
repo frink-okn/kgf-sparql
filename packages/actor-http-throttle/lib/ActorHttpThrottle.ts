@@ -64,6 +64,8 @@ const LONGEST_INTERVAL_MS = 10_000;
 /** Each answer shortens a learned interval by this factor, until it is under `SHORTEST_INTERVAL_MS`. */
 const INTERVAL_DECAY = 0.9;
 const SHORTEST_INTERVAL_MS = 10;
+/** The wait before the first retry of a request that failed without a response; each next one doubles it. */
+const NETWORK_RETRY_DELAY_MS = 500;
 
 /**
  * Paces the requests to each host, and retries those a host refuses as too many.
@@ -122,6 +124,13 @@ const SHORTEST_INTERVAL_MS = 10;
  * is sent a copy of it each attempt. A Request's own signal aborts it while it waits, as the
  * init's does.
  *
+ * A request that fails without any response, as a dropped or refused connection fails it, is
+ * retried too, after 0.5, 1, and 2 s, up to the context's `httpRetryCount` or else
+ * `networkRetries` times. Comunica's retry actor retries only responses, and a federated query
+ * failed whole on one request that lost its connection: two of three runs of one query against
+ * QLever ended with "fetch failed" ten seconds in, on a plan that completes. A request that was
+ * aborted, by its caller or a timeout, is not retried.
+ *
  * ## Who is asking
  *
  * Under Node, a request without a `User-Agent` header is sent with the actor's `userAgent`,
@@ -135,6 +144,7 @@ export class ActorHttpThrottle extends ActorHttp {
   public readonly mediatorHttp: MediatorHttp;
   public readonly inFlight: number;
   public readonly retries: number;
+  public readonly networkRetries: number;
   public readonly hosts: Record<string, IHostLimits>;
   public readonly userAgent?: string;
   /** The queues requests wait in, per host or group and the limits they were given. */
@@ -149,6 +159,7 @@ export class ActorHttpThrottle extends ActorHttp {
     this.mediatorHttp = args.mediatorHttp;
     this.inFlight = args.inFlight ?? 32;
     this.retries = args.retries ?? 5;
+    this.networkRetries = args.networkRetries ?? 3;
     this.hosts = args.hosts ?? {};
     this.userAgent = args.userAgent;
     args.httpInvalidator?.addInvalidateListener(action => this.invalidate(action.url));
@@ -182,6 +193,7 @@ export class ActorHttpThrottle extends ActorHttp {
     const retryCount = action.context.get(KeysHttp.httpRetryCount);
     const refusalRetries = retryCount ?? this.retries;
     const failureRetries = retryCount ?? 0;
+    const networkRetries = retryCount ?? this.networkRetries;
     const forced = action.context.get(KeysHttp.httpRetryStatusCodes) ?? [];
     const fallbackDelay = action.context.get(KeysHttp.httpRetryDelayFallback) ?? 0;
     const delayLimit = action.context.get(KeysHttp.httpRetryDelayLimit);
@@ -209,7 +221,17 @@ export class ActorHttpThrottle extends ActorHttp {
         response = await this.mediatorHttp.mediate({ ...action, ...(copied ? { input: copied.clone() } : {}), context });
       } catch (error: unknown) {
         leave();
-        throw error;
+        if (attempt >= networkRetries || !replayable || !ActorHttpThrottle.networkFailure(error, signal)) {
+          throw error;
+        }
+        this.logDebug(action.context, 'Failed without a response, retrying', () => ({
+          url: url.href,
+          error: String(error),
+          attempt: attempt + 1,
+        }));
+        listener?.retrying?.();
+        await sleep(NETWORK_RETRY_DELAY_MS * 2 ** attempt, signal);
+        continue;
       }
       // Learned before the request gives up its place: the queues start the next one as soon
       // as it does, and a refusal learned after that let one more request go at the old pace.
@@ -334,6 +356,16 @@ export class ActorHttpThrottle extends ActorHttp {
     }
   }
 
+  /**
+   * Whether a request failed without any response, as a dropped or refused connection fails it:
+   * fetch then throws a TypeError ("fetch failed" under Node, "Failed to fetch" in Chromium,
+   * "Load failed" in Safari). A request that was aborted is not one, whatever it threw; nor is
+   * Comunica's own timeout, which throws a plain Error.
+   */
+  public static networkFailure(error: unknown, signal: AbortSignal | undefined): boolean {
+    return !signal?.aborted && error instanceof TypeError;
+  }
+
   /** A refusal to serve the request now: 429, 503, or a 405 with `Retry-After`, as DBpedia sends. */
   public static refusal(response: Response): boolean {
     return response.status === 429 || response.status === 503 ||
@@ -392,6 +424,13 @@ export interface IActorHttpThrottleArgs extends IActorHttpArgs {
    * @default {5}
    */
   retries?: number;
+  /**
+   * Retries of a request that failed without any response, as a dropped connection fails it,
+   * when the context sets no `httpRetryCount`.
+   * @range {integer}
+   * @default {3}
+   */
+  networkRetries?: number;
   /**
    * Limits for particular hosts or groups of hosts, as `KEY_HTTP_HOST_LIMITS` gives them,
    * which overrides these field by field; `{}` for none. Components.js reads a JSON

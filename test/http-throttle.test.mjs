@@ -116,6 +116,42 @@ test('a timeout or a network failure does not slow the host', async() => {
   assert.ok(calls.at(-1).at - calls[0].at < 100, 'no pause after the failure');
 });
 
+test('a request that fails without a response is retried, and an aborted one is not', async() => {
+  // Two of three runs of a federated query ended with "fetch failed" on one request to QLever.
+  const failing = failures => (_, call) => {
+    if (call < failures) {
+      throw new TypeError('fetch failed');
+    }
+    return new Response('ok');
+  };
+  const once = throttle(failing(1));
+  const started = Date.now();
+  assert.equal((await once.fetch('https://q.example/sparql')).status, 200);
+  assert.equal(once.calls.length, 2);
+  assert.ok(Date.now() - started >= 450, 'after a pause');
+
+  const always = throttle(failing(10), { networkRetries: 1 });
+  await assert.rejects(always.fetch('https://q.example/sparql'), /fetch failed/u);
+  assert.equal(always.calls.length, 2, 'networkRetries caps the retries');
+  const counted = throttle(failing(10));
+  await assert.rejects(counted.fetch('https://q.example/sparql', { [RETRY_COUNT]: 0 }), /fetch failed/u);
+  assert.equal(counted.calls.length, 1, 'and httpRetryCount, when the context sets it');
+
+  const controller = new AbortController();
+  const aborted = throttle(() => {
+    controller.abort();
+    throw new TypeError('fetch failed');
+  });
+  await assert.rejects(aborted.fetch('https://q.example/sparql', {}, { signal: controller.signal }));
+  assert.equal(aborted.calls.length, 1, 'an aborted request is not sent again');
+
+  const plain = throttle(() => {
+    throw new Error('Fetch timed out after 3000 ms');
+  });
+  await assert.rejects(plain.fetch('https://q.example/sparql'), /timed out/u);
+  assert.equal(plain.calls.length, 1, 'nor is one Comunica timed out');
+});
+
 test('Comunica\'s retry actor stands aside, and this actor paces a request once', async() => {
   const { actor, calls, fetch } = throttle();
   await fetch('https://a.example/x');
