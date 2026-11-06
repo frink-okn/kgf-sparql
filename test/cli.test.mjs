@@ -5,9 +5,10 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import v8 from 'node:v8';
 import { Parser } from 'n3';
-import { RunAccount, createPooledFetch, runCli } from '@frink-okn/kgf-sparql';
-import { server, triples, EP } from './helpers/mock-kgf.mjs';
+import { BudgetExceeded, HEAP_RESERVE, RunAccount, createPooledFetch, defaultMaxHeap, runCli } from '@frink-okn/kgf-sparql';
+import { df, iri, server, triples, EP } from './helpers/mock-kgf.mjs';
 
 const BIN = new URL('../packages/kgf-sparql/bin/kgf-sparql.js', import.meta.url).pathname;
 const SOURCE = `kgf@${EP}`;
@@ -53,11 +54,11 @@ async function bridge(t, options = {}) {
   mock = server({ origin, ...options });
   return { origin, mock, state, source: `kgf@${origin}/mount/graph/v/1/fragment` };
 }
-const spawnCli = args => new Promise(resolve => {
-  const child = spawn(process.execPath, [ BIN, ...args ], { stdio: [ 'ignore', 'pipe', 'pipe' ] });
+const spawnCli = (args, nodeArgs = []) => new Promise(resolve => {
+  const child = spawn(process.execPath, [ ...nodeArgs, BIN, ...args ], { stdio: [ 'ignore', 'pipe', 'pipe' ] });
   let stderr = '';
   child.stderr.on('data', chunk => { stderr += chunk; });
-  child.on('close', code => resolve({ code, stderr }));
+  child.on('close', (code, signal) => resolve({ code, signal, stderr }));
 });
 
 async function run(t, mock, args, extra = {}) {
@@ -96,8 +97,11 @@ test('a complete run writes SPARQL Results JSON and a receipt that accounts for 
   assert.equal(receipt.statistics.void, true);
   assert.equal(receipt.statistics.schema_requests, mock.requests.filter(call => call.url.pathname.endsWith('/schema')).length);
   assert.ok(receipt.statistics.schema_requests > 0, 'a two-pattern join consults the lazy VoID provider');
-  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null, max_connections: 32,
+  const heapLimit = v8.getHeapStatistics().heap_size_limit;
+  assert.deepEqual(receipt.budget, { max_requests: null, max_bytes: null, max_rows: null, timeout_s: null,
+    max_heap: defaultMaxHeap(heapLimit), heap_limit: heapLimit, max_connections: 32,
     max_in_flight: 32, max_in_flight_hosts: {}, max_rate_hosts: {}, sparql_count_cap: null, sparql_count_cap_hosts: {} });
+  assert.ok(receipt.totals.heap_peak_bytes > 0 && receipt.totals.heap_peak_bytes < receipt.budget.max_heap);
   assert.ok(receipt.engine.kgf_sparql && receipt.engine.comunica);
   assert.equal(receipt.engine.node, process.version);
   assert.ok(Date.parse(receipt.started) <= Date.parse(receipt.finished));
@@ -190,6 +194,9 @@ test('usage errors exit 2 before any run; a format the result cannot take exits 
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-requests', 'many' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-bytes', '0' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--timeout', '-1' ],
+    [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-heap', '0' ],
+    // A budget inside the reserve could not end the run before node died.
+    [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-heap', String(v8.getHeapStatistics().heap_size_limit - HEAP_RESERVE + 1) ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--http-method', 'PATCH' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--max-connections', '0' ],
     [ '-q', SCAN, '--source', SOURCE, '--out', 'x', '--bogus' ],
@@ -266,6 +273,67 @@ test('a SPARQL endpoint named explicitly is queried through the same counting fe
   assert.equal(receipt.requests.length, mock.requests.length);
   assert.equal(JSON.parse(output).results.bindings.length, 1);
   assert.equal(receipt.outcome.contract, 'complete');
+});
+
+test('the heap budget is sampled while the run is open, and its abort does not wait for the engine', async() => {
+  let heap = 10;
+  const account = new RunAccount({ maxHeap: 100 }, undefined, () => heap);
+  account.startClock();
+  assert.equal(account.heapPeak, 10, 'sampled as the clock starts');
+  // The engine's in-memory work never observes the run's signal; the run stops waiting anyway.
+  const engine = account.until(new Promise(() => {}));
+  heap = 101;
+  await assert.rejects(engine, error => error instanceof BudgetExceeded && error.budget === 'max_heap' &&
+    /101 heap bytes in use/u.test(error.message));
+  account.stopClock();
+  assert.equal(account.exceeded, 'max_heap');
+  assert.equal(account.heapPeak, 101);
+  await assert.rejects(account.fetch('https://kgf.test/'), BudgetExceeded, 'and no request follows');
+  assert.equal(await new RunAccount({}).until(Promise.resolve(7)), 7);
+  // RunAccount is bundled for browsers too, so Node's heap is read only where it is passed in.
+  assert.throws(() => new RunAccount({ maxHeap: 100 }), /heap reader/u);
+});
+
+test('--max-heap aborts at its budget, writes the receipt, and exits 3', async t => {
+  const mock = server();
+  const { code, receipt, stderr } = await run(t, mock, [ '-q', SCAN, '--source', SOURCE, '--max-heap', '1k' ]);
+  assert.equal(code, 3);
+  assert.equal(receipt.outcome.contract, 'aborted');
+  assert.equal(receipt.outcome.budget, 'max_heap');
+  assert.equal(receipt.budget.max_heap, 1024);
+  assert.equal(receipt.budget.heap_limit, v8.getHeapStatistics().heap_size_limit);
+  assert.ok(receipt.totals.heap_peak_bytes > 1024);
+  assert.equal(mock.requests.length, 0, 'the first sample, as the run starts, is already over');
+  assert.match(stderr, /Aborted at max_heap: \d+ heap bytes in use/u);
+});
+
+test('intermediate results that outgrow the heap end at the heap budget, not in a crash, however few bytes arrive', async t => {
+  // Two patterns of 2,000 triples with no variable in common, sorted: the sort holds all four
+  // million rows of the cross product, which the engine builds from about 200 kB received.
+  // Before the heap budget this died in V8's fatal out-of-memory error (SIGABRT, exit 134),
+  // under --max-bytes 256M and without a receipt, as four of the KGVoyager gold queries did.
+  const data = Array.from({ length: 2_000 }, (_, i) => [
+    df.quad(iri(`a${i}`), iri('x'), iri(`o${i}`)),
+    df.quad(iri(`b${i}`), iri('y'), iri(`o${i}`)),
+  ]).flat();
+  const { source, mock } = await bridge(t, { data, caps: { max_limit: 10_000, max_bindings: 100 } });
+  const ws = workspace(t);
+  const query = 'SELECT ?a ?b WHERE { ?a <urn:x> ?o1 . ?b <urn:y> ?o2 } ORDER BY ?a ?b';
+  const started = Date.now();
+  const result = await spawnCli([ '-q', query, '--source', source, '--out', ws.out, '--receipt', ws.receipt,
+    '--max-bytes', '256M' ], [ '--max-old-space-size=256' ]);
+  assert.equal(result.signal, null, result.stderr.slice(0, 500));
+  assert.equal(result.code, 3, result.stderr.slice(0, 500));
+  assert.ok(Date.now() - started < 30_000);
+  const receipt = readJson(ws.receipt);
+  assert.equal(receipt.outcome.contract, 'aborted');
+  assert.equal(receipt.outcome.budget, 'max_heap');
+  assert.equal(receipt.budget.max_heap, defaultMaxHeap(receipt.budget.heap_limit), 'the default budget, nothing given');
+  assert.ok(receipt.budget.heap_limit < 512 * 1_024 ** 2, 'the child ran with the small heap');
+  assert.ok(receipt.totals.heap_peak_bytes > receipt.budget.max_heap);
+  assert.ok(receipt.totals.bytes < 1_024 ** 2, 'the bytes budget saw none of it');
+  assert.equal(receipt.requests.length, mock.requests.length);
+  assert.match(result.stderr, /Aborted at max_heap/u);
 });
 
 test('the executable flushes results, writes the receipt, and reports the exit status', async t => {

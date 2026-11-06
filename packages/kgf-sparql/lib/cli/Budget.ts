@@ -3,13 +3,30 @@ import type { IReceiptRequest } from './Receipt';
 /** The budgets a run may be given. An absent budget is unlimited. */
 export interface IBudget {
   maxRequests?: number;
-  /** Decoded bytes received, which is what occupies the engine's heap. */
+  /**
+   * Decoded bytes received. This bounds what the sources hand the engine, not what the engine
+   * builds from it: a join's output can be many times its inputs, and hash tables, sorts,
+   * DISTINCT, and cloned streams hold rows on the heap. `maxHeap` bounds that.
+   */
   maxBytes?: number;
   maxRows?: number;
   timeoutSeconds?: number;
+  /**
+   * Heap in use, in bytes, sampled every `HEAP_SAMPLE_MS` while the run is open, as the heap
+   * reader given to `RunAccount` reads it; the command line passes `heapInUse` from `./Heap`.
+   */
+  maxHeap?: number;
 }
 
-export type BudgetName = 'max_requests' | 'max_bytes' | 'max_rows' | 'timeout';
+export type BudgetName = 'max_requests' | 'max_bytes' | 'max_rows' | 'timeout' | 'max_heap';
+
+/**
+ * How often the heap budget samples the heap. The engine yields to the event loop every
+ * hundred or so iterator tasks, so the sample runs even while a join is producing rows from
+ * memory; a run growing its heap at the 150 MB/s the benchmark's crashes did overshoots the
+ * budget by a few megabytes.
+ */
+export const HEAP_SAMPLE_MS = 50;
 
 /** What a run's abort signal carries once a budget is exceeded; in-flight fetches reject with it. */
 export class BudgetExceeded extends Error {
@@ -31,6 +48,8 @@ export class RunAccount {
   public readonly requests: IReceiptRequest[] = [];
   public bytes = 0;
   public rows = 0;
+  /** The most heap in use at any sample while the run was open; undefined without a heap reader. */
+  public heapPeak?: number;
   /** The budget that ended the run, once one has. */
   public exceeded?: BudgetName;
   /** A failure raised from outside the engine's own error path: a process-level error or signal. */
@@ -38,15 +57,24 @@ export class RunAccount {
   public readonly signal: AbortSignal;
   private readonly controller = new AbortController();
   private timer?: NodeJS.Timeout;
+  private sampler?: NodeJS.Timeout;
 
   public constructor(
     public readonly budget: IBudget,
     private readonly baseFetch: typeof fetch = globalThis.fetch,
+    /**
+     * Reads the heap in use, for the heap budget. There is no default: this module is also
+     * bundled for browsers, which have no heap to read, and Node's is read by `./Heap`.
+     */
+    private readonly readHeap?: () => number,
   ) {
     this.signal = this.controller.signal;
+    if (budget.maxHeap !== undefined && !readHeap) {
+      throw new TypeError('A heap budget needs a heap reader to sample');
+    }
   }
 
-  /** Starts the wall clock; the timeout budget counts from here. */
+  /** Starts the wall clock and the heap sampler; the timeout and heap budgets count from here. */
   public startClock(): void {
     if (this.budget.timeoutSeconds !== undefined && !this.timer) {
       this.timer = setTimeout(
@@ -54,11 +82,60 @@ export class RunAccount {
         this.budget.timeoutSeconds * 1_000,
       );
     }
+    if (this.readHeap && !this.sampler) {
+      this.sampleHeap();
+      // Unreferenced: the sampler must not keep a stalled engine's event loop from draining.
+      this.sampler = setInterval(() => this.sampleHeap(), HEAP_SAMPLE_MS).unref();
+    }
   }
 
   public stopClock(): void {
     clearTimeout(this.timer);
     this.timer = undefined;
+    clearInterval(this.sampler);
+    this.sampler = undefined;
+  }
+
+  /**
+   * Samples the heap in use and ends the run once it exceeds the heap budget. A sample counts
+   * garbage not yet collected as well as what the engine holds, which is why the command's
+   * default budget sits a quarter below the heap limit rather than at it.
+   */
+  public sampleHeap(): void {
+    if (!this.readHeap) {
+      return;
+    }
+    const used = this.readHeap();
+    this.heapPeak = Math.max(this.heapPeak ?? 0, used);
+    if (this.budget.maxHeap !== undefined && used > this.budget.maxHeap) {
+      this.abort('max_heap', `${used} heap bytes in use`);
+    }
+  }
+
+  /**
+   * Settles as `promise` does, or rejects with the run's reason as soon as the run ends,
+   * whichever comes first. Only the engine's requests observe the run's signal: a join or a
+   * sort working from memory runs on after an abort, so the run must not wait for it.
+   */
+  public until<T>(promise: Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const onAbort = (): void => reject(this.signal.reason);
+      if (this.signal.aborted) {
+        onAbort();
+      } else {
+        this.signal.addEventListener('abort', onAbort, { once: true });
+      }
+      promise.then(
+        (value) => {
+          this.signal.removeEventListener('abort', onAbort);
+          resolve(value);
+        },
+        (error: unknown) => {
+          this.signal.removeEventListener('abort', onAbort);
+          reject(error);
+        },
+      );
+    });
   }
 
   /** Ends the run at a budget: every in-flight request is aborted through its signal. A run already ended keeps its reason. */

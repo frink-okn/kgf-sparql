@@ -17,6 +17,7 @@ import {
 import { QueryEngine } from '../QueryEngine';
 import type { IBudget } from './Budget';
 import { RunAccount } from './Budget';
+import { heapInUse, heapLimit as processHeapLimit } from './Heap';
 import { BudgetIterator, FORMATS, FileSink, mediaTypeFor, pump } from './Output';
 import type { IReceipt, IReceiptOutcome, IReceiptOutput, IReceiptSource } from './Receipt';
 import { RECEIPT_SCHEMA, writeReceipt } from './Receipt';
@@ -41,6 +42,27 @@ export const EXIT_ABORTED = 3;
 /** Concurrent connections per origin unless `--max-connections` says otherwise: well under the bursts that fail. */
 export const DEFAULT_MAX_CONNECTIONS = 32;
 
+/**
+ * The heap budget unless `--max-heap` says otherwise, as a fraction of the process's heap
+ * limit. Without one, a plan whose intermediate results outgrow the heap ends in V8's fatal
+ * out-of-memory error, which no receipt survives. Near the limit V8 spends its time collecting,
+ * and the quarter left over is room to stop the run and write its receipt.
+ */
+export const DEFAULT_HEAP_FRACTION = 0.75;
+
+/**
+ * Heap the heap budget always leaves under the process's heap limit. The limit V8 reports
+ * includes its young generation, 96 MB by default, but rows the engine holds move on to the old
+ * generation, and node dies when that is full: with the heap in use some 100 MB under the
+ * reported limit, which on a small heap is more than a quarter of it.
+ */
+export const HEAP_RESERVE = 160 * 1_024 ** 2;
+
+/** The heap budget for a process with this heap limit when `--max-heap` is not given. */
+export function defaultMaxHeap(heapLimit: number): number {
+  return Math.max(0, Math.floor(Math.min(heapLimit * DEFAULT_HEAP_FRACTION, heapLimit - HEAP_RESERVE)));
+}
+
 export const USAGE = `Usage: kgf-sparql (-q <query> | -f <file>) --source <kind@url>... --out <file> [options]
 
 Runs one SPARQL query to completion, or fails, and accounts for every request it made.
@@ -56,6 +78,9 @@ Runs one SPARQL query to completion, or fails, and accounts for every request it
       --max-bytes <n>       Abort once n decoded bytes were received; k, M, and G suffixes accepted
       --max-rows <n>        Abort after n result rows were written
       --timeout <seconds>   Abort after this much wall-clock time
+      --max-heap <n>        Abort once the heap holds n bytes; k, M, and G suffixes accepted. Default:
+                            ${DEFAULT_HEAP_FRACTION * 100}% of node's heap limit (set with --max-old-space-size), and at
+                            least ${HEAP_RESERVE / 1_024 ** 2} MB under it
       --http-method <m>     QUERY (default) or POST for KGF requests that carry bindings
       --page-size <n>       Rows per KGF fragment page, capped by the server
       --bindings-size <n>   Bindings per KGF request, capped by the server
@@ -88,6 +113,7 @@ const OPTIONS = {
   'max-bytes': { type: 'string' },
   'max-rows': { type: 'string' },
   timeout: { type: 'string' },
+  'max-heap': { type: 'string' },
   'http-method': { type: 'string' },
   'page-size': { type: 'string' },
   'bindings-size': { type: 'string' },
@@ -111,6 +137,8 @@ interface IParsedArguments {
   format?: string;
   receipt?: string;
   budget: IBudget;
+  /** The process's heap limit, which the heap budget must stay below. */
+  heapLimit: number;
   /** Cap on concurrent connections per origin. Not an abort budget; it bounds the run's load. */
   maxConnections: number;
   /** Requests in flight per host, and per-host limits, for the engine's throttle actor. */
@@ -203,12 +231,20 @@ function parseArguments(argv: string[]): IParsedArguments | 'help' {
   if (values.format !== undefined && !values.format.trim()) {
     throw new UsageError(`--format must name one of ${Object.keys(FORMATS).join(', ')} or a media type`);
   }
+  const heapLimit = processHeapLimit();
   const budget: IBudget = {
     maxRequests: integer('--max-requests', values['max-requests']),
     maxBytes: byteCount('--max-bytes', values['max-bytes']),
     maxRows: integer('--max-rows', values['max-rows']),
     timeoutSeconds: seconds('--timeout', values.timeout),
+    maxHeap: byteCount('--max-heap', values['max-heap']) ?? defaultMaxHeap(heapLimit),
   };
+  if (budget.maxHeap! > heapLimit - HEAP_RESERVE) {
+    throw new UsageError(`--max-heap must be at most ${heapLimit - HEAP_RESERVE} bytes, ` +
+      `${HEAP_RESERVE / 1_024 ** 2} MB under this process's heap limit of ${heapLimit}, not ${budget.maxHeap}: ` +
+      'node dies short of the limit, before the budget could end the run. ' +
+      'Raise the limit with node --max-old-space-size, e.g. NODE_OPTIONS=--max-old-space-size=8192');
+  }
   const settings: Record<string, unknown> = {};
   if (values['http-method'] !== undefined) {
     const method = values['http-method'].toUpperCase();
@@ -254,6 +290,7 @@ function parseArguments(argv: string[]): IParsedArguments | 'help' {
     format: values.format,
     receipt: values.receipt,
     budget,
+    heapLimit,
     maxConnections,
     throttle,
     countCaps,
@@ -369,7 +406,7 @@ async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text
   const started = new Date();
   // A fetch supplied by the caller (tests) is used as is; the real transport is pooled and capped.
   const transport = options.fetch ? undefined : createPooledFetch(parsed.maxConnections);
-  const account = new RunAccount(parsed.budget, options.fetch ?? transport!.fetch);
+  const account = new RunAccount(parsed.budget, options.fetch ?? transport!.fetch, heapInUse);
   const onFatal = (): void => account.fail(toError(options.fatal?.reason));
   options.fatal?.addEventListener('abort', onFatal, { once: true });
   if (options.fatal?.aborted) {
@@ -390,6 +427,7 @@ async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text
       return;
     }
     const stall = 'The engine stopped without ending the run';
+    account.stopClock();
     outcome = account.exceeded ?
       { ...outcome, contract: 'aborted', rows: account.rows, budget: account.exceeded, error: stall } :
       { ...outcome, contract: 'error', rows: account.rows, error: `${stall}${account.failure ? `: ${brief(account.failure)}` : ''}` };
@@ -417,21 +455,23 @@ async function run(parsed: IParsedArguments, options: IRunOptions, stderr: (text
       ...parsed.settings,
     };
     const engine = new QueryEngine();
-    const result = await engine.query(parsed.query, context);
+    // Every wait on the engine ends with the run: an abort reaches its requests, not its
+    // in-memory work, and the heap budget exists because that work can outgrow the heap.
+    const result = await account.until(engine.query(parsed.query, context));
     outcome.result_type = result.resultType;
     if (result.resultType === 'void') {
       throw new Error('Update requests are not run; SELECT, ASK, CONSTRUCT, and DESCRIBE queries are');
     }
     const mediaType = mediaTypeFor(parsed.format, result.resultType);
     output = { path: parsed.out, format: mediaType };
-    const counted = await countRows(result, account);
+    const counted = await account.until(countRows(result, account));
     if (counted.resultType === 'bindings') {
-      output.variables = (await counted.metadata()).variables.map(variable => variable.value);
+      output.variables = (await account.until(counted.metadata())).variables.map(variable => variable.value);
     }
     // The engine's own serializers write every format; only the rows pass through the budget.
     let data: NodeJS.ReadableStream;
     try {
-      ({ data } = await engine.resultToString(counted, mediaType, resultContext(result) ?? context));
+      ({ data } = await account.until(engine.resultToString(counted, mediaType, resultContext(result) ?? context)));
     } catch (error: unknown) {
       const cause = toError(error);
       if (!/none of the configured actors were able to serialize/u.test(cause.message)) {
@@ -544,6 +584,7 @@ function receipt(
       requests: account.requests.length,
       bindings_requests: account.requests.filter(request => request.bindings).length,
       bytes: account.bytes,
+      heap_peak_bytes: account.heapPeak ?? null,
       elapsed_ms: finished.getTime() - started.getTime(),
     },
     statistics: {
@@ -555,6 +596,8 @@ function receipt(
       max_bytes: parsed.budget.maxBytes ?? null,
       max_rows: parsed.budget.maxRows ?? null,
       timeout_s: parsed.budget.timeoutSeconds ?? null,
+      max_heap: parsed.budget.maxHeap ?? null,
+      heap_limit: parsed.heapLimit,
       max_connections: parsed.maxConnections,
       max_in_flight: parsed.throttle.inFlight,
       max_in_flight_hosts: Object.fromEntries(Object.entries(parsed.throttle.hosts)

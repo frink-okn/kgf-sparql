@@ -69,6 +69,10 @@ export class FileSink {
 export class BudgetIterator<T> extends TransformIterator<T, T> {
   public constructor(source: AsyncIterator<T>, private readonly account: RunAccount) {
     super(source, { autoStart: false });
+    // Destroying the result destroys the operators feeding it, so an abort also stops work
+    // the engine is doing from memory, which no request signal reaches. After the row
+    // budget, the stream has already ended and this does nothing.
+    account.signal.addEventListener('abort', () => this.destroy(), { once: true });
   }
 
   protected override _transform(item: T, done: () => void, push: (item: T) => void): void {

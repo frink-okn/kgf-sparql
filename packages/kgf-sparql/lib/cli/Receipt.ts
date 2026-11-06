@@ -75,6 +75,11 @@ export interface IReceipt {
     requests: number;
     bindings_requests: number;
     bytes: number;
+    /**
+     * The most V8 heap in use at any sample while the run was open, garbage included; null
+     * without a heap budget. Set beside `bytes`, it shows what the engine built from what it received.
+     */
+    heap_peak_bytes: number | null;
     /** Wall clock from `started` to `finished`. */
     elapsed_ms: number;
   };
@@ -89,6 +94,10 @@ export interface IReceipt {
     max_bytes: number | null;
     max_rows: number | null;
     timeout_s: number | null;
+    /** The heap budget in bytes: `--max-heap`, or by default three quarters of `heap_limit` and at least 160 MB under it. */
+    max_heap: number | null;
+    /** The process's V8 heap limit in bytes, which node's `--max-old-space-size` sets. */
+    heap_limit: number;
     /** Concurrent connections per origin the run's transport allowed. Not an abort budget. */
     max_connections: number;
     /** Requests in flight per host the engine allowed; with HTTP/2 this, not the connection cap, bounds load. */

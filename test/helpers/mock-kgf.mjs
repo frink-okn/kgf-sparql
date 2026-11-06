@@ -64,10 +64,12 @@ function sparqlResponse(url, init, respond) {
 
 /**
  * Options: caps, maxRequestBytes, queryUnsupported, queryFailure, schemaFailure, countFailure,
- * countEstimateZero, badCursor ('missing' | 'repeat'), datasetStatsOnly, delayMs, origin.
+ * countEstimateZero, badCursor ('missing' | 'repeat'), datasetStatsOnly, delayMs, origin, and
+ * data, the quads to serve in place of `triples`.
  */
 export function server(options = {}) {
   const requests = [];
+  const data = options.data ?? triples;
   const origin = options.origin ?? ORIGIN;
   const root = `${origin}/mount/`;
   const caps = { max_limit: 2, max_bindings: 2, ...options.caps };
@@ -95,7 +97,7 @@ export function server(options = {}) {
       assert.equal(url.searchParams.get('view'), 'queryable');
       assert.equal(url.searchParams.has('children'), false);
       const predicate = unwire(url.searchParams.get('predicate'));
-      const selected = triples.filter(quad => !predicate || quad.predicate.equals(predicate));
+      const selected = data.filter(quad => !predicate || quad.predicate.equals(predicate));
       const counts = { triples: selected.length };
       if (!options.datasetStatsOnly || !predicate) {
         counts.distinct_subjects = new Set(selected.map(quad => quad.subject.value)).size;
@@ -113,7 +115,7 @@ export function server(options = {}) {
     const rows = [];
     for (const [binding, values] of inputRows.entries()) {
       let matches = 0;
-      for (const quad of triples) {
+      for (const quad of data) {
         const assignment = new Map();
         const match = positions.every((position, i) => {
           const selector = pattern[wirePositions[i]];

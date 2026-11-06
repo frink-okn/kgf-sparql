@@ -102,18 +102,65 @@ kgf-sparql -f query.rq \
 
 Comunica has no plan-level budget: a query whose plan goes wrong runs until something
 outside it stops the process, a timeout or an exhausted heap, and a heap of several
-gigabytes can be exhausted after receiving a few hundred megabytes. Each budget is optional
-and unlimited when absent, so a run without budgets behaves as the engine does.
+gigabytes can be exhausted after receiving a few megabytes. Every budget but the heap's is
+optional and unlimited when absent. The heap budget is always set, because without it a run
+that outgrows the heap does not stop at all: node dies in V8's fatal out-of-memory error, with
+exit status 134 and no receipt.
 
 | flag | checked | counts |
 |---|---|---|
 | `--max-requests N` | before each request | every request the run makes, including the descriptor request that pins a release |
-| `--max-bytes B` (`k`, `M`, `G` suffixes) | before each request and while each body streams | decoded bytes received, which is what occupies the heap; the wire size is recorded beside it |
+| `--max-bytes B` (`k`, `M`, `G` suffixes) | before each request and while each body streams | decoded bytes received; the wire size is recorded beside it |
 | `--max-rows R` | as each result row is written | rows of the result |
 | `--timeout S` | wall clock from the start of the run | seconds, fractions allowed |
+| `--max-heap H` (`k`, `M`, `G` suffixes) | every 50 ms while the run is open | V8 heap in use, garbage not yet collected included. Default: three quarters of node's heap limit, and at least 160 MB under it |
+
+Node's heap limit is set with `--max-old-space-size`, e.g.
+`NODE_OPTIONS=--max-old-space-size=8192 kgf-sparql ...`; the receipt records it as
+`budget.heap_limit`. The limit V8 reports includes its young generation (96 MB by default),
+and node dies when the old generation is full, about 100 MB short of it. So `--max-heap` must
+leave at least 160 MB under the limit; to give a query more heap, raise the limit.
+
+#### What the byte budget does and does not bound
+
+`--max-bytes` bounds what the sources hand the engine: every response body, as decoded,
+counted while it streams, so one oversized body stops before it is all in memory. It does not
+bound what the engine builds from those bytes:
+
+- **A join's output can be many times its inputs.** Joining two patterns on a shared value
+  yields, for each value, the product of its matches on either side; a cross product, the
+  product of the inputs. Rows built this way cost no bytes received.
+- **Operators hold rows on the heap.** Hash and symmetric hash joins hold their inputs,
+  `ORDER BY` and `DISTINCT` everything they have seen, and `GROUP BY` its groups. Comunica's
+  `multi-smallest-filter-bindings` join clones its smallest entry to push its bindings into the
+  next one, and a cloned stream keeps every row it has read until it is done (asynciterator
+  does not trim a clone's history). When that entry's size is underestimated, the clone holds
+  a whole intermediate product.
+- **Nor does it count** bindings the engine sends in request bodies, or memory outside the V8
+  heap.
+
+Rows streamed through a join and dropped cost time, which `--timeout` bounds, but not heap.
+Rows held cost heap, which `--max-heap` bounds. On 2026-11-06, four of the KGVoyager gold
+queries over sockg and climatemodelskg died with a 4 GB heap under `--max-bytes 256M`. With
+the heap budget they end at it, exit status 3:
+
+| query | received | heap at abort | requests | time |
+|---|---|---|---|---|
+| sockg `v2_6` | 9 MB | 3.3 GB | 461 | 15 s |
+| sockg `189` | 103 MB | 3.3 GB | 4,649 | 19 s |
+| sockg `209` (ASK) | 22 MB | 3.3 GB | 964 | 9 s |
+| climatemodelskg `v3_71` | 118 MB | 3.3 GB | 911 | 20 s |
+
+The heap budget is a guard, not a measure of the query. It samples the heap, so it overshoots
+by what the engine allocates between samples, and it counts garbage, so a run that could have
+finished near the limit may stop short of it. A plan that holds an intermediate product is
+better fixed in the planner; the budget only makes sure such a plan ends with a receipt.
 
 Exceeding a budget aborts the run: in-flight requests are aborted through their signal,
-no further request is made, the receipt is written, and the exit status is 3. The row
+no further request is made, the receipt is written, and the exit status is 3. The run does not
+wait for the engine to notice: a join or sort working from memory observes no request signal,
+so the command stops waiting on the engine at once, destroys the result stream, which stops the
+operators feeding it, and the executable exits once the receipt is written. The row
 budget ends the result stream cleanly, so the output holds exactly `R` rows as a
 well-formed document. The other budgets fail the stream, and the output is whatever was
 serialized before the abort, possibly cut mid-document: it cannot be mistaken for a
@@ -141,9 +188,11 @@ if a budget had already ended the run.
   "requests": [{ "method": "GET", "url": ".../fragment?limit=10000", "status": 200,
                  "request_id": "837a18811bab11fb-0000cecb", "bytes": 48213, "elapsed_ms": 41.2,
                  "bindings": false, "complete": false, "truncation_reason": "page_limit" }],
-  "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114, "elapsed_ms": 1812 },
+  "totals": { "requests": 4, "bindings_requests": 0, "bytes": 903114,
+              "heap_peak_bytes": 81264720, "elapsed_ms": 1812 },
   "statistics": { "void": true, "schema_requests": 0 },
   "budget": { "max_requests": 5000, "max_bytes": 268435456, "max_rows": null, "timeout_s": 120,
+              "max_heap": 3296722944, "heap_limit": 4395630592,
               "max_connections": 32, "max_in_flight": 32, "max_in_flight_hosts": {},
               "max_rate_hosts": {} },
   "engine": { "kgf_sparql": "0.1.1", "comunica": "5.4.1", "node": "v25.9.0" },
@@ -164,13 +213,18 @@ if a budget had already ended the run.
   headers. A request that failed before any response carries `error` instead of a status.
 - `statistics.schema_requests` counts the `/schema` requests the lazy VoID provider made,
   the run's planning cost apart from its data cost.
+- `totals.heap_peak_bytes` is the most heap in use at any sample, garbage included. Beside
+  `totals.bytes`, it shows how much the engine built from what it received.
 
 Every request the engine makes passes through a `fetch` the command installs in the query
 context under Comunica's `KeysHttp.fetch`; the HTTP actor prefers a fetch supplied there.
 No actor or configuration changes for the budget, the receipt, or the connection cap. The
 same pieces are exported for programs: `RunAccount` is the counting fetch with its
 budgets, `createPooledFetch` the capped transport to hand it, and `runCli` runs the
-command line in-process.
+command line in-process. `RunAccount` also bundles for a browser, so it reads no heap of its
+own: a heap budget needs a reader passed to it, `heapInUse` in Node. `runCli` in-process stops
+waiting on an aborted engine, but only the executable's exit stops the engine's in-memory work
+outright.
 
 ## Planning and transport
 
